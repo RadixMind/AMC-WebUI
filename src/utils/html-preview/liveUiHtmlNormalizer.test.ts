@@ -37,7 +37,8 @@ describe('normalizeDotSource', () => {
   });
 
   it('preserves multiple space-separated double-quoted attributes without corrupting quotes', () => {
-    const dot = 'node [shape=box style="rounded,filled" fontname="sans-serif" fontsize=11 margin="0.15,0.08"]; c_bridge [label="Task 1: C Bridge" fillcolor="#F8FAFC"];';
+    const dot =
+      'node [shape=box style="rounded,filled" fontname="sans-serif" fontsize=11 margin="0.15,0.08"]; c_bridge [label="Task 1: C Bridge" fillcolor="#F8FAFC"];';
     expect(normalizeDotSource(dot)).toBe(dot);
   });
 });

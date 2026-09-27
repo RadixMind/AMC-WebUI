@@ -20,10 +20,7 @@ export const normalizeDotSource = (dot: string): string => {
     /\b([a-zA-Z0-9_]+)\s*=\s*(?:'|\\'|\\")([\s\S]*?)(?:'|\\'|\\")(?=\s*[\],;\s\n])/g,
     (_match, attr, content) => {
       // Unescape escaped single quotes and outer double quotes, then escape unescaped double quotes inside content
-      const safeContent = content
-        .replace(/\\'/g, "'")
-        .replace(/\\"/g, '"')
-        .replace(/"/g, '\\"');
+      const safeContent = content.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/"/g, '\\"');
       return `${attr}="${safeContent}"`;
     },
   );
