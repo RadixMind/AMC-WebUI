@@ -7,12 +7,16 @@ interface ApiConfigToggleProps {
   useCustomApiConfig: boolean;
   setUseCustomApiConfig: (value: boolean) => void;
   hasEnvKey: boolean;
+  serverManagedApi?: boolean;
+  hasCustomKey?: boolean;
 }
 
 export const ApiConfigToggle: React.FC<ApiConfigToggleProps> = ({
   useCustomApiConfig,
   setUseCustomApiConfig,
   hasEnvKey,
+  serverManagedApi = false,
+  hasCustomKey = false,
 }) => {
   const { t } = useI18n();
   const handleRowClick = () => {
@@ -25,6 +29,32 @@ export const ApiConfigToggle: React.FC<ApiConfigToggleProps> = ({
 
     event.preventDefault();
     handleRowClick();
+  };
+
+  const isServerManaged = Boolean(serverManagedApi);
+  const isGlobalKeyAvailable = hasEnvKey || isServerManaged;
+
+  const resolveDescription = () => {
+    if (useCustomApiConfig) {
+      if (hasCustomKey) {
+        return isGlobalKeyAvailable ? t('apiConfigOverridingEnvKey') : t('apiConfigUsingOwnKeys');
+      }
+      if (isServerManaged) {
+        return t('apiConfigServerManagedWithCustomEnabled');
+      }
+      if (hasEnvKey) {
+        return t('apiConfigOverridingEnvKey');
+      }
+      return t('apiConfigUsingOwnKeys');
+    }
+
+    if (isServerManaged) {
+      return t('apiConfigServerManagedDesc');
+    }
+    if (hasEnvKey) {
+      return t('apiConfigDefaultInfo');
+    }
+    return t('apiConfigMissingEnvKey');
   };
 
   return (
@@ -40,21 +70,18 @@ export const ApiConfigToggle: React.FC<ApiConfigToggleProps> = ({
       <div className="flex flex-col flex-grow pr-4">
         <span className="text-sm font-medium text-[var(--theme-text-primary)] flex items-center gap-2 group-hover:text-[var(--theme-text-link)] transition-colors">
           {t('settingsUseCustomApi')}
-          {hasEnvKey && !useCustomApiConfig && (
+          {isServerManaged && !hasCustomKey && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-[var(--theme-bg-success)] text-[var(--theme-text-success)] border border-[var(--theme-text-success)]/25">
+              <ShieldCheck size={10} /> {t('apiConfigServerActiveBadge')}
+            </span>
+          )}
+          {!isServerManaged && hasEnvKey && !hasCustomKey && (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-[var(--theme-bg-success)] text-[var(--theme-text-success)] border border-[var(--theme-text-success)]/25">
               <ShieldCheck size={10} /> {t('apiConfigEnvActiveBadge')}
             </span>
           )}
         </span>
-        <span className="text-xs text-[var(--theme-text-secondary)] mt-0.5">
-          {useCustomApiConfig
-            ? hasEnvKey
-              ? t('apiConfigOverridingEnvKey')
-              : t('apiConfigUsingOwnKeys')
-            : hasEnvKey
-              ? t('apiConfigDefaultInfo')
-              : t('apiConfigMissingEnvKey')}
-        </span>
+        <span className="text-xs text-[var(--theme-text-secondary)] mt-0.5">{resolveDescription()}</span>
       </div>
       <div>
         <Toggle

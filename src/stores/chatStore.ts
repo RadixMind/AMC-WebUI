@@ -412,6 +412,8 @@ export const useChatStore = create<ChatState & ChatActions>((set, get) => ({
           sessionPersistVersions: _sessionPersistVersion,
           getSession: dbService.getSession.bind(dbService),
           saveSession: dbService.saveSession.bind(dbService),
+          saveSessionMetadata: dbService.saveSessionMetadata?.bind(dbService),
+          saveManySessionMetadata: dbService.saveManySessionMetadata?.bind(dbService),
           deleteSession: dbService.deleteSession.bind(dbService),
           broadcastSyncMessage,
         }).catch((persistenceError) =>

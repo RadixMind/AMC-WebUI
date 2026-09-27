@@ -6,20 +6,20 @@ import { ApiProxySettings } from './ApiProxySettings';
 describe('ApiProxySettings', () => {
   const renderer = setupTestRenderer();
 
-  it('renders the SDK request preview for a renderer.root proxy URL', () => {
+  it('renders the SDK request preview for a custom proxy URL', () => {
     act(() => {
       renderer.root.render(
         <ApiProxySettings
           useApiProxy
           setUseApiProxy={vi.fn()}
-          apiProxyUrl="https://api-proxy.de/gemini/v1beta"
+          apiProxyUrl="https://proxy.example.com/gemini/v1beta"
           setApiProxyUrl={vi.fn()}
         />,
       );
     });
 
     expect(document.body).toHaveTextContent(
-      'https://api-proxy.de/gemini/v1beta/models/gemini-3.8-flash:generateContent',
+      'https://proxy.example.com/gemini/v1beta/models/gemini-3.8-flash:generateContent',
     );
   });
 
@@ -39,5 +39,41 @@ describe('ApiProxySettings', () => {
     expect(document.body).not.toHaveTextContent('Reset');
     expect(document.body).not.toHaveTextContent('Request URL Preview');
     expect(renderer.container.querySelector('#api-proxy-url-input')).toBeNull();
+  });
+
+  it('does not render built-in proxy badge or hint when proxy is empty, and hides reset button', () => {
+    act(() => {
+      renderer.root.render(
+        <ApiProxySettings useApiProxy setUseApiProxy={vi.fn()} apiProxyUrl={null} setApiProxyUrl={vi.fn()} />,
+      );
+    });
+
+    const input = renderer.container.querySelector('#api-proxy-url-input') as HTMLInputElement;
+    expect(input).not.toBeNull();
+    expect(input.placeholder).toBe('e.g., https://proxy.example.com');
+    expect(document.body).not.toHaveTextContent('Built-in Proxy');
+    expect(document.body).not.toHaveTextContent('系统内置代理');
+    expect(document.body).not.toHaveTextContent('Reset');
+  });
+
+  it('shows reset button when custom proxy is entered, and clicking it resets to null', () => {
+    const setApiProxyUrl = vi.fn();
+    act(() => {
+      renderer.root.render(
+        <ApiProxySettings
+          useApiProxy
+          setUseApiProxy={vi.fn()}
+          apiProxyUrl="https://custom.proxy.com"
+          setApiProxyUrl={setApiProxyUrl}
+        />,
+      );
+    });
+
+    const resetButton = renderer.container.querySelector('button[title="Reset"], button[title="重置"]');
+    expect(resetButton).not.toBeNull();
+    act(() => {
+      resetButton?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(setApiProxyUrl).toHaveBeenCalledWith(null);
   });
 });

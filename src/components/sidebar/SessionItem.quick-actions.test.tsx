@@ -22,12 +22,7 @@ describe('SessionItem quick actions and title mask', () => {
     const session = makeSession('s-1', false);
 
     act(() => {
-      renderer.render(
-        <SessionItem
-          session={session}
-          onTogglePinSession={onTogglePinSession}
-        />,
-      );
+      renderer.render(<SessionItem session={session} onTogglePinSession={onTogglePinSession} />);
     });
 
     const pinBtn = renderer.container.querySelector('button[title="Pin"]') as HTMLButtonElement;
@@ -41,12 +36,7 @@ describe('SessionItem quick actions and title mask', () => {
     const session = makeSession('s-2', true);
 
     act(() => {
-      renderer.render(
-        <SessionItem
-          session={session}
-          onTogglePinSession={onTogglePinSession}
-        />,
-      );
+      renderer.render(<SessionItem session={session} onTogglePinSession={onTogglePinSession} />);
     });
 
     const unpinBtn = renderer.container.querySelector('button[title="Unpin"]') as HTMLButtonElement;
@@ -148,4 +138,3 @@ describe('SessionItem quick actions and title mask', () => {
     expect(titleEl?.className).toContain('font-medium');
   });
 });
-

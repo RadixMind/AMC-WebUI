@@ -65,10 +65,7 @@ export const SessionMenuItems: React.FC<SessionMenuItemsProps> = ({
   const { copyToClipboard } = useCopyToClipboard();
 
   const handleCopyLink = async () => {
-    const url =
-      typeof window !== 'undefined'
-        ? `${window.location.origin}/chat/${session.id}`
-        : `/chat/${session.id}`;
+    const url = typeof window !== 'undefined' ? `${window.location.origin}/chat/${session.id}` : `/chat/${session.id}`;
     const ok = await copyToClipboard(url);
     if (ok) {
       toastSuccess(t('historyLinkCopied'));
@@ -140,11 +137,7 @@ export const SessionMenuItems: React.FC<SessionMenuItemsProps> = ({
             {session.groupId == null && <Check className="ml-auto h-3.5 w-3.5 text-[var(--theme-text-link)]" />}
           </Item>
           {groups.map((group) => (
-            <Item
-              key={group.id}
-              onSelect={() => onMoveSessionToGroup(session.id, group.id)}
-              title={group.title}
-            >
+            <Item key={group.id} onSelect={() => onMoveSessionToGroup(session.id, group.id)} title={group.title}>
               <Folder size={13} className="shrink-0 text-[var(--theme-text-secondary)] shrink-0" />
               <span className="truncate">{group.title}</span>
               {session.groupId === group.id && <Check className="ml-auto h-3.5 w-3.5 text-[var(--theme-text-link)]" />}
@@ -161,9 +154,7 @@ export const SessionMenuItems: React.FC<SessionMenuItemsProps> = ({
           className="flex items-center justify-between gap-1.5 px-2 py-1.5 rounded-lg bg-[var(--theme-bg-danger)]/15 border border-[var(--theme-text-danger)]/30 text-xs animate-in fade-in zoom-in-95 duration-100"
           onClick={(event) => event.stopPropagation()}
         >
-          <span className="font-medium text-[var(--theme-text-danger)] truncate pr-1">
-            {t('historyConfirmDelete')}
-          </span>
+          <span className="font-medium text-[var(--theme-text-danger)] truncate pr-1">{t('historyConfirmDelete')}</span>
           <div className="flex items-center gap-1 shrink-0">
             <button
               type="button"

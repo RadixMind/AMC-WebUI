@@ -12,11 +12,7 @@ export function escapeRegExp(string: string): string {
  * Search through conversation messages to extract a compact excerpt around the query keyword.
  * Returns null if no match found.
  */
-export function extractSearchSnippet(
-  messages: ChatMessage[],
-  query: string,
-  maxLen: number = 70,
-): string | null {
+export function extractSearchSnippet(messages: ChatMessage[], query: string, maxLen: number = 70): string | null {
   const trimmed = query?.trim();
   if (!trimmed || !messages || messages.length === 0) {
     return null;

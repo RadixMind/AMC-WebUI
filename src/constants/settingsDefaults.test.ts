@@ -38,6 +38,10 @@ describe('DEFAULT_APP_SETTINGS', () => {
   it('defaults logging off', () => {
     expect(DEFAULT_APP_SETTINGS.isLoggingEnabled).toBe(false);
   });
+
+  it('defaults apiProxyUrl to null without hardcoded third-party endpoint', () => {
+    expect(DEFAULT_APP_SETTINGS.apiProxyUrl).toBeNull();
+  });
 });
 
 describe('Live Translate settings defaults', () => {

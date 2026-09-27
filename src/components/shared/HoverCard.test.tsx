@@ -13,11 +13,7 @@ describe('HoverCard', () => {
 
   it('renders anchor and does not show content immediately', () => {
     render(
-      <HoverCard
-        anchor={<button>Row Anchor</button>}
-        content={<div>Hover Card Content</div>}
-        openDelayMs={800}
-      />,
+      <HoverCard anchor={<button>Row Anchor</button>} content={<div>Hover Card Content</div>} openDelayMs={800} />,
     );
 
     expect(screen.getByText('Row Anchor')).not.toBeNull();
@@ -26,11 +22,7 @@ describe('HoverCard', () => {
 
   it('shows content after 800ms hover', async () => {
     const { container } = render(
-      <HoverCard
-        anchor={<button>Row Anchor</button>}
-        content={<div>Hover Card Content</div>}
-        openDelayMs={800}
-      />,
+      <HoverCard anchor={<button>Row Anchor</button>} content={<div>Hover Card Content</div>} openDelayMs={800} />,
     );
 
     const root = container.firstElementChild as HTMLElement;
@@ -126,11 +118,7 @@ describe('HoverCard', () => {
     const { container } = render(
       <ul>
         <li>
-          <HoverCard
-            anchor={<button>Row Anchor</button>}
-            content={<div>Card Body</div>}
-            openDelayMs={800}
-          />
+          <HoverCard anchor={<button>Row Anchor</button>} content={<div>Card Body</div>} openDelayMs={800} />
         </li>
       </ul>,
     );
@@ -165,4 +153,3 @@ describe('HoverCard', () => {
     expect(card.className).toContain('transition-opacity');
   });
 });
-

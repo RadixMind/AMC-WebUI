@@ -25,7 +25,9 @@ describe('SidebarCollapsedRail Logo-to-Panel Morph', () => {
       renderer.render(<SidebarCollapsedRail {...defaultProps} />);
     });
 
-    const toggleBtn = renderer.container.querySelector('button[aria-label="Open history sidebar"]') as HTMLButtonElement;
+    const toggleBtn = renderer.container.querySelector(
+      'button[aria-label="Open history sidebar"]',
+    ) as HTMLButtonElement;
     expect(toggleBtn).not.toBeNull();
 
     // Contains the resting brand favicon mark

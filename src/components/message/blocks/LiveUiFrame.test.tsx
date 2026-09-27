@@ -795,9 +795,7 @@ describe('LiveUiFrame', () => {
 
   it('injects serif reading font variable into iframe when readingFontFamily is serif', () => {
     act(() => {
-      renderer.root.render(
-        <LiveUiFrame html="<section><p>Artifact text</p></section>" readingFontFamily="serif" />,
-      );
+      renderer.root.render(<LiveUiFrame html="<section><p>Artifact text</p></section>" readingFontFamily="serif" />);
     });
 
     const iframe = renderer.container.querySelector('iframe');

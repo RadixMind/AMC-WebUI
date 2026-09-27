@@ -4,7 +4,7 @@ import {
   extractPersistedSessionFileRecords,
   stripSessionFilePayloads,
 } from '@/utils/chat/session';
-import { EMBEDDINGS_STORE, FILES_STORE, KEY_VALUE_STORE, SESSIONS_STORE } from './dbSchema';
+import { EMBEDDINGS_STORE, FILES_STORE, KEY_VALUE_STORE, SESSIONS_STORE, SESSION_METADATA_STORE } from './dbSchema';
 import { getAll, getDb, getItem, transactionToPromise, withWriteLock } from './indexedDbAccess';
 import { getDraftFilesKey } from './draftFileRecords';
 import { releaseManagedObjectUrlsByOwner } from '@/services/objectUrlManager';
@@ -24,9 +24,16 @@ export const saveSession = async (session: SavedChatSession): Promise<void> => {
   return withWriteLock(async () => {
     const db = await getDb();
     const hasEmbeddings = db.objectStoreNames.contains(EMBEDDINGS_STORE);
-    const storeNames = hasEmbeddings ? [SESSIONS_STORE, FILES_STORE, EMBEDDINGS_STORE] : [SESSIONS_STORE, FILES_STORE];
+    const hasMetadata = db.objectStoreNames.contains(SESSION_METADATA_STORE);
+    const storeNames = [
+      SESSIONS_STORE,
+      FILES_STORE,
+      ...(hasMetadata ? [SESSION_METADATA_STORE] : []),
+      ...(hasEmbeddings ? [EMBEDDINGS_STORE] : []),
+    ];
     const tx = db.transaction(storeNames, 'readwrite');
     const sessionStore = tx.objectStore(SESSIONS_STORE);
+    const metaStore = hasMetadata ? tx.objectStore(SESSION_METADATA_STORE) : null;
     const fileStore = tx.objectStore(FILES_STORE);
     const fileIndex = fileStore.index('sessionId');
     const embeddingsStore = hasEmbeddings ? tx.objectStore(EMBEDDINGS_STORE) : null;
@@ -36,6 +43,9 @@ export const saveSession = async (session: SavedChatSession): Promise<void> => {
     const nextFileIds = new Set(fileRecords.map((record) => record.id));
 
     sessionStore.put(sanitizedSession);
+    if (metaStore) {
+      metaStore.put({ ...sanitizedSession, messages: [] });
+    }
     fileRecords.forEach((record) => fileStore.put(record));
 
     const cleanupRequest = fileIndex.openCursor(IDBKeyRange.only(session.id));
@@ -59,24 +69,80 @@ export const saveSession = async (session: SavedChatSession): Promise<void> => {
   });
 };
 
+export const saveManySessionMetadata = async (sessions: SavedChatSession[]): Promise<void> => {
+  if (sessions.length === 0) return;
+  return withWriteLock(async () => {
+    const db = await getDb();
+    const hasMetadata = db.objectStoreNames.contains(SESSION_METADATA_STORE);
+    const storeNames = [SESSIONS_STORE, ...(hasMetadata ? [SESSION_METADATA_STORE] : [])];
+    const tx = db.transaction(storeNames, 'readwrite');
+    const sessionStore = tx.objectStore(SESSIONS_STORE);
+    const metaStore = hasMetadata ? tx.objectStore(SESSION_METADATA_STORE) : null;
+
+    await Promise.all(
+      sessions.map(
+        (session) =>
+          new Promise<void>((resolve, reject) => {
+            if (metaStore) {
+              metaStore.put({ ...session, messages: [] });
+            }
+
+            const getReq = sessionStore.get(session.id);
+            getReq.onsuccess = () => {
+              const existing = getReq.result as SavedChatSession | undefined;
+              if (existing) {
+                sessionStore.put({
+                  ...existing,
+                  ...session,
+                  settings: { ...existing.settings, ...session.settings },
+                  messages: existing.messages,
+                });
+              } else {
+                sessionStore.put({ ...session, messages: [] });
+              }
+              resolve();
+            };
+            getReq.onerror = () => reject(getReq.error);
+          }),
+      ),
+    );
+
+    return transactionToPromise(tx);
+  });
+};
+
+export const saveSessionMetadata = async (session: SavedChatSession): Promise<void> => {
+  return saveManySessionMetadata([session]);
+};
+
 export const setAllSessions = async (sessions: SavedChatSession[]): Promise<void> => {
   return withWriteLock(async () => {
     const db = await getDb();
     const hasEmbeddings = db.objectStoreNames.contains(EMBEDDINGS_STORE);
-    const storeNames = hasEmbeddings ? [SESSIONS_STORE, FILES_STORE, EMBEDDINGS_STORE] : [SESSIONS_STORE, FILES_STORE];
+    const hasMetadata = db.objectStoreNames.contains(SESSION_METADATA_STORE);
+    const storeNames = [
+      SESSIONS_STORE,
+      FILES_STORE,
+      ...(hasMetadata ? [SESSION_METADATA_STORE] : []),
+      ...(hasEmbeddings ? [EMBEDDINGS_STORE] : []),
+    ];
     const tx = db.transaction(storeNames, 'readwrite');
     const sessionStore = tx.objectStore(SESSIONS_STORE);
+    const metaStore = hasMetadata ? tx.objectStore(SESSION_METADATA_STORE) : null;
     const fileStore = tx.objectStore(FILES_STORE);
     const embeddingsStore = hasEmbeddings ? tx.objectStore(EMBEDDINGS_STORE) : null;
 
     sessionStore.clear();
+    metaStore?.clear();
     fileStore.clear();
 
     const retainedSessionIds = new Set<string>(sessions.map((session) => session.id));
     const retainedFileIds = new Set<string>();
 
     sessions.forEach((session) => {
-      sessionStore.put(stripSessionFilePayloads(session));
+      const sanitized = stripSessionFilePayloads(session);
+      sessionStore.put(sanitized);
+      metaStore?.put({ ...sanitized, messages: [] });
       extractPersistedSessionFileRecords(session).forEach((record) => {
         retainedFileIds.add(record.id);
         fileStore.put(record);
@@ -110,17 +176,24 @@ export const deleteSession = async (id: string): Promise<void> => {
     releaseManagedObjectUrlsByOwner(`draft:${id}`);
     const db = await getDb();
     const hasEmbeddings = db.objectStoreNames.contains(EMBEDDINGS_STORE);
-    const storeNames = hasEmbeddings
-      ? [SESSIONS_STORE, FILES_STORE, KEY_VALUE_STORE, EMBEDDINGS_STORE]
-      : [SESSIONS_STORE, FILES_STORE, KEY_VALUE_STORE];
+    const hasMetadata = db.objectStoreNames.contains(SESSION_METADATA_STORE);
+    const storeNames = [
+      SESSIONS_STORE,
+      FILES_STORE,
+      KEY_VALUE_STORE,
+      ...(hasMetadata ? [SESSION_METADATA_STORE] : []),
+      ...(hasEmbeddings ? [EMBEDDINGS_STORE] : []),
+    ];
     const tx = db.transaction(storeNames, 'readwrite');
     const sessionStore = tx.objectStore(SESSIONS_STORE);
+    const metaStore = hasMetadata ? tx.objectStore(SESSION_METADATA_STORE) : null;
     const fileStore = tx.objectStore(FILES_STORE);
     const kvStore = tx.objectStore(KEY_VALUE_STORE);
     const fileIndex = fileStore.index('sessionId');
     const embeddingsStore = hasEmbeddings ? tx.objectStore(EMBEDDINGS_STORE) : null;
 
     sessionStore.delete(id);
+    metaStore?.delete(id);
     kvStore.delete(getDraftFilesKey(id));
 
     const cleanupRequest = fileIndex.openCursor(IDBKeyRange.only(id));
@@ -183,11 +256,10 @@ export const getAllSessions = async (): Promise<SavedChatSession[]> => {
   return hydratedSessions.filter((session): session is SavedChatSession => !!session);
 };
 
-export const getAllSessionMetadata = async (): Promise<SavedChatSession[]> => {
-  const db = await getDb();
+const readMetadataFromStore = async (db: IDBDatabase, storeName: string): Promise<SavedChatSession[]> => {
   return new Promise((resolve, reject) => {
-    const tx = db.transaction(SESSIONS_STORE, 'readonly');
-    const store = tx.objectStore(SESSIONS_STORE);
+    const tx = db.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
     const request = store.openCursor();
     const results: SavedChatSession[] = [];
 
@@ -202,6 +274,33 @@ export const getAllSessionMetadata = async (): Promise<SavedChatSession[]> => {
     };
     request.onerror = () => reject(request.error);
   });
+};
+
+export const getAllSessionMetadata = async (): Promise<SavedChatSession[]> => {
+  const db = await getDb();
+  if (!db.objectStoreNames.contains(SESSION_METADATA_STORE)) {
+    return readMetadataFromStore(db, SESSIONS_STORE);
+  }
+
+  const metadata = await readMetadataFromStore(db, SESSION_METADATA_STORE);
+  if (metadata.length === 0) {
+    const sessions = await readMetadataFromStore(db, SESSIONS_STORE);
+    if (sessions.length > 0) {
+      void (async () => {
+        try {
+          const freshDb = await getDb();
+          if (!freshDb.objectStoreNames.contains(SESSION_METADATA_STORE)) return;
+          const tx = freshDb.transaction(SESSION_METADATA_STORE, 'readwrite');
+          const metaStore = tx.objectStore(SESSION_METADATA_STORE);
+          sessions.forEach((s) => metaStore.put({ ...s, messages: [] }));
+        } catch {
+          // ignore background backfill failure
+        }
+      })();
+      return sessions;
+    }
+  }
+  return metadata;
 };
 
 export const searchSessions = async (query: string): Promise<string[]> => {

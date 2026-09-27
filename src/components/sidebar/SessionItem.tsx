@@ -97,8 +97,18 @@ export const SessionItem: React.FC<SessionItemProps> = (props) => {
     if (session.id === activeSessionId) {
       return !activeMessages || activeMessages.length === 0 || !activeMessages.some((m) => !m.isInternalToolMessage);
     }
-    return !session.messages || session.messages.length === 0 || !session.messages.some((m) => !m.isInternalToolMessage);
-  }, [session.blank, session.title, session.titleSource, session.id, activeSessionId, activeMessages, session.messages]);
+    return (
+      !session.messages || session.messages.length === 0 || !session.messages.some((m) => !m.isInternalToolMessage)
+    );
+  }, [
+    session.blank,
+    session.title,
+    session.titleSource,
+    session.id,
+    activeSessionId,
+    activeMessages,
+    session.messages,
+  ]);
 
   const dragLifecycleRef = useRef({ isBeingDragged, onSessionDragEnd });
 
@@ -276,7 +286,9 @@ export const SessionItem: React.FC<SessionItemProps> = (props) => {
           )}
           <div
             className={`relative w-full text-left pl-2.5 pr-1 py-2 text-sm transition-colors rounded-lg text-[var(--theme-text-primary)] ${
-              isBeingDragged ? 'opacity-35 scale-[0.98] border border-dashed border-[var(--theme-border-focus)]/60 bg-[var(--theme-bg-tertiary)]/40 shadow-xs' : ''
+              isBeingDragged
+                ? 'opacity-35 scale-[0.98] border border-dashed border-[var(--theme-border-focus)]/60 bg-[var(--theme-bg-tertiary)]/40 shadow-xs'
+                : ''
             } ${isBlockedByGroupDrag ? 'opacity-40' : ''}`}
           >
             {editingItem?.type === 'session' && editingItem.id === session.id ? (
@@ -360,7 +372,9 @@ export const SessionItem: React.FC<SessionItemProps> = (props) => {
                 }
                 content={hoverCardContent}
                 openDelayMs={800}
-                disabled={isBlank || isActive || isContextMenuOpen || isBeingDragged || isEditing || isBlockedByGroupDrag}
+                disabled={
+                  isBlank || isActive || isContextMenuOpen || isBeingDragged || isEditing || isBlockedByGroupDrag
+                }
                 copyText={displayTitle}
                 copyLabel={t('historyCopyTitleAction')}
                 copiedLabel={t('historyTitleCopied')}
@@ -387,7 +401,8 @@ export const SessionItem: React.FC<SessionItemProps> = (props) => {
                 </span>
               )
             ) : (
-              !isBlank && !generatingTitleSessionIds.has(session.id) && (
+              !isBlank &&
+              !generatingTitleSessionIds.has(session.id) && (
                 <div
                   data-testid="session-relative-time"
                   className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 transition-opacity duration-150 select-none pointer-events-none ${
@@ -430,74 +445,70 @@ export const SessionItem: React.FC<SessionItemProps> = (props) => {
                 }`}
                 onClick={(event) => event.stopPropagation()}
               >
+                <button
+                  type="button"
+                  title={session.isPinned ? t('historyUnpin') : t('historyPin')}
+                  aria-label={session.isPinned ? t('historyUnpin') : t('historyPin')}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onTogglePinSession(session.id);
+                  }}
+                  className="rounded-full p-1 text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] bg-[var(--theme-bg-secondary)] hover:bg-[var(--theme-bg-tertiary)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--theme-border-focus)] cursor-pointer"
+                >
+                  {session.isPinned ? <PinOff size={14} strokeWidth={2.2} /> : <Pin size={14} strokeWidth={2.2} />}
+                </button>
+                <DropdownMenu
+                  open={activeMenu === session.id}
+                  onOpenChange={(open) => setActiveMenu(open ? session.id : null)}
+                >
+                  <DropdownMenuTrigger asChild>
                     <button
-                      type="button"
-                      title={session.isPinned ? t('historyUnpin') : t('historyPin')}
-                      aria-label={session.isPinned ? t('historyUnpin') : t('historyPin')}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        onTogglePinSession(session.id);
-                      }}
-                      className="rounded-full p-1 text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] bg-[var(--theme-bg-secondary)] hover:bg-[var(--theme-bg-tertiary)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--theme-border-focus)] cursor-pointer"
+                      title={t('sessionMoreOptions')}
+                      aria-label={t('sessionMoreOptions')}
+                      className="rounded-full p-1 text-[var(--theme-text-primary)] bg-[var(--theme-bg-secondary)] hover:bg-[var(--theme-bg-tertiary)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--theme-border-focus)] cursor-pointer"
                     >
-                      {session.isPinned ? (
-                        <PinOff size={14} strokeWidth={2.2} />
-                      ) : (
-                        <Pin size={14} strokeWidth={2.2} />
-                      )}
+                      <MoreHorizontal size={16} strokeWidth={2.2} />
                     </button>
-                    <DropdownMenu
-                      open={activeMenu === session.id}
-                      onOpenChange={(open) => setActiveMenu(open ? session.id : null)}
-                    >
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          title={t('sessionMoreOptions')}
-                          aria-label={t('sessionMoreOptions')}
-                          className="rounded-full p-1 text-[var(--theme-text-primary)] bg-[var(--theme-bg-secondary)] hover:bg-[var(--theme-bg-tertiary)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--theme-border-focus)] cursor-pointer"
-                        >
-                          <MoreHorizontal size={16} strokeWidth={2.2} />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <SessionItemMenu
-                        session={session}
-                        menuRef={menuRef}
-                        groups={groups}
-                        onMoveSessionToGroup={onMoveSessionToGroup}
-                        onStartEdit={() => {
-                          handleStartEdit(session);
-                          setActiveMenu(null);
-                        }}
-                        onTogglePin={() => {
-                          onTogglePinSession(session.id);
-                          setActiveMenu(null);
-                        }}
-                        onDuplicate={() => {
-                          onDuplicateSession(session.id);
-                          setActiveMenu(null);
-                        }}
-                        onExport={() => {
-                          onOpenExportModal(session.id);
-                          setActiveMenu(null);
-                        }}
-                        onDelete={() => {
-                          onDeleteSession(session.id);
-                          setActiveMenu(null);
-                        }}
-                        onRegenerateTitle={
-                          onRegenerateTitleSession
-                            ? () => {
-                                onRegenerateTitleSession(session.id);
-                                setActiveMenu(null);
-                              }
-                            : undefined
-                        }
-                        isGeneratingTitle={generatingTitleSessionIds.has(session.id)}
-                      />
-                    </DropdownMenu>
-                  </div>
-                )}
+                  </DropdownMenuTrigger>
+                  <SessionItemMenu
+                    session={session}
+                    menuRef={menuRef}
+                    groups={groups}
+                    onMoveSessionToGroup={onMoveSessionToGroup}
+                    onStartEdit={() => {
+                      handleStartEdit(session);
+                      setActiveMenu(null);
+                    }}
+                    onTogglePin={() => {
+                      onTogglePinSession(session.id);
+                      setActiveMenu(null);
+                    }}
+                    onDuplicate={() => {
+                      onDuplicateSession(session.id);
+                      setActiveMenu(null);
+                    }}
+                    onExport={() => {
+                      onOpenExportModal(session.id);
+                      setActiveMenu(null);
+                    }}
+                    onDelete={() => {
+                      onDeleteSession(session.id);
+                      setActiveMenu(null);
+                    }}
+                    onRegenerateTitle={
+                      onRegenerateTitleSession
+                        ? () => {
+                            onRegenerateTitleSession(session.id);
+                            setActiveMenu(null);
+                          }
+                        : undefined
+                    }
+                    isGeneratingTitle={generatingTitleSessionIds.has(session.id)}
+                  />
+                </DropdownMenu>
+              </div>
+            )}
           </div>
           {showAfter && (
             <div className="absolute -bottom-[1px] left-1 right-1 h-0.5 rounded-full bg-[var(--theme-bg-accent)] pointer-events-none z-10" />

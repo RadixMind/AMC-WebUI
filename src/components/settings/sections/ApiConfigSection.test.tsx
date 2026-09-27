@@ -105,6 +105,11 @@ describe('ApiConfigSection', () => {
         contents: 'Hello',
       });
     });
+
+    await vi.waitFor(() => {
+      expect(renderer.container.textContent).toContain('Connection Successful');
+      expect(renderer.container.textContent).toContain('Authenticated via server-managed key');
+    });
   });
 
   it('updates translated labels when the global language changes', async () => {

@@ -2,6 +2,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { SEMANTIC_SURFACE_MIN_ALPHA } from '@/constants/themeRegistry';
 import {
   buildHtmlPreviewSrcDoc,
+  buildStreamingHtmlPreviewRenderPayload,
   buildStreamingHtmlPreviewSrcDoc,
   buildUnrestrictedHtmlPreviewSrcDoc,
   buildStandaloneHtmlArtifact,
@@ -817,11 +818,31 @@ describe('htmlPreview utilities', () => {
 
     it('pre-renders KaTeX math formulas with KaTeX styles in standalone document', async () => {
       const rawHtml = '<p>Formula: $E=mc^2$</p>';
-
       const html = await buildStandaloneHtmlArtifact(rawHtml);
 
       expect(html).toContain('class="katex"');
       expect(html).toContain('data-amc-katex="true"');
+    });
+
+    it('preserves graphviz diagrams with single quotes in labels without attribute truncation', async () => {
+      const rawHtml = `<div data-amc-graphviz='digraph { A [label="User\\'s request"]; B [label="Don\\'t stop"]; A -> B; }'></div>`;
+      const html = buildHtmlPreviewSrcDoc(rawHtml);
+
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const el = doc.querySelector('[data-amc-graphviz]');
+      expect(el).not.toBeNull();
+      expect(el!.getAttribute('data-amc-graphviz')).toBe(
+        `digraph { A [label="User's request"]; B [label="Don't stop"]; A -> B; }`,
+      );
+    });
+
+    it('normalizes streaming payload and safely auto-closes incomplete graphviz diagrams', () => {
+      const streamingFragment = `<div><h3>Flow</h3><div data-amc-graphviz='digraph { A [label="User\\'s request"] -> B`;
+      const payload = buildStreamingHtmlPreviewRenderPayload(streamingFragment);
+
+      expect(payload).toBe(
+        `<div><h3>Flow</h3><div data-amc-graphviz='digraph { A [label="User&#39;s request"] -> B'></div>`,
+      );
     });
   });
 });

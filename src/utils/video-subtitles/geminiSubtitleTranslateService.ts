@@ -168,7 +168,10 @@ ${JSON.stringify(inputItems, null, 2)}`;
           }
         }
       } catch (parseError) {
-        logService.warn('[VideoSubtitles] Failed to parse translation JSON batch:', { error: parseError, responseText });
+        logService.warn('[VideoSubtitles] Failed to parse translation JSON batch:', {
+          error: parseError,
+          responseText,
+        });
       }
     }
 

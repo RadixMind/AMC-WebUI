@@ -13,12 +13,14 @@ import { dbService } from '@/services/db/dbService';
 import { useChatStore, type SetActiveSessionOptions } from '@/stores/chatStore';
 import { useUIStore } from '@/stores/uiStore';
 import {
+  DEFAULT_MAX_RETAINED_RUNTIME_SESSIONS,
   cleanupSessionFilePreviews,
   clearSessionDraftFiles,
   getSessionDraftFiles,
   retainRuntimeSession,
   storeSessionDraftFiles,
   toSessionMetadata,
+  touchRecentSessionId,
 } from './sessionLoaderDrafts';
 import { loadInitialSessionData } from './sessionInitialLoad';
 import {
@@ -75,6 +77,7 @@ export const useSessionLoader = ({
   savedSessions,
 }: UseSessionLoaderProps) => {
   const sessionViewRequestIdRef = useRef(0);
+  const recentSessionIdsRef = useRef<string[]>([]);
 
   const buildSettingsForNewChat = useCallback(
     (explicitTemplateSession?: SavedChatSession, options?: { excludeTemplateSessionId?: string | null }) =>
@@ -113,7 +116,16 @@ export const useSessionLoader = ({
     }
 
     const runtimeSession = normalizeSessionModel(activeChat);
-    setSavedSessions((prev) => retainRuntimeSession(prev, activeSessionId, runtimeSession));
+    recentSessionIdsRef.current = touchRecentSessionId(recentSessionIdsRef.current, activeSessionId);
+    const loadingSessionIds = useChatStore.getState().loadingSessionIds;
+
+    setSavedSessions((prev) =>
+      retainRuntimeSession(prev, activeSessionId, runtimeSession, {
+        recentSessionIds: recentSessionIdsRef.current,
+        protectedSessionIds: loadingSessionIds,
+        maxRetained: DEFAULT_MAX_RETAINED_RUNTIME_SESSIONS,
+      }),
+    );
   }, [activeChat, activeSessionId, normalizeSessionModel, setSavedSessions]);
 
   const retainOutgoingSessionDraft = useCallback(
@@ -171,6 +183,7 @@ export const useSessionLoader = ({
     (session: SavedChatSession, history: SetActiveSessionOptions['history']) => {
       const rehydrated = rehydrateSessionFiles(normalizeSessionModel(session));
 
+      recentSessionIdsRef.current = touchRecentSessionId(recentSessionIdsRef.current, rehydrated.id);
       setActiveMessages(rehydrated.messages);
       setActiveSessionId(rehydrated.id, { history });
       mergeSessionMetadata(rehydrated);
@@ -247,6 +260,7 @@ export const useSessionLoader = ({
 
       const newSession = createNewSession(settingsForNewChat, [], 'New Chat', targetGroupId, 'default');
 
+      recentSessionIdsRef.current = touchRecentSessionId(recentSessionIdsRef.current, newSession.id);
       setActiveMessages([]);
       setActiveSessionId(newSession.id, { history });
 
@@ -331,6 +345,10 @@ export const useSessionLoader = ({
       updateAndPersistSessions,
       startNewChat,
     });
+    const currentActiveId = useChatStore.getState().activeSessionId;
+    if (currentActiveId) {
+      recentSessionIdsRef.current = touchRecentSessionId(recentSessionIdsRef.current, currentActiveId);
+    }
   }, [
     appSettings,
     setSavedSessions,

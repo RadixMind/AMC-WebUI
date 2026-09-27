@@ -15,11 +15,7 @@ const YEAR_MS = 365 * DAY_MS;
  * - < 365 days: {n}mo ({n}个月 / {n}mo)
  * - >= 365 days: {n}y ({n}年 / {n}y)
  */
-export function formatRelativeTime(
-  timestamp: number,
-  t: RelativeTimeTranslator,
-  now: number = Date.now(),
-): string {
+export function formatRelativeTime(timestamp: number, t: RelativeTimeTranslator, now: number = Date.now()): string {
   if (typeof timestamp !== 'number' || isNaN(timestamp)) {
     return t('historyTimeJustNow');
   }

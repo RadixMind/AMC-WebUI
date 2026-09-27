@@ -167,4 +167,60 @@ describe('sessionPersistenceEffects', () => {
     expect(deleteSession).toHaveBeenCalledWith('removed');
     expect(broadcastSyncMessage).toHaveBeenCalledWith({ type: 'SESSIONS_UPDATED' });
   });
+
+  it('uses saveManySessionMetadata fast-path for inactive sessions without calling getSession or saveSession', async () => {
+    const inactive1 = createSavedChatSessionMetadata({ id: 'in1', title: 'Renamed 1', messages: [] });
+    const inactive2 = createSavedChatSessionMetadata({ id: 'in2', title: 'Renamed 2', messages: [] });
+    const getSession = vi.fn();
+    const saveSession = vi.fn();
+    const saveManySessionMetadata = vi.fn();
+    const broadcastSyncMessage = vi.fn();
+
+    await persistSessionChanges({
+      modifiedSessions: [inactive1, inactive2],
+      deletedSessionIds: [],
+      activeSessionId: null,
+      sessionPersistVersions: new Map(),
+      getSession,
+      saveSession,
+      saveManySessionMetadata,
+      deleteSession: vi.fn(),
+      broadcastSyncMessage,
+    });
+
+    // Zero calls to getSession and saveSession
+    expect(getSession).not.toHaveBeenCalled();
+    expect(saveSession).not.toHaveBeenCalled();
+    // Batch called once with both sessions
+    expect(saveManySessionMetadata).toHaveBeenCalledTimes(1);
+    expect(saveManySessionMetadata).toHaveBeenCalledWith([inactive1, inactive2]);
+    expect(broadcastSyncMessage).toHaveBeenCalledWith({ type: 'SESSIONS_UPDATED' });
+  });
+
+  it('routes active session to saveSession and inactive session to saveManySessionMetadata', async () => {
+    const active = createSavedChatSessionMetadata({
+      id: 'act',
+      messages: [{ id: 'm1', role: 'user', content: 'c', timestamp: new Date() }],
+    });
+    const inactive = createSavedChatSessionMetadata({ id: 'in', messages: [] });
+    const getSession = vi.fn();
+    const saveSession = vi.fn();
+    const saveManySessionMetadata = vi.fn();
+
+    await persistSessionChanges({
+      modifiedSessions: [active, inactive],
+      deletedSessionIds: [],
+      activeSessionId: 'act',
+      sessionPersistVersions: new Map(),
+      getSession,
+      saveSession,
+      saveManySessionMetadata,
+      deleteSession: vi.fn(),
+      broadcastSyncMessage: vi.fn(),
+    });
+
+    expect(saveManySessionMetadata).toHaveBeenCalledWith([inactive]);
+    expect(saveSession).toHaveBeenCalledWith(active);
+    expect(getSession).not.toHaveBeenCalled();
+  });
 });

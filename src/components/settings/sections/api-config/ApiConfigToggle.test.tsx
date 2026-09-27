@@ -26,4 +26,56 @@ describe('ApiConfigToggle', () => {
 
     expect(setUseCustomApiConfig).toHaveBeenCalledWith(true);
   });
+
+  it('shows server active badge and description when serverManagedApi is enabled', () => {
+    act(() => {
+      renderer.root.render(
+        <ApiConfigToggle
+          useCustomApiConfig={false}
+          setUseCustomApiConfig={vi.fn()}
+          hasEnvKey={false}
+          serverManagedApi={true}
+        />,
+      );
+    });
+
+    expect(renderer.container.textContent).toContain('Server Key Active');
+    expect(renderer.container.textContent).toContain('Using server-managed global API key');
+  });
+
+  it('shows custom settings enabled notice when serverManagedApi is active without custom key', () => {
+    act(() => {
+      renderer.root.render(
+        <ApiConfigToggle
+          useCustomApiConfig={true}
+          setUseCustomApiConfig={vi.fn()}
+          hasEnvKey={false}
+          serverManagedApi={true}
+          hasCustomKey={false}
+        />,
+      );
+    });
+
+    expect(renderer.container.textContent).toContain('Server Key Active');
+    expect(renderer.container.textContent).toContain(
+      'Custom settings enabled. No custom key entered; defaulting to server-managed key via proxy.',
+    );
+  });
+
+  it('hides active server badge and shows override text when custom key is provided', () => {
+    act(() => {
+      renderer.root.render(
+        <ApiConfigToggle
+          useCustomApiConfig={true}
+          setUseCustomApiConfig={vi.fn()}
+          hasEnvKey={false}
+          serverManagedApi={true}
+          hasCustomKey={true}
+        />,
+      );
+    });
+
+    expect(renderer.container.textContent).not.toContain('Server Key Active');
+    expect(renderer.container.textContent).toContain('Overriding the environment API key.');
+  });
 });

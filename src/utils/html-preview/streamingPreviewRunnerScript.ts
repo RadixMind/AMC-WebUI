@@ -172,17 +172,19 @@ ${STREAM_SANITIZER_SCRIPT}
   const renderHtml = (html) => {
     if (!root || typeof html !== 'string') return;
 
-    const sanitizedHtml = html.replace(/<[a-zA-Z][^>]*$/, '');
-    const parser = new DOMParser();
-    const parsedDocument = parser.parseFromString(sanitizedHtml, 'text/html');
-    sanitizeElementTree(parsedDocument);
-    syncDocumentAttributes(parsedDocument);
-    const fragment = buildRenderableFragment(parsedDocument);
-    if (!root.hasChildNodes()) {
-      root.replaceChildren(fragment);
-      return;
-    }
-    patchChildren(root, fragment);
+    try {
+      const sanitizedHtml = html.replace(/<[a-zA-Z][^>]*$/, '');
+      const parser = new DOMParser();
+      const parsedDocument = parser.parseFromString(sanitizedHtml, 'text/html');
+      sanitizeElementTree(parsedDocument);
+      syncDocumentAttributes(parsedDocument);
+      const fragment = buildRenderableFragment(parsedDocument);
+      if (!root.hasChildNodes()) {
+        root.replaceChildren(fragment);
+        return;
+      }
+      patchChildren(root, fragment);
+    } catch {}
   };
 
   window.addEventListener('message', (event) => {

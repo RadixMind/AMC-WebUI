@@ -92,7 +92,7 @@ const renderResume = (opts: RenderOpts = {}) => {
     apiKey: opts.byokKey ?? 'byok-key',
     useCustomApiConfig: true,
     useApiProxy: true,
-    apiProxyUrl: opts.serverManaged ? '/api/gemini' : 'https://api-proxy.de/gemini',
+    apiProxyUrl: opts.serverManaged ? '/api/gemini' : 'https://proxy.example.com/gemini',
     serverManagedApi: opts.serverManaged ?? false,
   });
 

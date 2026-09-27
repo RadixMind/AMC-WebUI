@@ -396,20 +396,22 @@ export const GroupItem: React.FC<GroupItemProps> = (props) => {
             <ChevronDown size={12} strokeWidth={2.2} />
           </button>
         )}
-        {sessionLimit > COLLAPSED_GROUP_SESSION_LIMIT && (sessions?.length ?? 0) > COLLAPSED_GROUP_SESSION_LIMIT && hiddenCount === 0 && (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setSessionLimit(COLLAPSED_GROUP_SESSION_LIMIT);
-            }}
-            className="w-full flex items-center justify-center gap-1.5 py-1 text-xs text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] rounded-md transition-colors my-0.5 cursor-pointer select-none"
-            aria-label={t('historyCollapseRemainingSessions')}
-          >
-            <span>{t('historyCollapseRemainingSessions')}</span>
-            <ChevronUp size={12} strokeWidth={2.2} />
-          </button>
-        )}
+        {sessionLimit > COLLAPSED_GROUP_SESSION_LIMIT &&
+          (sessions?.length ?? 0) > COLLAPSED_GROUP_SESSION_LIMIT &&
+          hiddenCount === 0 && (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setSessionLimit(COLLAPSED_GROUP_SESSION_LIMIT);
+              }}
+              className="w-full flex items-center justify-center gap-1.5 py-1 text-xs text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] rounded-md transition-colors my-0.5 cursor-pointer select-none"
+              aria-label={t('historyCollapseRemainingSessions')}
+            >
+              <span>{t('historyCollapseRemainingSessions')}</span>
+              <ChevronUp size={12} strokeWidth={2.2} />
+            </button>
+          )}
       </details>
     </div>
   );

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CHART_RENDERER_SCRIPT } from './chartRendererScript';
 import { HTML_PREVIEW_MESSAGE_CHANNEL, HTML_PREVIEW_STREAM_RENDER_EVENT } from './previewMessageProtocol';
+import { buildStreamingHtmlPreviewRenderPayload } from './previewDocument';
 import { STREAMING_PREVIEW_RUNNER_SCRIPT } from './streamingPreviewRunnerScript';
 
 const CHART_BAR = '{"type":"bar","x":["A","B"],"series":[{"y":[1,2]}]}';
@@ -207,5 +208,24 @@ describe('streaming preview runner chart guard', () => {
     expect(root.querySelectorAll('svg')).toHaveLength(1);
     expect(chartNode.getAttribute('_echarts_instance_')).toBe('ec_1');
     expect(chartNode.getAttribute('data-amc-chart-sig')).toBe('sig_bar');
+  });
+
+  it('preserves an incomplete streaming graphviz node containing -> arrow and apostrophe', () => {
+    document.body.innerHTML = '<div data-amc-stream-preview-root="true"></div>';
+    runStreamingRunner();
+
+    // Incomplete stream chunk where -> has appeared and label has an apostrophe,
+    // processed via buildStreamingHtmlPreviewRenderPayload as LiveUiFrame does.
+    dispatchStream(
+      buildStreamingHtmlPreviewRenderPayload(
+        `<div><h3>Process</h3><div data-amc-graphviz='digraph { A [label="User\\'s request"] -> B`,
+      ),
+    );
+    const root = document.querySelector('[data-amc-stream-preview-root]')!;
+    expect(root.querySelector('h3')?.textContent).toBe('Process');
+
+    const graphvizNode = root.querySelector<HTMLElement>('[data-amc-graphviz]');
+    expect(graphvizNode).not.toBeNull();
+    expect(graphvizNode!.getAttribute('data-amc-graphviz')).toBe(`digraph { A [label="User's request"] -> B`);
   });
 });

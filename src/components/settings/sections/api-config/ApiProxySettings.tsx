@@ -4,11 +4,7 @@ import { Toggle } from '@/components/shared/Toggle';
 import { SETTINGS_INPUT_CLASS } from '@/constants/formClasses';
 import { DEFAULT_MODEL_ID } from '@/constants/modelConfiguration';
 import { useI18n } from '@/contexts/I18nContext';
-import {
-  buildGeminiRequestPreviewUrl,
-  DEFAULT_GEMINI_API_BASE_URL,
-  DEFAULT_GEMINI_PROXY_URL,
-} from '@/utils/api/apiProxyUrl';
+import { buildGeminiRequestPreviewUrl, DEFAULT_GEMINI_API_BASE_URL } from '@/utils/api/apiProxyUrl';
 
 interface ApiProxySettingsProps {
   useApiProxy: boolean;
@@ -28,11 +24,12 @@ export const ApiProxySettings: React.FC<ApiProxySettingsProps> = ({
     'w-full p-3 rounded-lg border transition-all duration-200 focus:ring-2 focus:ring-offset-0 text-sm font-mono';
 
   const handleResetProxy = () => {
-    setApiProxyUrl(DEFAULT_GEMINI_PROXY_URL);
+    setApiProxyUrl(null);
   };
 
   const currentBaseUrl = apiProxyUrl?.trim() || DEFAULT_GEMINI_API_BASE_URL;
   const previewUrl = buildGeminiRequestPreviewUrl(currentBaseUrl, DEFAULT_MODEL_ID, 'generateContent');
+  const hasCustomProxy = Boolean(apiProxyUrl?.trim());
 
   return (
     <div className="space-y-3 pt-2" data-settings-item="api-proxy">
@@ -44,7 +41,7 @@ export const ApiProxySettings: React.FC<ApiProxySettingsProps> = ({
           >
             {t('settingsApiProxyLabel')}
           </label>
-          {useApiProxy && (
+          {useApiProxy && hasCustomProxy && (
             <button
               type="button"
               onClick={handleResetProxy}
@@ -73,7 +70,7 @@ export const ApiProxySettings: React.FC<ApiProxySettingsProps> = ({
             value={apiProxyUrl || ''}
             onChange={(event) => setApiProxyUrl(event.target.value)}
             className={`${inputBaseClasses} ${SETTINGS_INPUT_CLASS}`}
-            placeholder={`e.g., ${DEFAULT_GEMINI_PROXY_URL}`}
+            placeholder="e.g., https://proxy.example.com"
             aria-label={t('settingsApiProxyUrlAria')}
           />
 

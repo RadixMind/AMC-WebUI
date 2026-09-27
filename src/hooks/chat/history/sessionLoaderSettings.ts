@@ -68,18 +68,10 @@ export const createSettingsForNewChat = ({
       ? (sanitizedTemplateSettings.visionPromptMode ?? baseSettings.visionPromptMode ?? null)
       : (baseSettings.visionPromptMode ?? null),
     taskSuggestionMode: null,
-    isPdfNavEnabled: Boolean(
-      sanitizedTemplateSettings.isPdfNavEnabled ?? baseSettings.isPdfNavEnabled ?? false,
-    ),
-    isVideoNavEnabled: Boolean(
-      sanitizedTemplateSettings.isVideoNavEnabled ?? baseSettings.isVideoNavEnabled ?? false,
-    ),
-    isAudioNavEnabled: Boolean(
-      sanitizedTemplateSettings.isAudioNavEnabled ?? baseSettings.isAudioNavEnabled ?? false,
-    ),
-    isImageNavEnabled: Boolean(
-      sanitizedTemplateSettings.isImageNavEnabled ?? baseSettings.isImageNavEnabled ?? false,
-    ),
+    isPdfNavEnabled: Boolean(sanitizedTemplateSettings.isPdfNavEnabled ?? baseSettings.isPdfNavEnabled ?? false),
+    isVideoNavEnabled: Boolean(sanitizedTemplateSettings.isVideoNavEnabled ?? baseSettings.isVideoNavEnabled ?? false),
+    isAudioNavEnabled: Boolean(sanitizedTemplateSettings.isAudioNavEnabled ?? baseSettings.isAudioNavEnabled ?? false),
+    isImageNavEnabled: Boolean(sanitizedTemplateSettings.isImageNavEnabled ?? baseSettings.isImageNavEnabled ?? false),
     // 锁定 API Key 始终重置，新聊天重新轮换。
     lockedApiKey: null,
   };

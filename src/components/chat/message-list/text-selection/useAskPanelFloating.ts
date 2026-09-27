@@ -21,7 +21,10 @@ export type ResizeDir = 'e' | 'w' | 'n' | 's' | 'se' | 'sw' | 'ne' | 'nw';
 
 const clampSizeToViewport = (size: PanelSize, viewportWidth: number, viewportHeight: number): PanelSize => ({
   width: Math.max(PANEL_MIN_WIDTH, Math.min(size.width, viewportWidth - VIEWPORT_PADDING * 2)),
-  height: Math.max(PANEL_MIN_HEIGHT, Math.min(size.height, viewportHeight - VIEWPORT_PADDING * 2, PANEL_MAX_HEIGHT_CAP)),
+  height: Math.max(
+    PANEL_MIN_HEIGHT,
+    Math.min(size.height, viewportHeight - VIEWPORT_PADDING * 2, PANEL_MAX_HEIGHT_CAP),
+  ),
 });
 
 const readPersistedSize = (viewportWidth: number, viewportHeight: number): PanelSize | null => {
@@ -141,7 +144,8 @@ export const useAskPanelFloating = ({ anchorRect, targetWindow, textareaRef }: U
         if (!prev) return prev;
         let { top, left } = prev;
         if (left + rect.width > viewportWidth - VIEWPORT_PADDING) left = viewportWidth - rect.width - VIEWPORT_PADDING;
-        if (top + rect.height > viewportHeight - VIEWPORT_PADDING) top = viewportHeight - rect.height - VIEWPORT_PADDING;
+        if (top + rect.height > viewportHeight - VIEWPORT_PADDING)
+          top = viewportHeight - rect.height - VIEWPORT_PADDING;
         if (left < VIEWPORT_PADDING) left = VIEWPORT_PADDING;
         if (top < VIEWPORT_PADDING) top = VIEWPORT_PADDING;
         if (left === prev.left && top === prev.top) return prev;
@@ -259,7 +263,9 @@ export const useAskPanelFloating = ({ anchorRect, targetWindow, textareaRef }: U
       const viewportHeight = targetWindow.innerHeight;
       const clampedSize = clampSizeToViewport(size, viewportWidth, viewportHeight);
       setPosition({
-        top: Math.round(Math.max(VIEWPORT_PADDING, Math.min(dockedTop, viewportHeight - clampedSize.height - VIEWPORT_PADDING))),
+        top: Math.round(
+          Math.max(VIEWPORT_PADDING, Math.min(dockedTop, viewportHeight - clampedSize.height - VIEWPORT_PADDING)),
+        ),
         left: Math.round(docked === 'right' ? viewportWidth - clampedSize.width - VIEWPORT_PADDING : VIEWPORT_PADDING),
       });
       setDocked(null);
@@ -328,7 +334,10 @@ export const useAskPanelFloating = ({ anchorRect, targetWindow, textareaRef }: U
       }
 
       newWidth = Math.max(PANEL_MIN_WIDTH, Math.min(newWidth, viewportWidth - VIEWPORT_PADDING * 2));
-      newHeight = Math.max(PANEL_MIN_HEIGHT, Math.min(newHeight, viewportHeight - VIEWPORT_PADDING * 2, PANEL_MAX_HEIGHT_CAP));
+      newHeight = Math.max(
+        PANEL_MIN_HEIGHT,
+        Math.min(newHeight, viewportHeight - VIEWPORT_PADDING * 2, PANEL_MAX_HEIGHT_CAP),
+      );
 
       if (currentResizeState.dir.includes('w')) {
         const maxLeft = currentResizeState.startLeft + currentResizeState.startWidth - PANEL_MIN_WIDTH;
@@ -347,7 +356,10 @@ export const useAskPanelFloating = ({ anchorRect, targetWindow, textareaRef }: U
           newHeight = currentResizeState.startHeight - (newTop - currentResizeState.startTop);
         }
         // 反推出的高度必须重新套上限（含 PANEL_MAX_HEIGHT_CAP），否则上缘拖到视口顶部时高度会超出上限
-        newHeight = Math.max(PANEL_MIN_HEIGHT, Math.min(newHeight, viewportHeight - VIEWPORT_PADDING * 2, PANEL_MAX_HEIGHT_CAP));
+        newHeight = Math.max(
+          PANEL_MIN_HEIGHT,
+          Math.min(newHeight, viewportHeight - VIEWPORT_PADDING * 2, PANEL_MAX_HEIGHT_CAP),
+        );
         newTop = Math.max(VIEWPORT_PADDING, Math.min(newTop, viewportHeight - newHeight - VIEWPORT_PADDING));
       }
       if (currentResizeState.dir.includes('e') && !currentResizeState.dir.includes('w')) {
@@ -393,7 +405,9 @@ export const useAskPanelFloating = ({ anchorRect, targetWindow, textareaRef }: U
   const handleResetSize = useCallback(() => {
     const viewportWidth = targetWindow.innerWidth;
     const viewportHeight = targetWindow.innerHeight;
-    setSize(clampSizeToViewport({ width: PANEL_DEFAULT_WIDTH, height: PANEL_DEFAULT_HEIGHT }, viewportWidth, viewportHeight));
+    setSize(
+      clampSizeToViewport({ width: PANEL_DEFAULT_WIDTH, height: PANEL_DEFAULT_HEIGHT }, viewportWidth, viewportHeight),
+    );
   }, [targetWindow]);
 
   return {

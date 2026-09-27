@@ -20,6 +20,7 @@ export const isProbablyCompleteDot = (dot: string): boolean => {
   let inDoubleQuote = false;
   let inLineComment = false;
   let inBlockComment = false;
+  let hasBraces = false;
 
   for (let charIndex = 0; charIndex < dot.length; charIndex += 1) {
     const char = dot[charIndex];
@@ -69,11 +70,13 @@ export const isProbablyCompleteDot = (dot: string): boolean => {
     else if (char === ')') parens -= 1;
     else if (char === '[') brackets += 1;
     else if (char === ']') brackets -= 1;
-    else if (char === '{') braces += 1;
-    else if (char === '}') braces -= 1;
+    else if (char === '{') {
+      braces += 1;
+      hasBraces = true;
+    } else if (char === '}') braces -= 1;
   }
 
-  return parens === 0 && brackets === 0 && braces === 0 && !inDoubleQuote && !inBlockComment;
+  return hasBraces && parens === 0 && brackets === 0 && braces === 0 && !inDoubleQuote && !inBlockComment;
 };
 
 /**

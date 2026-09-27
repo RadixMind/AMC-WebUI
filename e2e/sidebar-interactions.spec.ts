@@ -4,7 +4,7 @@ import { seedAppState } from './helpers/appHarness';
 
 const HISTORY_SIDEBAR_STORAGE_KEY = 'all_model_chat_history_sidebar_v1';
 const DB_NAME = 'AllModelChatDB';
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 const BASE_SETTINGS = {
   modelId: 'gemini-2.5-flash',

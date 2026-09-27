@@ -41,10 +41,7 @@ function sameRows(previous: AnimatedRowsProps, next: AnimatedRowsProps): boolean
 
 function intersects(row: DOMRect, viewport: DOMRect): boolean {
   return (
-    row.bottom > viewport.top &&
-    row.top < viewport.bottom &&
-    row.right > viewport.left &&
-    row.left < viewport.right
+    row.bottom > viewport.top && row.top < viewport.bottom && row.right > viewport.left && row.left < viewport.right
   );
 }
 
@@ -123,10 +120,7 @@ export class AnimatedRows extends Component<AnimatedRowsProps> {
     for (const [key, row] of positions) {
       this.removeExit(key);
       const previousRow = snapshot.positions.get(key);
-      if (
-        !intersects(row.rect, viewport) &&
-        (previousRow === undefined || !intersects(previousRow.rect, viewport))
-      ) {
+      if (!intersects(row.rect, viewport) && (previousRow === undefined || !intersects(previousRow.rect, viewport))) {
         continue;
       }
       if (previousRow === undefined) {
@@ -242,11 +236,7 @@ export class AnimatedRows extends Component<AnimatedRowsProps> {
         >
           {this.props.children}
         </ul>
-        <div
-          ref={this.overlay}
-          className="absolute inset-0 pointer-events-none overflow-hidden"
-          aria-hidden="true"
-        />
+        <div ref={this.overlay} className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true" />
       </div>
     );
   }

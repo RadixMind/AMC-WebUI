@@ -14,6 +14,8 @@ type MockDbService = MockRecord & {
   searchSessions: MockFn;
   setAllSessions: MockFn;
   saveSession: MockFn;
+  saveSessionMetadata: MockFn;
+  saveManySessionMetadata: MockFn;
   deleteSession: MockFn;
   deleteFilesFromSessions: MockFn;
   getAllGroups: MockFn;
@@ -44,6 +46,7 @@ type MockDbService = MockRecord & {
   saveDraftFiles: MockFn;
   getDraftFiles: MockFn;
   deleteDraftFiles: MockFn;
+  cleanupOrphanFiles: MockFn;
   estimateAppDataSize: MockFn;
   clearAllData: MockFn;
 };
@@ -78,6 +81,8 @@ export const createMockDbService = (overrides: Partial<MockDbService> = {}): Moc
   searchSessions: asyncMockFn([]),
   setAllSessions: asyncMockFn(undefined),
   saveSession: asyncMockFn(undefined),
+  saveSessionMetadata: asyncMockFn(undefined),
+  saveManySessionMetadata: asyncMockFn(undefined),
   deleteSession: asyncMockFn(undefined),
   deleteFilesFromSessions: asyncMockFn(undefined),
   getAllGroups: asyncMockFn([]),
@@ -108,6 +113,7 @@ export const createMockDbService = (overrides: Partial<MockDbService> = {}): Moc
   saveDraftFiles: asyncMockFn(undefined),
   getDraftFiles: asyncMockFn([]),
   deleteDraftFiles: asyncMockFn(undefined),
+  cleanupOrphanFiles: asyncMockFn({ deletedFileCount: 0, freedBytes: 0 }),
   estimateAppDataSize: asyncMockFn({
     totalBytes: 0,
     indexedDbBytes: 0,

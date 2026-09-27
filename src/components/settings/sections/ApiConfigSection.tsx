@@ -180,11 +180,12 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
       });
 
       const latency = Math.round(performance.now() - startTime);
+      const isServerManagedAuth = !apiKey?.trim() && canUseServerManagedTestKey;
       setGeminiTestResult({
         status: 'success',
         latencyMs: latency,
         grade: getLatencyGrade(latency, true),
-        message: null,
+        message: isServerManagedAuth ? t('apiConfigTestSuccessServerManaged') : t('apiConfigTestSuccessCustomKey'),
       });
     } catch (testConnectionError) {
       const latency = Math.round(performance.now() - startTime);
@@ -206,6 +207,8 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
           useCustomApiConfig={useCustomApiConfig}
           setUseCustomApiConfig={handleUseCustomApiConfigChange}
           hasEnvKey={hasEnvKey}
+          serverManagedApi={serverManagedApi}
+          hasCustomKey={Boolean(apiKey && apiKey.trim())}
         />
 
         <div
@@ -215,6 +218,7 @@ export const ApiConfigSection: React.FC<ApiConfigSectionProps> = ({
             <ApiKeyInput
               inputId="gemini-api-key-input"
               apiKey={apiKey}
+              serverManagedApi={serverManagedApi}
               setApiKey={(nextApiKey) => {
                 setApiKey(nextApiKey);
                 setGeminiTestResult(null);

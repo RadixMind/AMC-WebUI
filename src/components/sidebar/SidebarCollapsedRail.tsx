@@ -59,20 +59,14 @@ const RailToggleMorphButton: React.FC<{
         event.stopPropagation();
         onClick();
       }}
-      className={[
-        SIDEBAR_CLICKABLE_ICON_BUTTON_CLASS,
-        'group relative overflow-hidden',
-        className,
-      ].filter(Boolean).join(' ')}
+      className={[SIDEBAR_CLICKABLE_ICON_BUTTON_CLASS, 'group relative overflow-hidden', className]
+        .filter(Boolean)
+        .join(' ')}
       title={title}
       aria-label={title}
     >
       <span className="flex items-center justify-center transition-all duration-200 opacity-100 scale-100 group-hover:opacity-0 group-hover:scale-75 group-focus-visible:opacity-0 group-focus-visible:scale-75 pointer-events-none">
-        <img
-          src="/favicon.png"
-          alt=""
-          className="w-5 h-5 rounded object-contain"
-        />
+        <img src="/favicon.png" alt="" className="w-5 h-5 rounded object-contain" />
       </span>
       <span className="absolute inset-0 flex items-center justify-center transition-all duration-200 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 group-focus-visible:opacity-100 group-focus-visible:scale-100 text-[var(--theme-text-primary)] pointer-events-none">
         <IconSidebarToggle size={20} strokeWidth={2.2} />
@@ -115,11 +109,7 @@ export const SidebarCollapsedRail: React.FC<SidebarCollapsedRailProps> = ({
 
   return (
     <>
-      <RailToggleMorphButton
-        onClick={onToggle}
-        title={t('historySidebarOpen')}
-        className="-translate-y-1"
-      />
+      <RailToggleMorphButton onClick={onToggle} title={t('historySidebarOpen')} className="-translate-y-1" />
 
       <div className="w-8 h-px bg-[var(--theme-border-primary)] my-1" />
 

@@ -27,11 +27,7 @@ describe('SessionItem background running breathing dot and viewed dismissal', ()
 
     act(() => {
       renderer.render(
-        <SessionItem
-          session={session}
-          activeSessionId="s-active"
-          loadingSessionIds={new Set(['s-bg'])}
-        />,
+        <SessionItem session={session} activeSessionId="s-active" loadingSessionIds={new Set(['s-bg'])} />,
       );
     });
 
@@ -45,13 +41,7 @@ describe('SessionItem background running breathing dot and viewed dismissal', ()
     const session = makeSession('s-act');
 
     act(() => {
-      renderer.render(
-        <SessionItem
-          session={session}
-          activeSessionId="s-act"
-          loadingSessionIds={new Set(['s-act'])}
-        />,
-      );
+      renderer.render(<SessionItem session={session} activeSessionId="s-act" loadingSessionIds={new Set(['s-act'])} />);
     });
 
     expect(renderer.container.querySelector('[data-testid="session-running-dot"]')).toBeNull();
@@ -66,13 +56,7 @@ describe('SessionItem background running breathing dot and viewed dismissal', ()
     const session = makeSession('s-done');
 
     act(() => {
-      renderer.render(
-        <SessionItem
-          session={session}
-          activeSessionId="s-other"
-          onSelectSession={onSelectSession}
-        />,
-      );
+      renderer.render(<SessionItem session={session} activeSessionId="s-other" onSelectSession={onSelectSession} />);
     });
 
     // Green dot is visible initially

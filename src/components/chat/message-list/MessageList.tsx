@@ -259,13 +259,7 @@ const MessageListComponent: React.FC = () => {
           />
         )}
 
-        <TurnNavigator
-          items={turnItems}
-          activeTurn={activeTurn}
-          busyTurn={busyTurn}
-          onNavigate={scrollToTurn}
-          t={t}
-        />
+        <TurnNavigator items={turnItems} activeTurn={activeTurn} busyTurn={busyTurn} onNavigate={scrollToTurn} t={t} />
       </div>
 
       <MessageListModals

@@ -70,9 +70,7 @@ describe('TurnNavigator', () => {
   });
 
   it('shows and hides preview tooltip on pointer move and leave', () => {
-    const { container } = render(
-      <TurnNavigator items={sampleItems} activeTurn={1} onNavigate={vi.fn()} t={mockT} />,
-    );
+    const { container } = render(<TurnNavigator items={sampleItems} activeTurn={1} onNavigate={vi.fn()} t={mockT} />);
 
     expect(container.querySelector('[role="tooltip"]')).toBeNull();
 
@@ -95,9 +93,7 @@ describe('TurnNavigator', () => {
   it('supports imperative handle for activateTurn and scrollToTurn', () => {
     const onNavigate = vi.fn();
     const ref = createRef<TurnNavigatorHandle>();
-    render(
-      <TurnNavigator ref={ref} items={sampleItems} activeTurn={1} onNavigate={onNavigate} t={mockT} />,
-    );
+    render(<TurnNavigator ref={ref} items={sampleItems} activeTurn={1} onNavigate={onNavigate} t={mockT} />);
 
     expect(ref.current).not.toBeNull();
 

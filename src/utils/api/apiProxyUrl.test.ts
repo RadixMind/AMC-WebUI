@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildGeminiRequestPreviewUrl,
-  DEFAULT_GEMINI_API_BASE_URL,
-  normalizeGeminiApiBaseUrl,
-  trimTrailingSlashes,
-} from './apiProxyUrl';
+import * as apiProxyUrlModule from './apiProxyUrl';
+
+const { buildGeminiRequestPreviewUrl, DEFAULT_GEMINI_API_BASE_URL, normalizeGeminiApiBaseUrl, trimTrailingSlashes } =
+  apiProxyUrlModule;
 
 describe('apiProxyUrl', () => {
   describe('trimTrailingSlashes', () => {
@@ -38,6 +36,12 @@ describe('apiProxyUrl', () => {
     it('builds standard request preview url', () => {
       const url = buildGeminiRequestPreviewUrl(DEFAULT_GEMINI_API_BASE_URL, 'gemini-2.5-flash', 'generateContent');
       expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent');
+    });
+  });
+
+  describe('default proxy url', () => {
+    it('does not export a hardcoded third-party DEFAULT_GEMINI_PROXY_URL', () => {
+      expect((apiProxyUrlModule as Record<string, unknown>).DEFAULT_GEMINI_PROXY_URL).toBeUndefined();
     });
   });
 });

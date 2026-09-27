@@ -51,8 +51,9 @@ export const getDb = (): Promise<IDBDatabase> => {
         };
 
         request.onupgradeneeded = (event) => {
-          const db = (event.target as IDBOpenDBRequest).result;
-          applyMigrations(db, event.oldVersion);
+          const target = event.target as IDBOpenDBRequest;
+          const db = target.result;
+          applyMigrations(db, event.oldVersion, target.transaction);
         };
       };
 

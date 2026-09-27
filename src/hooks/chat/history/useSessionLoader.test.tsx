@@ -224,6 +224,47 @@ describe('useSessionLoader', () => {
     unmount();
   });
 
+  it('evicts LRU session messages when exceeding default retention capacity while retaining outgoing session', async () => {
+    const nextRequest = createDeferred<SavedChatSession | null>();
+    mockGetSession.mockImplementationOnce(() => nextRequest.promise);
+
+    const setSavedSessions = vi.fn();
+    const activeChat = createSession('session-active', 'Active Session');
+    const olderChat1 = createSession('session-1', 'Session 1');
+    const olderChat2 = createSession('session-2', 'Session 2');
+    const olderChat3 = createSession('session-3', 'Session 3');
+
+    const { result, unmount } = renderSessionLoader({
+      setSavedSessions,
+      activeChat,
+      activeSessionId: 'session-active',
+      savedSessions: [{ ...activeChat, messages: [] }, olderChat1, olderChat2, olderChat3],
+    });
+
+    act(() => {
+      void result.current.loadChatSession('session-next');
+    });
+
+    const retainUpdater = setSavedSessions.mock.calls[0]?.[0];
+    expect(typeof retainUpdater).toBe('function');
+
+    const initialSaved = [{ ...activeChat, messages: [] }, olderChat1, olderChat2, olderChat3];
+    const retainedSessions = retainUpdater(initialSaved);
+
+    const activeResult = retainedSessions.find((s: SavedChatSession) => s.id === 'session-active');
+    expect(activeResult?.messages).toEqual(activeChat.messages);
+
+    const sessionsWithMessages = retainedSessions.filter((s: SavedChatSession) => s.messages && s.messages.length > 0);
+    expect(sessionsWithMessages.length).toBeLessThanOrEqual(3);
+
+    await act(async () => {
+      nextRequest.resolve(createSession('session-next', 'Next Session'));
+      await flushPromises();
+    });
+
+    unmount();
+  });
+
   it('does not overwrite newer in-memory session settings when initial metadata resolves late', async () => {
     const metadataDeferred = createDeferred<SavedChatSession[]>();
     const groupsDeferred = createDeferred<ChatGroup[]>();

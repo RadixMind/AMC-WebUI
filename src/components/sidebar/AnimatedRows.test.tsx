@@ -43,10 +43,7 @@ afterEach(() => {
   else Object.defineProperty(HTMLElement.prototype, 'animate', originalAnimate);
 });
 
-function renderRows(
-  keys: readonly string[],
-  options: { ready?: boolean; resetKey?: string; suffix?: string } = {},
-) {
+function renderRows(keys: readonly string[], options: { ready?: boolean; resetKey?: string; suffix?: string } = {}) {
   return (
     <div style={{ position: 'relative' }}>
       <AnimatedRows

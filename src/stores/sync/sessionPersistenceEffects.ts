@@ -11,6 +11,8 @@ interface PersistSessionChangesOptions {
   sessionPersistVersions: Map<string, number>;
   getSession: (sessionId: string) => Promise<SavedChatSession | null | undefined>;
   saveSession: (session: SavedChatSession) => Promise<void>;
+  saveSessionMetadata?: (session: SavedChatSession) => Promise<void>;
+  saveManySessionMetadata?: (sessions: SavedChatSession[]) => Promise<void>;
   deleteSession: (sessionId: string) => Promise<void>;
   broadcastSyncMessage: (message: SyncMessage) => void;
 }
@@ -22,6 +24,8 @@ export async function persistSessionChanges({
   sessionPersistVersions,
   getSession,
   saveSession,
+  saveSessionMetadata,
+  saveManySessionMetadata,
   deleteSession,
   broadcastSyncMessage,
 }: PersistSessionChangesOptions) {
@@ -36,8 +40,42 @@ export async function persistSessionChanges({
     persistVersions.set(session.id, nextVersion);
   });
 
+  const persistedSessionIds = new Set<string>();
+
+  // If a metadata-only persistence helper is provided, fast-path all inactive sessions
+  // whose runtime messages are empty. This avoids calling getSession (which attaches
+  // file blobs) and saveSession (which runs file-record GC and scans fileIndex).
+  const hasMetadataSaver = !!(saveManySessionMetadata || saveSessionMetadata);
+  const metadataOnlySessions = hasMetadataSaver
+    ? modifiedSessions.filter((session) => session.id !== activeSessionId && session.messages.length === 0)
+    : [];
+  const fullSessions = hasMetadataSaver
+    ? modifiedSessions.filter((session) => session.id === activeSessionId || session.messages.length > 0)
+    : modifiedSessions;
+
+  if (metadataOnlySessions.length > 0) {
+    const validMetadataSessions = metadataOnlySessions.filter((session) => {
+      const version = persistVersions.get(session.id);
+      return version === undefined || sessionPersistVersions.get(session.id) === version;
+    });
+
+    if (validMetadataSessions.length > 0) {
+      if (saveManySessionMetadata) {
+        await saveManySessionMetadata(validMetadataSessions);
+      } else if (saveSessionMetadata) {
+        await Promise.all(validMetadataSessions.map((s) => saveSessionMetadata(s)));
+      }
+      validMetadataSessions.forEach((session) => {
+        const version = persistVersions.get(session.id);
+        if (version !== undefined && sessionPersistVersions.get(session.id) === version) {
+          persistedSessionIds.add(session.id);
+        }
+      });
+    }
+  }
+
   const sessionsToPersist = await Promise.all(
-    modifiedSessions.map(async (session) => {
+    fullSessions.map(async (session) => {
       const version = persistVersions.get(session.id);
       if (version !== undefined && sessionPersistVersions.get(session.id) !== version) {
         return null;
@@ -75,7 +113,6 @@ export async function persistSessionChanges({
     }),
   );
 
-  const persistedSessionIds = new Set<string>();
   await Promise.all([
     ...sessionsToPersist.map(async (session) => {
       if (!session) return;

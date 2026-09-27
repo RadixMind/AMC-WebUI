@@ -39,6 +39,11 @@ describe('isProbablyCompleteDot', () => {
     expect(isProbablyCompleteDot('   ')).toBe(false);
   });
 
+  it('rejects a fragment without braces such as "digraph" or "digraph G"', () => {
+    expect(isProbablyCompleteDot('digraph')).toBe(false);
+    expect(isProbablyCompleteDot('digraph G')).toBe(false);
+  });
+
   it('accepts a complete dot with a trailing # comment containing quotes/braces', () => {
     expect(isProbablyCompleteDot('digraph { a -> b } # comment " with { brace')).toBe(true);
   });

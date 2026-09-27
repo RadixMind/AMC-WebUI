@@ -20,6 +20,8 @@ import {
   getSession,
   getSessionMetadataOnly,
   saveSession,
+  saveSessionMetadata,
+  saveManySessionMetadata,
   searchSessions,
   setAllSessions,
 } from './sessionRecords';
@@ -36,6 +38,7 @@ import {
   addDeletedLibraryFileIds,
 } from './libraryRecords';
 import { deleteDraftFiles, getDraftFiles, saveDraftFiles } from './draftFileRecords';
+import { cleanupOrphanFiles } from './orphanFileCleanup';
 
 export type {
   ApiUsageExactPricing,
@@ -44,6 +47,7 @@ export type {
   ApiUsageRequestKind,
 } from './apiUsageRecords';
 export type { AppDataSizeEstimate } from './appDataSize';
+export type { OrphanCleanupResult } from './orphanFileCleanup';
 
 export const dbService = {
   getAllSessions,
@@ -53,6 +57,8 @@ export const dbService = {
   searchSessions,
   setAllSessions,
   saveSession,
+  saveSessionMetadata,
+  saveManySessionMetadata,
   deleteSession,
   deleteFilesFromSessions,
 
@@ -91,6 +97,8 @@ export const dbService = {
   saveDraftFiles,
   getDraftFiles,
   deleteDraftFiles,
+
+  cleanupOrphanFiles,
 
   estimateAppDataSize,
   clearAllData: () =>

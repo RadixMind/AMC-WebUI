@@ -21,19 +21,14 @@
   --turn-preview-text: rgb(15, 17, 21);
   --turn-preview-caption: rgb(173, 178, 184);
   --turn-preview-shadow:
-    0 0 0 0.5px rgba(0, 0, 0, 0.16),
-    0 3px 8px 0 rgba(0, 0, 0, 0.03),
-    0 0 16px 0 rgba(0, 0, 0, 0.02);
+    0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 3px 8px 0 rgba(0, 0, 0, 0.03), 0 0 16px 0 rgba(0, 0, 0, 0.02);
 
   position: absolute;
   top: 50%;
   right: 12px;
   width: 28px;
   /* Fixed-pitch marks never compress: a ladder taller than the band scrolls inside this frame */
-  max-height: min(
-    max(0px, calc(100% - 64px)),
-    420px
-  );
+  max-height: min(max(0px, calc(100% - 64px)), 420px);
   contain: layout;
   cursor: pointer;
   pointer-events: auto;
@@ -51,9 +46,7 @@
   --turn-preview-text: rgb(249, 250, 251);
   --turn-preview-caption: rgb(129, 133, 140);
   --turn-preview-shadow:
-    0 0 0 0.5px rgba(255, 255, 255, 0.2),
-    0 3px 8px 0 rgba(0, 0, 0, 0.15),
-    0 0 16px 0 rgba(0, 0, 0, 0.2);
+    0 0 0 0.5px rgba(255, 255, 255, 0.2), 0 3px 8px 0 rgba(0, 0, 0, 0.15), 0 0 16px 0 rgba(0, 0, 0, 0.2);
 }
 
 /* The frame's inner scroller: no visible scrollbar, no scroll chaining into
@@ -81,20 +74,8 @@
 }
 
 .fadeTop.fadeBottom {
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    #000 24px,
-    #000 calc(100% - 24px),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    #000 24px,
-    #000 calc(100% - 24px),
-    transparent 100%
-  );
+  mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
 }
 
 .marks {
@@ -126,7 +107,9 @@
   content: '';
   transform: translateY(-50%) scaleX(0.6);
   transform-origin: right center;
-  transition: transform 140ms ease, background-color 140ms ease;
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease;
 }
 
 /* Ordered before hover/active so those states keep their stronger tick. */

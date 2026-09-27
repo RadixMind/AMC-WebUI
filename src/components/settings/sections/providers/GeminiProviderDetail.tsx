@@ -12,7 +12,11 @@ import { ProviderModelListSection } from './models/ProviderModelListSection';
 import { SafetySection } from '@/components/settings/sections/SafetySection';
 import { ConfirmationModal } from '@/components/modals/ConfirmationModal';
 import { getClient } from '@/services/api/apiClient';
-import { parseApiKeys } from '@/utils/api/apiKeySelection';
+import {
+  isServerManagedApiEnabledForProxyRequests,
+  parseApiKeys,
+  SERVER_MANAGED_API_KEY,
+} from '@/utils/api/apiKeySelection';
 import {
   formatLatency,
   getLatencyGrade,
@@ -70,16 +74,24 @@ export const GeminiProviderDetail: React.FC<GeminiProviderDetailProps> = ({
 
     const startTime = performance.now();
     try {
+      const canUseServerManaged = isServerManagedApiEnabledForProxyRequests({
+        serverManagedApi: settings.serverManagedApi ?? false,
+        useCustomApiConfig: settings.useCustomApiConfig,
+        useApiProxy: settings.useApiProxy ?? false,
+        apiProxyUrl: settings.apiProxyUrl,
+      });
+
       const keyToTest = settings.apiKey || '';
       const firstKey = parseApiKeys(keyToTest)[0];
-      if (!firstKey && settings.useCustomApiConfig) {
+      if (!firstKey && settings.useCustomApiConfig && !canUseServerManaged) {
         throw new Error(t('apiConfigNoKeyProvided') || 'No API key provided');
       }
 
       const effectiveUrl =
         settings.useCustomApiConfig && settings.useApiProxy && settings.apiProxyUrl ? settings.apiProxyUrl : null;
 
-      const ai = await getClient(firstKey || 'default', effectiveUrl);
+      const effectiveKey = firstKey || (canUseServerManaged ? SERVER_MANAGED_API_KEY : 'default');
+      const ai = await getClient(effectiveKey, effectiveUrl);
       await ai.models.generateContent({
         model: modelId,
         contents: 'Hello',

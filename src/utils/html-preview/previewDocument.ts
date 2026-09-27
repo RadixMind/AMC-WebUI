@@ -7,6 +7,7 @@ import { ECHARTS_SCRIPT_ATTRIBUTE, ECHARTS_SCRIPT_SRC } from './echartsRendererS
 import { sanitizeElementTree } from './previewSanitizer';
 import { sanitizeDocumentStylesForPngExport } from '@/utils/export/cssColorSanitizer';
 import { STREAMING_PREVIEW_RUNNER_SCRIPT } from './streamingPreviewRunnerScript';
+import { normalizeLiveUiHtmlForPreview } from './liveUiHtmlNormalizer';
 import type { HtmlPreviewPrivilege } from './previewPrivilege';
 import type { ReadingFontFamily } from '@/types';
 
@@ -521,7 +522,8 @@ export const balanceFourItemGrids = (root: ParentNode): void => {
 };
 
 export const buildStreamingHtmlPreviewRenderPayload = (htmlContent: string): string => {
-  return renderPreviewMath(htmlContent);
+  const normalized = normalizeLiveUiHtmlForPreview(htmlContent, { isStreaming: true });
+  return renderPreviewMath(normalized);
 };
 
 const sanitizePreviewHtml = (htmlContent: string): string => {
@@ -529,7 +531,8 @@ const sanitizePreviewHtml = (htmlContent: string): string => {
     return htmlContent;
   }
 
-  const parsedDocument = new DOMParser().parseFromString(htmlContent, 'text/html');
+  const normalized = normalizeLiveUiHtmlForPreview(htmlContent);
+  const parsedDocument = new DOMParser().parseFromString(normalized, 'text/html');
   sanitizeElementTree(parsedDocument);
   balanceFourItemGrids(parsedDocument);
   return `<!DOCTYPE html>${parsedDocument.documentElement.outerHTML}`;
@@ -584,7 +587,8 @@ const buildUnrestrictedPreviewDocument = (htmlContent: string): string => {
   // up with the bridge appended to the real body. Unlike string replacement
   // (`replace(/<\/body>/i, …)`) this cannot land the bridge inside a `</body>`
   // literal in a <script> string or <pre> text.
-  const parsedDocument = parsePreviewDocument(htmlContent);
+  const normalized = normalizeLiveUiHtmlForPreview(htmlContent);
+  const parsedDocument = parsePreviewDocument(normalized);
   if (!parsedDocument) {
     return htmlContent;
   }
@@ -648,7 +652,8 @@ export const createStaticPreviewSnapshotContainer = async (
   options: { themeId?: string; sanitize?: boolean; baseFontSize?: number; readingFontFamily?: ReadingFontFamily } = {},
 ): Promise<{ container: HTMLElement; cleanup: () => void }> => {
   const parser = new DOMParser();
-  const parsedDocument = parser.parseFromString(htmlContent, 'text/html');
+  const normalized = normalizeLiveUiHtmlForPreview(htmlContent);
+  const parsedDocument = parser.parseFromString(normalized, 'text/html');
 
   if (options.sanitize !== false) {
     sanitizeElementTree(parsedDocument);
@@ -761,7 +766,8 @@ export const buildStandaloneHtmlArtifact = async (
   } = {},
 ): Promise<string> => {
   const parser = new DOMParser();
-  const parsedDocument = parser.parseFromString(htmlContent, 'text/html');
+  const normalized = normalizeLiveUiHtmlForPreview(htmlContent);
+  const parsedDocument = parser.parseFromString(normalized, 'text/html');
 
   if (options.sanitize !== false) {
     sanitizeElementTree(parsedDocument);

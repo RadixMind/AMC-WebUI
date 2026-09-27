@@ -96,7 +96,7 @@ const BASE_DEFAULT_APP_SETTINGS: Omit<AppSettings, 'thirdPartyApi'> = {
   serverManagedApi: false,
   serverAccessPassword: null,
   apiKey: null,
-  apiProxyUrl: 'https://api-proxy.de/gemini',
+  apiProxyUrl: null,
   useApiProxy: false,
   language: 'system',
   translationTargetLanguage: DEFAULT_TRANSLATION_TARGET_LANGUAGE,

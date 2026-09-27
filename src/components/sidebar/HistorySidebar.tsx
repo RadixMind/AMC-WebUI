@@ -247,11 +247,7 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = (props) => {
   if (isOpen) {
     lastWideWidth.current = sidebarWidth;
   }
-  const effectivePaneWidth = isMobile
-    ? undefined
-    : isOpen
-      ? `${sidebarWidth}px`
-      : `${lastWideWidth.current}px`;
+  const effectivePaneWidth = isMobile ? undefined : isOpen ? `${sidebarWidth}px` : `${lastWideWidth.current}px`;
 
   // P2: Quiet Scrollbar with 2s linger (DeepSeek-style pointer affordance)
   const SCROLLBAR_LINGER_MS = 2000;
@@ -314,11 +310,13 @@ export const HistorySidebar: React.FC<HistorySidebarProps> = (props) => {
                  overflow-hidden
                  ${isOpen ? 'w-64 md:w-[16.2rem] translate-x-0' : 'w-64 md:w-[52.2px] -translate-x-full md:translate-x-0'}
                  border-r border-[var(--theme-border-primary)]`}
-      style={{
-        width: isOpen ? (isMobile ? undefined : `${sidebarWidth}px`) : undefined,
-        '--sidebar-scrollbar-thumb':
-          pointerInsideSidebar || isResizingSidebar ? 'var(--theme-scrollbar-thumb)' : 'transparent',
-      } as React.CSSProperties}
+      style={
+        {
+          width: isOpen ? (isMobile ? undefined : `${sidebarWidth}px`) : undefined,
+          '--sidebar-scrollbar-thumb':
+            pointerInsideSidebar || isResizingSidebar ? 'var(--theme-scrollbar-thumb)' : 'transparent',
+        } as React.CSSProperties
+      }
       role="complementary"
       aria-label={t('historyTitle')}
     >

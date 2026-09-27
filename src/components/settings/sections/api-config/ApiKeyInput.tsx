@@ -11,6 +11,7 @@ interface ApiKeyInputProps {
   placeholder?: string;
   helpText?: string;
   inputId?: string;
+  serverManagedApi?: boolean;
 }
 
 export const ApiKeyInput: React.FC<ApiKeyInputProps> = ({
@@ -21,9 +22,12 @@ export const ApiKeyInput: React.FC<ApiKeyInputProps> = ({
   placeholder,
   helpText,
   inputId = 'api-key-input',
+  serverManagedApi = false,
 }) => {
   const { t } = useI18n();
   const [isFocused, setIsFocused] = useState(false);
+
+  const defaultPlaceholder = serverManagedApi ? t('apiConfigServerManagedPlaceholder') : t('apiConfigKeyPlaceholder');
 
   // Visual blur effect for API key when not focused
   const apiKeyBlurClass =
@@ -56,7 +60,7 @@ export const ApiKeyInput: React.FC<ApiKeyInputProps> = ({
           }}
           onBlur={() => setIsFocused(false)}
           className={`${inputBaseClasses} ${SETTINGS_INPUT_CLASS} resize-y min-h-[38px] ${apiKeyBlurClass}`}
-          placeholder={placeholder || t('apiConfigKeyPlaceholder')}
+          placeholder={placeholder || defaultPlaceholder}
           spellCheck={false}
         />
         {!isFocused && apiKey && (

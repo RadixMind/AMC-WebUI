@@ -40,6 +40,7 @@ describe('database structure boundaries', () => {
       dbVersion: DB_VERSION,
       stores: [
         { name: 'sessions', options: { keyPath: 'id' } },
+        { name: 'session_metadata', options: { keyPath: 'id' } },
         { name: 'groups', options: { keyPath: 'id' } },
         { name: 'scenarios', options: { keyPath: 'id' } },
         { name: 'keyValueStore' },

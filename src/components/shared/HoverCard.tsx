@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
 const POINTER_GRACE_MS = 150;
@@ -96,10 +89,7 @@ export const HoverCard: React.FC<HoverCardProps> = ({
   const calculatePosition = useCallback(() => {
     const wrapper = rootRef.current;
     if (!wrapper) return null;
-    const target =
-      wrapper.closest('li') ||
-      (wrapper.firstElementChild as HTMLElement) ||
-      wrapper;
+    const target = wrapper.closest('li') || (wrapper.firstElementChild as HTMLElement) || wrapper;
     let r = target.getBoundingClientRect();
     if (r.width === 0 && r.height === 0 && wrapper.firstElementChild) {
       r = (wrapper.firstElementChild as HTMLElement).getBoundingClientRect();

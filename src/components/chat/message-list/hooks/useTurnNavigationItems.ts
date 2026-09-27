@@ -11,8 +11,7 @@ export interface TurnNavigationItem {
   readonly prompt: string;
   readonly response: string;
   readonly anchor?:
-    | { readonly kind: 'loaded'; readonly key?: string }
-    | { readonly kind: 'unloaded'; readonly seq?: number };
+    { readonly kind: 'loaded'; readonly key?: string } | { readonly kind: 'unloaded'; readonly seq?: number };
 }
 
 function normalizeSnippet(text: string, maxLength: number = 140): string {
@@ -35,7 +34,14 @@ function normalizeSnippet(text: string, maxLength: number = 140): string {
 
 export function extractTurnNavigationItems(messages: readonly ChatMessage[]): TurnNavigationItem[] {
   const items: TurnNavigationItem[] = [];
-  let currentItem: { turn: number; messageIndex: number; messageId: string; prompt: string; response: string; anchor: { kind: 'loaded'; key: string } } | null = null;
+  let currentItem: {
+    turn: number;
+    messageIndex: number;
+    messageId: string;
+    prompt: string;
+    response: string;
+    anchor: { kind: 'loaded'; key: string };
+  } | null = null;
   let turnNumber = 0;
 
   for (let index = 0; index < messages.length; index++) {

@@ -47,9 +47,7 @@ const RAIL_INSET_PX = 6;
 const FADE_PX = 24;
 
 function preferredScrollBehavior(): 'auto' | 'smooth' {
-  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
-    ? 'auto'
-    : 'smooth';
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
 }
 
 interface TurnMarkProps extends Pick<TurnNavigatorProps, 'onNavigate' | 't'> {
@@ -88,10 +86,7 @@ const TurnMark = memo(function TurnMark({
       data-index={index}
       type="button"
       className={classes.join(' ')}
-      aria-label={t(
-        isUnloaded ? 'turnNavigationJumpLoad' : 'turnNavigationJump',
-        { turn: item.turn },
-      )}
+      aria-label={t(isUnloaded ? 'turnNavigationJumpLoad' : 'turnNavigationJump', { turn: item.turn })}
       aria-current={active ? 'true' : undefined}
       aria-busy={busy ? 'true' : undefined}
       aria-describedby={previewId}
@@ -177,8 +172,7 @@ function TurnNavigatorRail(
     observeElementRect: (instance, notify) => {
       const element = instance.scrollElement;
       const Observer =
-        instance.targetWindow?.ResizeObserver ??
-        (typeof ResizeObserver !== 'undefined' ? ResizeObserver : undefined);
+        instance.targetWindow?.ResizeObserver ?? (typeof ResizeObserver !== 'undefined' ? ResizeObserver : undefined);
       if (element === null || Observer === undefined) return;
       const observer = new Observer(([entry]) => {
         if (entry === undefined) return;
@@ -340,9 +334,7 @@ function TurnNavigatorRail(
               } as CSSProperties
             }
           >
-            <div className={css.previewPrompt}>
-              {preview.prompt || t('turnNavigationTurn', { turn: preview.turn })}
-            </div>
+            <div className={css.previewPrompt}>{preview.prompt || t('turnNavigationTurn', { turn: preview.turn })}</div>
             {preview.response !== '' && <div className={css.previewResponse}>{preview.response}</div>}
           </div>
         )}

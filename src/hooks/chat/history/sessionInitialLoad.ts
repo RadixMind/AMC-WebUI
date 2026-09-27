@@ -246,6 +246,24 @@ export const loadInitialSessionData = async ({
         );
       }
     }
+
+    const ORPHAN_GC_V7_KEY = 'amc_orphan_gc_v7_done';
+    if (typeof window !== 'undefined' && dbService.cleanupOrphanFiles && !localStorage.getItem(ORPHAN_GC_V7_KEY)) {
+      const scheduleIdle = window.requestIdleCallback || ((cb: () => void) => setTimeout(cb, 5000));
+      scheduleIdle(() => {
+        void dbService
+          .cleanupOrphanFiles()
+          .then((res) => {
+            localStorage.setItem(ORPHAN_GC_V7_KEY, 'true');
+            if (res && res.deletedFileCount > 0) {
+              logService.info(
+                `Orphan file GC cleaned ${res.deletedFileCount} files (${(res.freedBytes / (1024 * 1024)).toFixed(2)} MB freed)`,
+              );
+            }
+          })
+          .catch(() => {});
+      });
+    }
   } catch (loadHistoryError) {
     // A transient DB read failure (e.g. an IndexedDB transaction hiccup while
     // loading the active session) must not nuke the user's current conversation:

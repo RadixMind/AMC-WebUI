@@ -131,11 +131,7 @@ describe('GroupItem 5-Session Bounded Quota & Temporary Expansion', () => {
 
     act(() => {
       renderer.render(
-        <GroupItem
-          {...defaultProps}
-          sessions={sessions}
-          sessionItemProps={{ activeSessionId: 's-7' }}
-        />,
+        <GroupItem {...defaultProps} sessions={sessions} sessionItemProps={{ activeSessionId: 's-7' }} />,
       );
     });
 

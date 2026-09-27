@@ -5,9 +5,7 @@ import type { ChatMessage } from '@/types';
 
 describe('extractSearchSnippet', () => {
   it('returns null if query is empty or no messages match', () => {
-    const messages: ChatMessage[] = [
-      { id: '1', role: 'user', content: 'Hello world', timestamp: new Date() },
-    ];
+    const messages: ChatMessage[] = [{ id: '1', role: 'user', content: 'Hello world', timestamp: new Date() }];
     expect(extractSearchSnippet(messages, '')).toBeNull();
     expect(extractSearchSnippet(messages, '   ')).toBeNull();
     expect(extractSearchSnippet(messages, 'nonexistent')).toBeNull();
@@ -16,9 +14,7 @@ describe('extractSearchSnippet', () => {
 
   it('extracts snippet centered around matching keyword with ellipsis', () => {
     const content = 'The quick brown fox jumps over the lazy dog in a very long sentence with many words.';
-    const messages: ChatMessage[] = [
-      { id: '1', role: 'user', content, timestamp: new Date() },
-    ];
+    const messages: ChatMessage[] = [{ id: '1', role: 'user', content, timestamp: new Date() }];
     const snippet = extractSearchSnippet(messages, 'fox');
     expect(snippet).not.toBeNull();
     expect(snippet).toContain('fox');
@@ -28,9 +24,7 @@ describe('extractSearchSnippet', () => {
   it('adds ellipsis prefix when match is deep into content', () => {
     const prefix = 'A'.repeat(50);
     const content = `${prefix} specificKeyword and some more text following`;
-    const messages: ChatMessage[] = [
-      { id: '1', role: 'user', content, timestamp: new Date() },
-    ];
+    const messages: ChatMessage[] = [{ id: '1', role: 'user', content, timestamp: new Date() }];
     const snippet = extractSearchSnippet(messages, 'specificKeyword');
     expect(snippet).not.toBeNull();
     expect(snippet?.startsWith('…')).toBe(true);

@@ -1,8 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 vi.unmock('./dbService');
 
-const DB_NAME = 'AllModelChatDB';
-const DB_VERSION = 6;
+import { DB_NAME, DB_VERSION } from './dbSchema';
 
 interface MutableRequest<T> {
   result: T;

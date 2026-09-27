@@ -95,6 +95,7 @@ export const ApiConnectionTester: React.FC<ApiConnectionTesterProps> = ({
           <div className="flex items-center gap-2">
             <CheckCircle2 size={16} className="flex-shrink-0" />
             <span className="font-medium">{t('apiConfigTestSuccess')}</span>
+            {testMessage && <span className="text-xs opacity-90 font-normal">({testMessage})</span>}
           </div>
           {latencyMs != null && (
             <div

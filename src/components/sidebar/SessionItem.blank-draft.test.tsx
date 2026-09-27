@@ -32,12 +32,7 @@ describe('SessionItem blank draft placeholder', () => {
     const session = makeBlankSession();
 
     act(() => {
-      renderer.render(
-        <SessionItem
-          session={session}
-          handleStartEdit={handleStartEdit}
-        />,
-      );
+      renderer.render(<SessionItem session={session} handleStartEdit={handleStartEdit} />);
     });
 
     // 1. Relative time is hidden
@@ -78,11 +73,7 @@ describe('SessionItem blank draft placeholder', () => {
 
     act(() => {
       renderer.render(
-        <SessionItem
-          session={session}
-          handleStartEdit={handleStartEdit}
-          activeSessionId="active-blank"
-        />,
+        <SessionItem session={session} handleStartEdit={handleStartEdit} activeSessionId="active-blank" />,
       );
     });
 
