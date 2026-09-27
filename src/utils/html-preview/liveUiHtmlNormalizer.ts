@@ -14,12 +14,16 @@ export type LiveUiHtmlNormalizerOptions = {
 export const normalizeDotSource = (dot: string): string => {
   if (!dot) return dot;
 
-  // Convert single-quoted DOT attributes: label='...', [label='...'], label=\'...\' to label="..."
+  // Convert single-quoted DOT attributes (label='...', label=\'...\')
+  // or outer-escaped attributes (label=\"...\") to standard double-quoted attributes: label="..."
   const normalized = dot.replace(
-    /\b([a-zA-Z0-9_]+)\s*=\s*\\?['"]([\s\S]*?)\\?['"](?=\s*[\],;\n])/g,
+    /\b([a-zA-Z0-9_]+)\s*=\s*(?:'|\\'|\\")([\s\S]*?)(?:'|\\'|\\")(?=\s*[\],;\s\n])/g,
     (_match, attr, content) => {
-      // Escape unescaped double quotes inside content
-      const safeContent = content.replace(/\\"/g, '"').replace(/"/g, '\\"');
+      // Unescape escaped single quotes and outer double quotes, then escape unescaped double quotes inside content
+      const safeContent = content
+        .replace(/\\'/g, "'")
+        .replace(/\\"/g, '"')
+        .replace(/"/g, '\\"');
       return `${attr}="${safeContent}"`;
     },
   );

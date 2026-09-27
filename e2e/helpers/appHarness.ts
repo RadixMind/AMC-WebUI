@@ -215,13 +215,18 @@ export async function seedAppState(
       });
 
       await new Promise<void>((resolve, reject) => {
-        const tx = db.transaction(
-          [sessionStoreName, filesStoreName, groupStoreName, scenarioStoreName, keyValueStoreName],
-          'readwrite',
-        );
+        const hasMetadata = db.objectStoreNames.contains('session_metadata');
+        const targetStores = [sessionStoreName, filesStoreName, groupStoreName, scenarioStoreName, keyValueStoreName];
+        if (hasMetadata) {
+          targetStores.push('session_metadata');
+        }
+        const tx = db.transaction(targetStores, 'readwrite');
         tx.objectStore(filesStoreName).clear();
         tx.objectStore(groupStoreName).clear();
         tx.objectStore(scenarioStoreName).clear();
+        if (hasMetadata) {
+          tx.objectStore('session_metadata').clear();
+        }
 
         if (appSettings) {
           tx.objectStore(keyValueStoreName).put(appSettings, 'appSettings');
@@ -236,9 +241,18 @@ export async function seedAppState(
               timestamp: message.timestamp ? new Date(message.timestamp) : new Date(),
             })),
           });
+          if (hasMetadata) {
+            tx.objectStore('session_metadata').put({
+              ...session,
+              messages: [],
+            });
+          }
           sessionStorage.setItem(activeSessionStorageKey, session.id);
         } else {
           tx.objectStore(sessionStoreName).clear();
+          if (hasMetadata) {
+            tx.objectStore('session_metadata').clear();
+          }
           sessionStorage.removeItem(activeSessionStorageKey);
         }
 

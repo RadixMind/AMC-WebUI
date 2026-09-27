@@ -228,9 +228,11 @@ describe('project structure boundaries', () => {
   it('keeps E2E IndexedDB seed versions aligned with the production schema', () => {
     const productionVersion = extractConstNumber(readProjectFile('src/services/db/dbSchema.ts'), 'DB_VERSION');
     const sidebarVersion = extractConstNumber(readProjectFile('e2e/sidebar-interactions.spec.ts'), 'DB_VERSION');
+    const reorderVersion = extractConstNumber(readProjectFile('e2e/sidebar-session-reorder.spec.ts'), 'DB_VERSION');
     const harnessSource = readProjectFile('e2e/helpers/appHarness.ts');
 
     expect(sidebarVersion).toBe(productionVersion);
+    expect(reorderVersion).toBe(productionVersion);
     // The harness consumes the production schema module instead of keeping a
     // parallel hardcoded copy of the database constants.
     expect(harnessSource).toContain("from '@/services/db/dbSchema'");

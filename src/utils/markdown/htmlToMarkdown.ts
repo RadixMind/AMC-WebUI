@@ -29,8 +29,9 @@ const turndownRules = (turndownService as any).rules as TurndownBlankRuleContain
 const defaultBlankReplacement = turndownRules.blankRule.replacement;
 
 turndownRules.blankRule.replacement = (content: string, node: Node, options: unknown) => {
-  if (node.nodeName === 'DIV' && (node as HTMLElement).hasAttribute('data-amc-graphviz')) {
-    const dot = (node as HTMLElement).getAttribute('data-amc-graphviz')?.trim();
+  if (['DIV', 'PRE'].includes(node.nodeName) && (node as HTMLElement).hasAttribute('data-amc-graphviz')) {
+    const el = node as HTMLElement;
+    const dot = el.getAttribute('data-amc-graphviz')?.trim() || el.textContent?.trim();
     if (dot) return `\n\n\`\`\`graphviz\n${dot}\n\`\`\`\n\n`;
   }
   if (
@@ -46,9 +47,10 @@ turndownRules.blankRule.replacement = (content: string, node: Node, options: unk
 };
 
 turndownService.addRule('graphvizBlock', {
-  filter: (node) => node.nodeName === 'DIV' && node.hasAttribute('data-amc-graphviz'),
+  filter: (node) => ['DIV', 'PRE'].includes(node.nodeName) && (node as HTMLElement).hasAttribute('data-amc-graphviz'),
   replacement: (_content, node) => {
-    const dot = (node as HTMLElement).getAttribute('data-amc-graphviz')?.trim();
+    const el = node as HTMLElement;
+    const dot = el.getAttribute('data-amc-graphviz')?.trim() || el.textContent?.trim();
     return dot ? `\n\n\`\`\`graphviz\n${dot}\n\`\`\`\n\n` : '';
   },
 });

@@ -202,20 +202,50 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
   let requestSeq = 0;
   const MAX_PENDING = 64;
 
-  const requestRender = (node) => {
-    const dot = node.getAttribute(ATTR) || '';
+  const getDotSource = (node) => {
+    const attrDot = node.getAttribute(ATTR);
+    if (attrDot && attrDot.trim()) return attrDot.trim();
+    return (node.textContent || '').trim();
+  };
+
+  const pendingFallbackTimers = new WeakMap();
+  const PENDING_FALLBACK_TIMEOUT_MS = 1500;
+
+  const clearPendingFallback = (node) => {
+    const timer = pendingFallbackTimers.get(node);
+    if (timer) {
+      clearTimeout(timer);
+      pendingFallbackTimers.delete(node);
+    }
+  };
+
+  const schedulePendingFallback = (node) => {
+    clearPendingFallback(node);
+    const timer = setTimeout(() => {
+      pendingFallbackTimers.delete(node);
+      if (node.isConnected && node.getAttribute(STATE_ATTR) === 'pending') {
+        requestRender(node, true);
+      }
+    }, PENDING_FALLBACK_TIMEOUT_MS);
+    pendingFallbackTimers.set(node, timer);
+  };
+
+  const requestRender = (node, force = false) => {
+    const dot = getDotSource(node);
     if (!dot) {
       showFallback(node, dot, 'Missing DOT source');
       return;
     }
     const sig = hash(dot);
-    if (node.getAttribute(SIG_ATTR) === sig) return;
+    if (!force && node.getAttribute(SIG_ATTR) === sig) return;
 
-    if (!isProbablyCompleteDot(dot)) {
+    if (!force && !isProbablyCompleteDot(dot)) {
       setState(node, 'pending');
+      schedulePendingFallback(node);
       return;
     }
 
+    clearPendingFallback(node);
     const id = 'amc-gv-' + String(++requestSeq);
     pendingById.set(id, { node, sig });
     if (pendingById.size > MAX_PENDING) {
@@ -229,7 +259,8 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
 
     if (parentWindow && typeof parentWindow.postMessage === 'function') {
       parentWindow.postMessage({ channel, event: 'graphviz-render-request', payload: { id, dot } }, '*');
-    }  };
+    }
+  };
 
   const handleRenderResponse = (data) => {
     const payload = data.payload;
@@ -243,7 +274,7 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
 
     // The stream may have advanced while the render was in flight: drop the
     // stale response so an older layout never replaces newer content.
-    const currentDot = node.getAttribute(ATTR) || '';
+    const currentDot = getDotSource(node);
     if (hash(currentDot) !== entry.sig) return;
 
     if (payload.ok && typeof payload.svg === 'string') {
@@ -251,6 +282,11 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
       if (!svgRoot) {
         showFallback(node, currentDot, 'Invalid SVG response');
         return;
+      }
+      // If DOT was authored in textContent (e.g. <pre data-amc-graphviz>),
+      // mirror it to the attribute so replacing children doesn't lose the source
+      if (!node.getAttribute(ATTR)) {
+        node.setAttribute(ATTR, currentDot);
       }
       // The sandbox iframe has no utility classes; use inline styles so wide LR
       // diagrams scroll instead of being clipped or squashed.
@@ -303,7 +339,7 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
     (window.requestAnimationFrame || ((fn) => fn()))(() => {
       scanScheduled = false;
       dirtyNodes.forEach((node) => {
-        const dot = node.getAttribute(ATTR) || '';
+        const dot = getDotSource(node);
         // Fast path: skip re-rendering nodes whose dot has not changed since the
         // last time they were seen (cheaper than re-hashing every node).
         if (lastDotByNode.get(node) !== dot) {
@@ -323,16 +359,25 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
       const mutation = mutations[mutationIndex];
       if (mutation.type === 'attributes' && mutation.attributeName === ATTR) {
         dirtyNodes.add(mutation.target);
+      } else if (mutation.type === 'characterData') {
+        const parent = mutation.target.parentElement;
+        const targetNode = parent ? parent.closest('[' + ATTR + ']') : null;
+        if (targetNode) dirtyNodes.add(targetNode);
       } else if (mutation.type === 'childList') {
         const addedNodes = mutation.addedNodes;
         for (let nodeIndex = 0; nodeIndex < addedNodes.length; nodeIndex += 1) {
           const node = addedNodes[nodeIndex];
-          if (node.nodeType !== 1) continue;
-          if (node.hasAttribute && node.hasAttribute(ATTR)) {
-            dirtyNodes.add(node);
-          }
-          if (node.querySelectorAll) {
-            node.querySelectorAll('[' + ATTR + ']').forEach((targetNode) => dirtyNodes.add(targetNode));
+          if (node.nodeType === 1) {
+            if (node.hasAttribute && node.hasAttribute(ATTR)) {
+              dirtyNodes.add(node);
+            }
+            if (node.querySelectorAll) {
+              node.querySelectorAll('[' + ATTR + ']').forEach((targetNode) => dirtyNodes.add(targetNode));
+            }
+          } else if (node.nodeType === 3) {
+            const parent = node.parentElement;
+            const targetNode = parent ? parent.closest('[' + ATTR + ']') : null;
+            if (targetNode) dirtyNodes.add(targetNode);
           }
         }
       }
@@ -395,6 +440,7 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
     observer.observe(document.documentElement || document, {
       childList: true,
       subtree: true,
+      characterData: true,
       attributes: true,
       attributeFilter: [ATTR],
     });

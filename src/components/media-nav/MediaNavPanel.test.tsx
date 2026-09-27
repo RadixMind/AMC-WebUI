@@ -1,5 +1,5 @@
 import { setupProviderTestRenderer as setupTestRenderer } from '@/test/render/providerRenderer';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, act } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MediaNavPanel } from './MediaNavPanel';
 import { useMediaNavStore } from '@/stores/mediaNavStore';
@@ -179,6 +179,97 @@ describe('MediaNavPanel', () => {
       expect(panel.className).not.toContain('relative');
     } finally {
       isMobileSpy.mockRestore();
+    }
+  });
+
+  it('supports drag resizing, keyboard resizing, and double-click reset', () => {
+    useMediaNavStore.setState({
+      isOpen: true,
+      openKind: 'video',
+      activeFileId: 'vid-1',
+      width: 500,
+    });
+    useChatStore.setState({
+      selectedFiles: [mockVideoFile],
+      activeMessages: [],
+    });
+
+    renderer.render(<MediaNavPanel />);
+
+    const handle = screen.getByTestId('medianav-resize-handle');
+    expect(handle).toBeDefined();
+    expect(handle.getAttribute('aria-valuenow')).toBe('500');
+
+    // Drag resize: mousedown -> mousemove -> mouseup
+    fireEvent.mouseDown(handle);
+    // Simulating dragging left on a 1920px screen: clientX = 1000 -> width = 1920 - 1000 = 920
+    const originalInnerWidth = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { value: 1920, configurable: true });
+    try {
+      act(() => {
+        fireEvent.mouseMove(window, { clientX: 1000 });
+      });
+      expect(useMediaNavStore.getState().width).toBe(920);
+
+      act(() => {
+        fireEvent.mouseUp(window);
+      });
+
+      // Keyboard resize: ArrowLeft increases width
+      act(() => {
+        fireEvent.keyDown(handle, { key: 'ArrowLeft' });
+      });
+      expect(useMediaNavStore.getState().width).toBe(940);
+
+      // Keyboard resize: ArrowRight decreases width
+      act(() => {
+        fireEvent.keyDown(handle, { key: 'ArrowRight' });
+      });
+      expect(useMediaNavStore.getState().width).toBe(920);
+
+      // Double-click reset restores default width (540)
+      act(() => {
+        fireEvent.doubleClick(handle);
+      });
+      expect(useMediaNavStore.getState().width).toBe(540);
+
+      // Keyboard Home resets width as well
+      act(() => {
+        useMediaNavStore.setState({ width: 700 });
+        fireEvent.keyDown(handle, { key: 'Home' });
+      });
+      expect(useMediaNavStore.getState().width).toBe(540);
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { value: originalInnerWidth, configurable: true });
+    }
+  });
+
+  it('clamps width when window resize event is triggered', () => {
+    const originalInnerWidth = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { value: 2560, configurable: true });
+    try {
+      useMediaNavStore.setState({
+        isOpen: true,
+        openKind: 'video',
+        activeFileId: 'vid-1',
+        width: 1500,
+      });
+      useChatStore.setState({
+        selectedFiles: [mockVideoFile],
+        activeMessages: [],
+      });
+
+      renderer.render(<MediaNavPanel />);
+
+      // Shrink window to 1024px (where maxAllowed is 644)
+      Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
+      act(() => {
+        fireEvent(window, new Event('resize'));
+      });
+
+      expect(useMediaNavStore.getState().width).toBe(644);
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { value: originalInnerWidth, configurable: true });
     }
   });
 });

@@ -2,7 +2,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { useChatStore } from '@/stores/chatStore';
-import { useMediaNavStore, type MediaNavKind } from '@/stores/mediaNavStore';
+import {
+  MEDIA_NAV_DEFAULT_WIDTH,
+  MEDIA_NAV_MIN_WIDTH,
+  MEDIA_NAV_STORAGE_KEY,
+  resolveMediaNavMaxWidth,
+  useMediaNavStore,
+  type MediaNavKind,
+} from '@/stores/mediaNavStore';
 import { collectSessionMediaFiles, formatMediaNavDisplayName } from '@/utils/media-nav/sessionMediaFiles';
 import { useIsMobile } from '@/hooks/ui/useDevice';
 import { Z_INDEX_SIDE_PANEL_MOBILE, Z_INDEX_TOPMOST_OVERLAY } from '@/constants/layout';
@@ -128,7 +135,14 @@ const MediaNavPanelComponent: React.FC = () => {
   }, []);
 
   const resetWidth = useCallback(() => {
-    setWidth(480);
+    setWidth(MEDIA_NAV_DEFAULT_WIDTH);
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(MEDIA_NAV_STORAGE_KEY);
+      }
+    } catch {
+      // Ignore
+    }
   }, [setWidth]);
 
   const resize = useCallback(
@@ -139,6 +153,18 @@ const MediaNavPanelComponent: React.FC = () => {
     },
     [setWidth],
   );
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      const currentWidth = useMediaNavStore.getState().width;
+      const maxWidth = resolveMediaNavMaxWidth();
+      if (currentWidth > maxWidth) {
+        setWidth(maxWidth);
+      }
+    };
+    window.addEventListener('resize', handleWindowResize);
+    return () => window.removeEventListener('resize', handleWindowResize);
+  }, [setWidth]);
 
   useEffect(() => {
     if (isResizing) {
@@ -185,17 +211,18 @@ const MediaNavPanelComponent: React.FC = () => {
             aria-label={t('sidePanelDragResize')}
             aria-orientation="vertical"
             aria-valuenow={width}
-            aria-valuemin={320}
+            aria-valuemin={MEDIA_NAV_MIN_WIDTH}
+            aria-valuemax={resolveMediaNavMaxWidth()}
             tabIndex={0}
             onMouseDown={startResizing}
             onDoubleClick={resetWidth}
             onKeyDown={(event) => {
               if (event.key === 'ArrowLeft') {
                 event.preventDefault();
-                setWidth(Math.min(width + 20, Math.round(window.innerWidth * 0.9)));
+                setWidth(Math.min(width + 20, resolveMediaNavMaxWidth()));
               } else if (event.key === 'ArrowRight') {
                 event.preventDefault();
-                setWidth(Math.max(width - 20, 320));
+                setWidth(Math.max(width - 20, MEDIA_NAV_MIN_WIDTH));
               } else if (event.key === 'Home') {
                 event.preventDefault();
                 resetWidth();

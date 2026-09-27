@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, type RefObject } from 'react';
 
 export const MIN_TITLE_REVEAL_PX = 8;
-export const TITLE_MARQUEE_PX_PER_MS = 0.03;
+const TITLE_MARQUEE_PX_PER_MS = 0.03;
 
 function placeTitle(title: HTMLElement, left: number, range: number): void {
   if (typeof title.scrollTo === 'function') {

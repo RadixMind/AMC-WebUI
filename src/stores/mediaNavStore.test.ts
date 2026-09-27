@@ -1,7 +1,15 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { MEDIA_NAV_MAX_WIDTH, MEDIA_NAV_MIN_WIDTH, useMediaNavStore } from './mediaNavStore';
+import {
+  MEDIA_NAV_DEFAULT_WIDTH,
+  MEDIA_NAV_MIN_WIDTH,
+  MEDIA_NAV_STORAGE_KEY,
+  getInitialMediaNavWidth,
+  resolveMediaNavMaxWidth,
+  useMediaNavStore,
+} from './mediaNavStore';
 
 const resetStore = () => {
+  localStorage.clear();
   useMediaNavStore.setState({
     isOpen: false,
     openKind: null,
@@ -68,13 +76,48 @@ describe('mediaNavStore', () => {
     expect(useMediaNavStore.getState().videoTarget).toBeNull();
   });
 
-  it('clamps the panel width to the allowed range', () => {
+  it('clamps the panel width to the allowed range and persists to localStorage', () => {
     useMediaNavStore.getState().setWidth(10);
     expect(useMediaNavStore.getState().width).toBe(MEDIA_NAV_MIN_WIDTH);
+    expect(localStorage.getItem(MEDIA_NAV_STORAGE_KEY)).toBe(String(MEDIA_NAV_MIN_WIDTH));
+
     useMediaNavStore.getState().setWidth(99999);
-    expect(useMediaNavStore.getState().width).toBe(MEDIA_NAV_MAX_WIDTH);
+    expect(useMediaNavStore.getState().width).toBe(resolveMediaNavMaxWidth());
+    expect(localStorage.getItem(MEDIA_NAV_STORAGE_KEY)).toBe(String(resolveMediaNavMaxWidth()));
+
     useMediaNavStore.getState().setWidth(513.6);
     expect(useMediaNavStore.getState().width).toBe(514);
+    expect(localStorage.getItem(MEDIA_NAV_STORAGE_KEY)).toBe('514');
+  });
+
+  it('calculates dynamic max width based on window width and protects chat space', () => {
+    // 2560px screen: chat has 380px reserved, 2560 - 380 = 2180px, capped at 90% (2304) -> 2180px
+    expect(resolveMediaNavMaxWidth({ innerWidth: 2560 } as Window)).toBe(2180);
+    // 1920px screen: 1920 - 380 = 1540px, capped at 90% (1728) -> 1540px
+    expect(resolveMediaNavMaxWidth({ innerWidth: 1920 } as Window)).toBe(1540);
+    // 1024px screen: 1024 - 380 = 644px, capped at 90% (922) -> 644px
+    expect(resolveMediaNavMaxWidth({ innerWidth: 1024 } as Window)).toBe(644);
+    // Small screen: never drops below MEDIA_NAV_MIN_WIDTH (320)
+    expect(resolveMediaNavMaxWidth({ innerWidth: 400 } as Window)).toBe(MEDIA_NAV_MIN_WIDTH);
+    // Invalid/mock window fallback
+    expect(resolveMediaNavMaxWidth({} as Window)).toBe(1920);
+  });
+
+  it('initializes width from localStorage when valid or defaults gracefully', () => {
+    localStorage.setItem(MEDIA_NAV_STORAGE_KEY, '780');
+    expect(getInitialMediaNavWidth({ innerWidth: 1920 } as Window)).toBe(780);
+
+    // Stored width exceeding maxWidth gets clamped to maxWidth
+    localStorage.setItem(MEDIA_NAV_STORAGE_KEY, '3000');
+    expect(getInitialMediaNavWidth({ innerWidth: 1920 } as Window)).toBe(1540);
+
+    // Stored width smaller than min gets reset to default
+    localStorage.setItem(MEDIA_NAV_STORAGE_KEY, '100');
+    expect(getInitialMediaNavWidth({ innerWidth: 1920 } as Window)).toBe(MEDIA_NAV_DEFAULT_WIDTH);
+
+    // Corrupted non-numeric value in storage gets reset to default
+    localStorage.setItem(MEDIA_NAV_STORAGE_KEY, 'invalid');
+    expect(getInitialMediaNavWidth({ innerWidth: 1920 } as Window)).toBe(MEDIA_NAV_DEFAULT_WIDTH);
   });
 
   it('updates currentPlayTime and resets on close or document switch', () => {

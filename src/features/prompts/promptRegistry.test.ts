@@ -110,7 +110,11 @@ describe('promptRegistry', () => {
       await import('@/features/graphviz/graphvizLimits');
 
     const prompt = await loadLiveArtifactsSystemPrompt();
-    const examples = [...prompt.matchAll(/<div[^>]*data-amc-graphviz='([^']+)'/g)].map((match) => match[1]);
+    const examples = [
+      ...prompt.matchAll(/(?:<div|<pre)[^>]*data-amc-graphviz(?:='([^']+)'|>([\s\S]*?)<\/(?:div|pre)>)/g),
+    ]
+      .map((match) => (match[1] ?? match[2])?.trim())
+      .filter(Boolean) as string[];
     expect(examples.length).toBeGreaterThanOrEqual(2);
     for (const dot of examples) {
       expect(isProbablyCompleteDot(dot)).toBe(true);

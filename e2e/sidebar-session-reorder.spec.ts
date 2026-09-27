@@ -4,7 +4,7 @@ import { seedAppState } from './helpers/appHarness';
 
 const HISTORY_SIDEBAR_STORAGE_KEY = 'all_model_chat_history_sidebar_v1';
 const DB_NAME = 'AllModelChatDB';
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 
 const BASE_SETTINGS = {
   modelId: 'gemini-2.5-flash',
@@ -55,8 +55,10 @@ async function addSessions(page: Page, sessions: SeededSession[]) {
       });
 
       await new Promise<void>((resolve, reject) => {
-        const tx = db.transaction(['sessions'], 'readwrite');
+        const hasMetadata = db.objectStoreNames.contains('session_metadata');
+        const tx = db.transaction(hasMetadata ? ['sessions', 'session_metadata'] : ['sessions'], 'readwrite');
         const store = tx.objectStore('sessions');
+        const metaStore = hasMetadata ? tx.objectStore('session_metadata') : null;
 
         nextSessions.forEach((session) => {
           store.put({
@@ -66,6 +68,9 @@ async function addSessions(page: Page, sessions: SeededSession[]) {
               timestamp: new Date(message.timestamp),
             })),
           });
+          if (metaStore) {
+            metaStore.put({ ...session, messages: [] });
+          }
         });
 
         tx.oncomplete = () => {
@@ -262,7 +267,11 @@ test('dropping a plain session into the pinned zone pins it', async ({ page }) =
     .toBe(true);
 
   // 置顶项会渲染图钉图标。
-  await expect(page.getByRole('link', { name: 'Oldest chat', exact: true }).locator('svg').first()).toBeVisible();
+  await expect(
+    page
+      .locator('li', { has: page.getByRole('link', { name: 'Oldest chat', exact: true }) })
+      .getByTestId('session-pinned-indicator'),
+  ).toBeVisible();
 });
 
 test('group view drops the date subheaders in the ungrouped area', async ({ page }) => {

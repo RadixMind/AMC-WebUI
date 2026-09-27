@@ -47,7 +47,6 @@ export type {
   ApiUsageRequestKind,
 } from './apiUsageRecords';
 export type { AppDataSizeEstimate } from './appDataSize';
-export type { OrphanCleanupResult } from './orphanFileCleanup';
 
 export const dbService = {
   getAllSessions,

@@ -78,22 +78,25 @@ Chart routing: ALWAYS prefer native micro-components (BarList) for rankings & di
 - Always include tooltip: "tooltip":{"trigger":"axis"}. orders of magnitude (>10x): use log axis. Metric cards: figures alongside charts belong in HTML Metric cards.
 
 ## Declarative graph DSL (data-amc-graphviz)
-Use data-amc-graphviz for structure/flow/organization (host renders layout).
-- Usage: <div data-amc-graphviz='digraph { start[label="[Start]"]; parse[label="[Parse Request]"]; start->parse; }'></div>
-- Syntax & Escape Safety (STRICT):
-  - The attribute is single-quoted: data-amc-graphviz='...'.
-  - Strings inside MUST use double quotes only: node[label="Text"].
-  - STRICT BAN on raw apostrophes/single quotes (') inside the attribute: never write it's, don't, or 'text' inside DOT labels (use full words "it is", "do not" or curly apostrophe ’); a raw single quote terminates the HTML attribute and crashes rendering.
-  - No HTML-like labels (<...>).
-- Limits & Complexity Routing:
-  - Hard limits: DOT ≤ ${DOT_MAX_CHARS} chars; nodes ≤ ${DOT_MAX_NODES}; edges ≤ ${DOT_MAX_EDGES}.
-  - Hierarchical decomposition: If a system or business architecture is large (>15 nodes or dense branches), NEVER squeeze everything into a single diagram. Decompose into a high-level overview diagram followed by focused sub-process diagrams or narrative steps, keeping each diagram clean and well below limits.
-- Shapes, Flow & Colors:
+Use data-amc-graphviz on pre container for structure/flow/organization (host renders layout as interactive vector SVG).
+- Usage: write DOT source directly inside pre element:
+<pre data-amc-graphviz>
+digraph { start [label="[Start]"]; parse [label="[Parse Request]"]; start -> parse; }
+</pre>
+- Syntax & Safety:
+  - Inside <pre data-amc-graphviz>, write standard Graphviz DOT directly. Do not wrap in markdown code fences (\`\`\`graphviz).
+  - Node attributes MUST be separated by commas (e.g. node [shape=box, style="filled", fillcolor="#F8FAFC"]).
+  - Strings inside use standard double quotes: node[label="Text"].
   - Standard shapes (decision: shape=diamond); parallel branches: subgraph cluster_* { label="[Lane Name]" }; Do not wrap a straight pipeline in lanes; back-edges style=dashed; declare style="filled" when setting fillcolor.
   - Multi-step pipelines (>3 steps): rankdir=TB to fit bubble width.
   - Colors: use semantic color names (accent, success, warning, danger, muted) or concrete hex (e.g. fillcolor="#E0E7FF"); STRICTLY FORBIDDEN to write var(--amc-...) inside DOT attributes.
+- Limits & Complexity Routing:
+  - Hard limits: DOT ≤ ${DOT_MAX_CHARS} chars; nodes ≤ ${DOT_MAX_NODES}; edges ≤ ${DOT_MAX_EDGES}.
+  - Hierarchical decomposition: If a system or business architecture is large (>15 nodes or dense branches), NEVER squeeze everything into a single diagram. Decompose into a high-level overview diagram followed by focused sub-process diagrams or narrative steps, keeping each diagram clean and well below limits.
 Example:
-<div data-amc-graphviz='digraph { rankdir=TB; start[label="[Start]" shape=ellipse]; decide[label="[Branch?]" shape=diamond style="filled" fillcolor=accent]; subgraph cluster_ok { label="[Pass]"; done[label="[Done]" style="filled" fillcolor=success]; } start->decide; decide->done; retry->decide [style=dashed]; }'></div>
+<pre data-amc-graphviz>
+digraph { rankdir=TB; start [label="[Start]", shape=ellipse]; decide [label="[Branch?]", shape=diamond, style="filled", fillcolor=accent]; subgraph cluster_ok { label="[Pass]"; done [label="[Done]", style="filled", fillcolor=success]; } start -> decide; decide -> done; retry -> decide [style=dashed]; }
+</pre>
 
 ## Standard-tier example
 <div style="display:block;width:100%;box-sizing:border-box;max-width:100%;overflow-wrap:anywhere;">

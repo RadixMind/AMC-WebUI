@@ -79,18 +79,23 @@ test('chat scroll-to-bottom paths land at the true bottom of the message list', 
   await page.waitForTimeout(1500);
   await expect.poll(residual, { timeout: 15_000 }).toBeLessThanOrEqual(1);
 
-  // At the true bottom only the scroll-up control remains (the scroll-down
-  // control requires !atBottom, which must be false here).
-  const navButtons = page.locator('div[class*="z-30"][class*="right-3"] button');
-  await expect(navButtons).toHaveCount(1);
+  // At the true bottom, the last turn in TurnNavigator is marked active.
+  const turnButtons = page.getByRole('navigation', { name: /(turn navigation|轮次导航)/i }).getByRole('button');
+  await expect(turnButtons).toHaveCount(TURNS);
+  await expect(turnButtons.last()).toHaveAttribute('aria-current', 'true');
 
-  // Jump up, then use the double-click scroll-to-bottom shortcut.
+  // Jump up, verify that bottom state clears.
   await page.evaluate(() => {
     const el = document.querySelector('.chat-message-list-scroller');
     if (el) el.scrollTop = Math.max(0, el.scrollTop - 1500);
   });
-  await expect(navButtons).toHaveCount(2);
-  await navButtons.last().dblclick();
+  await expect(turnButtons.last()).not.toHaveAttribute('aria-current', 'true');
+
+  // Scroll back to the true bottom.
+  await page.evaluate(() => {
+    const el = document.querySelector('.chat-message-list-scroller');
+    if (el) el.scrollTop = el.scrollHeight;
+  });
   await expect.poll(residual, { timeout: 15_000 }).toBeLessThanOrEqual(1);
-  await expect(navButtons).toHaveCount(1);
+  await expect(turnButtons.last()).toHaveAttribute('aria-current', 'true');
 });

@@ -52,8 +52,10 @@ async function addSessions(page: Page, sessions: Array<ReturnType<typeof createS
       });
 
       await new Promise<void>((resolve, reject) => {
-        const tx = db.transaction(['sessions'], 'readwrite');
+        const hasMetadata = db.objectStoreNames.contains('session_metadata');
+        const tx = db.transaction(hasMetadata ? ['sessions', 'session_metadata'] : ['sessions'], 'readwrite');
         const store = tx.objectStore('sessions');
+        const metaStore = hasMetadata ? tx.objectStore('session_metadata') : null;
 
         nextSessions.forEach((session) => {
           store.put({
@@ -63,6 +65,9 @@ async function addSessions(page: Page, sessions: Array<ReturnType<typeof createS
               timestamp: new Date(message.timestamp),
             })),
           });
+          if (metaStore) {
+            metaStore.put({ ...session, messages: [] });
+          }
         });
 
         tx.oncomplete = () => {
@@ -150,7 +155,7 @@ test('sidebar session menu still opens after a slight pointer move', async ({ pa
   const sessionRow = page.locator('li', { hasText: targetSession.title });
   await sessionRow.hover();
 
-  const menuButton = sessionRow.locator('button').first();
+  const menuButton = sessionRow.getByRole('button', { name: /(session options|会话操作)/i });
   await expect(menuButton).toBeVisible();
 
   const box = await menuButton.boundingBox();

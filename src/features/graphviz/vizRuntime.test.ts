@@ -622,6 +622,23 @@ describe('hydrateGraphvizIntoDocument', () => {
     expect(node.querySelector('svg')).toBeNull();
     expect(node.textContent).toContain('placeholder');
   });
+
+  it('hydrates pre[data-amc-graphviz] with DOT in textContent into static SVG', async () => {
+    fakeInstance.renderSVGElement.mockImplementation(async (code: string) => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('data-code', code);
+      return svg;
+    });
+    const doc = new DOMParser().parseFromString(
+      '<!DOCTYPE html><html><body><pre data-amc-graphviz>digraph { A -> B }</pre></body></html>',
+      'text/html',
+    );
+    await hydrateGraphvizIntoDocument(doc, { themeId: 'pearl' });
+
+    const node = doc.querySelector('[data-amc-graphviz]') as HTMLElement;
+    expect(node.querySelector('svg')).not.toBeNull();
+    expect(node.getAttribute('data-amc-graphviz-state')).toBe('rendered');
+  });
 });
 
 describe('compensateCjkNodeWidths and CJK metrics', () => {

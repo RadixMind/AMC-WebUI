@@ -40,8 +40,9 @@ ${STREAM_SANITIZER_SCRIPT}
   // would overwrite the runtime-added data-amc-graphviz-sig/-state attributes
   // back to nothing and force a pointless re-request.
   const isGraphvizNode = (node) => node && node.nodeType === Node.ELEMENT_NODE && node.hasAttribute('data-amc-graphviz');
+  const getGraphvizDot = (node) => (node.getAttribute('data-amc-graphviz') || node.textContent || '').trim();
   const graphvizAttrEqual = (firstNode, secondNode) =>
-    firstNode.getAttribute('data-amc-graphviz') === secondNode.getAttribute('data-amc-graphviz');
+    getGraphvizDot(firstNode) === getGraphvizDot(secondNode);
 
   const canPatchNode = (currentNode, nextNode) => {
     if (currentNode.nodeType !== nextNode.nodeType) return false;

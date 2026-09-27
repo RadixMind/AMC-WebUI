@@ -4,7 +4,7 @@ import type { ChatMessage } from '@/types';
 /**
  * Escape regex special characters so user search queries can be safely passed to RegExp.
  */
-export function escapeRegExp(string: string): string {
+function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 

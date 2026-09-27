@@ -17,7 +17,7 @@ const DRAG_HOVER_EXPAND_MS = 600;
 const FALLBACK_INPUT_REF: RefObject<HTMLInputElement> = { current: null };
 const FALLBACK_MENU_REF: RefObject<HTMLDivElement> = { current: null };
 
-export const COLLAPSED_GROUP_SESSION_LIMIT = 5;
+const COLLAPSED_GROUP_SESSION_LIMIT = 5;
 
 const isProvisionalBlank = (s: SavedChatSession): boolean => {
   return (

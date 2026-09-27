@@ -471,4 +471,26 @@ describe('GRAPHVIZ_RENDERER_SCRIPT', () => {
       title: 'Graphviz',
     });
   });
+
+  it('renders DOT authored as child text content in pre[data-amc-graphviz] and preserves it in attribute', () => {
+    const doc = new DOMParser().parseFromString('<!DOCTYPE html><html><body></body></html>', 'text/html');
+    const pre = doc.createElement('pre');
+    pre.setAttribute('data-amc-graphviz', '');
+    pre.textContent = 'digraph { Alpha -> Beta; }';
+    doc.body.appendChild(pre);
+
+    const { requests, dispatch } = runRenderer(doc);
+    expect(requests).toHaveLength(1);
+    expect(requests[0]!.dot).toBe('digraph { Alpha -> Beta; }');
+
+    dispatch({
+      id: requests[0]!.id,
+      ok: true,
+      svg: '<svg xmlns="http://www.w3.org/2000/svg"><circle r="5"/></svg>',
+    });
+
+    expect(pre.getAttribute('data-amc-graphviz-state')).toBe('rendered');
+    expect(pre.getAttribute('data-amc-graphviz')).toBe('digraph { Alpha -> Beta; }');
+    expect(pre.querySelector('svg')).not.toBeNull();
+  });
 });

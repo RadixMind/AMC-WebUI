@@ -52,6 +52,13 @@ describe('convertHtmlToMarkdown', () => {
     expect(markdown).not.toContain('<svg');
   });
 
+  it('converts pre[data-amc-graphviz] with child textContent into fenced graphviz markdown', () => {
+    const html = '<pre data-amc-graphviz>digraph { X -> Y; }</pre>';
+    const markdown = convertHtmlToMarkdown(html);
+
+    expect(markdown).toContain('```graphviz\ndigraph { X -> Y; }\n```');
+  });
+
   it('converts data-amc-chart containers into fenced echarts markdown', () => {
     const html = '<div data-amc-chart=\'{"series":[{"data":[1]}]}\'></div>';
     const markdown = convertHtmlToMarkdown(html);

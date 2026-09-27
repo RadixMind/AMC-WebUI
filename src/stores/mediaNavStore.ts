@@ -91,8 +91,44 @@ interface MediaNavState {
 }
 
 export const MEDIA_NAV_MIN_WIDTH = 320;
-export const MEDIA_NAV_MAX_WIDTH = 840;
-const MEDIA_NAV_DEFAULT_WIDTH = 540;
+export const MEDIA_NAV_DEFAULT_WIDTH = 540;
+export const MEDIA_NAV_STORAGE_KEY = 'amc-medianav-width';
+
+/**
+ * Calculates dynamic maximum allowed width for the media navigation panel.
+ * Reserves at least 380px for chat operations, while capping at 90% of screen width.
+ */
+export const resolveMediaNavMaxWidth = (
+  targetWindow: Window = typeof window !== 'undefined' ? window : ({} as Window),
+): number => {
+  if (!targetWindow || typeof targetWindow.innerWidth !== 'number' || !Number.isFinite(targetWindow.innerWidth)) {
+    return 1920;
+  }
+  const maxAllowedByChat = Math.max(MEDIA_NAV_MIN_WIDTH, targetWindow.innerWidth - 380);
+  const maxAllowedByRatio = Math.round(targetWindow.innerWidth * 0.9);
+  return Math.max(MEDIA_NAV_MIN_WIDTH, Math.min(maxAllowedByChat, maxAllowedByRatio));
+};
+
+export const getInitialMediaNavWidth = (
+  targetWindow: Window = typeof window !== 'undefined' ? window : ({} as Window),
+): number => {
+  const maxWidth = resolveMediaNavMaxWidth(targetWindow);
+  if (typeof targetWindow === 'undefined' || typeof localStorage === 'undefined') {
+    return Math.min(maxWidth, MEDIA_NAV_DEFAULT_WIDTH);
+  }
+  try {
+    const saved = localStorage.getItem(MEDIA_NAV_STORAGE_KEY);
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (Number.isFinite(parsed) && parsed >= MEDIA_NAV_MIN_WIDTH) {
+        return Math.min(maxWidth, parsed);
+      }
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return Math.min(maxWidth, Math.max(MEDIA_NAV_MIN_WIDTH, MEDIA_NAV_DEFAULT_WIDTH));
+};
 
 let seekTokenCounter = 0;
 let focusTokenCounter = 0;
@@ -108,7 +144,7 @@ export const useMediaNavStore = create<MediaNavState>((set) => ({
   imageHighlight: null,
   imageHighlights: [],
   currentPlayTime: null,
-  width: MEDIA_NAV_DEFAULT_WIDTH,
+  width: getInitialMediaNavWidth(),
   openAs: (kind) => set({ isOpen: true, openKind: kind }),
   close: () => {
     restoreSidebarIfAutoCollapsed();
@@ -173,7 +209,18 @@ export const useMediaNavStore = create<MediaNavState>((set) => ({
     }),
   consumeVideoTarget: () => set({ videoTarget: null }),
   setCurrentPlayTime: (time) => set({ currentPlayTime: time }),
-  setWidth: (width) => set({ width: Math.min(MEDIA_NAV_MAX_WIDTH, Math.max(MEDIA_NAV_MIN_WIDTH, Math.round(width))) }),
+  setWidth: (width) => {
+    const maxWidth = resolveMediaNavMaxWidth();
+    const clamped = Math.min(maxWidth, Math.max(MEDIA_NAV_MIN_WIDTH, Math.round(width)));
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(MEDIA_NAV_STORAGE_KEY, String(clamped));
+      }
+    } catch {
+      // Ignore storage errors
+    }
+    set({ width: clamped });
+  },
 }));
 
 /** Imperative helpers for callers outside React trees. */

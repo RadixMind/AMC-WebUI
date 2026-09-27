@@ -988,7 +988,8 @@ export const hydrateGraphvizIntoDocument = async (doc: Document, options: DotRen
 
   await Promise.all(
     nodes.map(async (node) => {
-      const dot = node.getAttribute('data-amc-graphviz') ?? '';
+      const htmlEl = node as HTMLElement;
+      const dot = (htmlEl.getAttribute('data-amc-graphviz') || htmlEl.textContent)?.trim() ?? '';
       const result = await renderDotToSvgCached(dot, options);
       if (!result.ok) return;
 
