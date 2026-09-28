@@ -28,6 +28,7 @@ export interface TurnNavigatorProps {
   /** Turn whose jump is still paging history in; its mark pulses. */
   readonly busyTurn?: number | null;
   readonly onNavigate: (item: TurnNavigationItem) => void;
+  readonly chatInputHeight?: number;
   readonly t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -107,7 +108,7 @@ const TurnMark = memo(function TurnMark({
 });
 
 function TurnNavigatorRail(
-  { items, activeTurn, busyTurn = null, onNavigate, t }: TurnNavigatorProps,
+  { items, activeTurn, busyTurn = null, onNavigate, chatInputHeight, t }: TurnNavigatorProps,
   ref: ForwardedRef<TurnNavigatorHandle>,
 ) {
   const [previewTurn, setPreviewTurn] = useState<number | null>(null);
@@ -281,10 +282,12 @@ function TurnNavigatorRail(
   const previewPosition = virtualItems.find((item) => item.index === previewIndex);
   const fadeClasses = [css.scroller];
   if (scrollTop > 1) fadeClasses.push(css.fadeTop);
-  if (scrollTop < virtualizer.getTotalSize() - viewHeight - 1) fadeClasses.push(css.fadeBottom);
+  const slotStyle: CSSProperties = chatInputHeight
+    ? ({ '--chat-input-height': `${chatInputHeight}px` } as CSSProperties)
+    : ({} as CSSProperties);
 
   return (
-    <div className={css.slot}>
+    <div className={css.slot} style={slotStyle}>
       <nav
         className={css.frame}
         aria-label={t('turnNavigationLabel')}

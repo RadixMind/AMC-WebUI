@@ -32,15 +32,16 @@ export interface FormatTimestampOptions {
 
 /** Format seconds as "mm:ss" / "m:ss" (below an hour) or "h:mm:ss". */
 export const formatTimestamp = (totalSeconds: number | null | undefined, options?: FormatTimestampOptions): string => {
+  const shouldPadMinutes = options?.padMinutes ?? true;
   if (totalSeconds === null || totalSeconds === undefined || !Number.isFinite(totalSeconds) || totalSeconds < 0) {
-    return options?.padMinutes === false ? '0:00' : '00:00';
+    return shouldPadMinutes ? '00:00' : '0:00';
   }
   const safeSeconds = Math.floor(totalSeconds);
   const hours = Math.floor(safeSeconds / 3600);
   const minutes = Math.floor((safeSeconds % 3600) / 60);
   const seconds = safeSeconds % 60;
   const pad = (value: number) => String(value).padStart(2, '0');
-  const minutesFormatted = options?.padMinutes === false && hours === 0 ? String(minutes) : pad(minutes);
+  const minutesFormatted = !shouldPadMinutes && hours === 0 ? String(minutes) : pad(minutes);
 
   return hours > 0 ? `${hours}:${pad(minutes)}:${pad(seconds)}` : `${minutesFormatted}:${pad(seconds)}`;
 };

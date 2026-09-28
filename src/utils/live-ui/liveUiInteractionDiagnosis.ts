@@ -142,10 +142,15 @@ export const diagnoseLiveArtifactInteraction = (content: string): LiveArtifactIn
   try {
     parsed = JSON.parse(content);
   } catch (parseError) {
-    const pos = (parseError as Error & { position?: number })?.position;
-    addError(errors, 'INVALID_JSON', `JSON parse error${pos != null ? ` at position ${pos}` : ''}`, {
-      ...(pos != null ? { position: pos } : {}),
-    });
+    const errorPosition = (parseError as Error & { position?: number })?.position;
+    addError(
+      errors,
+      'INVALID_JSON',
+      `JSON parse error${errorPosition != null ? ` at position ${errorPosition}` : ''}`,
+      {
+        ...(errorPosition != null ? { position: errorPosition } : {}),
+      },
+    );
     return { spec: null, errors, repairs };
   }
 
@@ -173,8 +178,12 @@ export const diagnoseLiveArtifactInteraction = (content: string): LiveArtifactIn
   ) {
     addError(errors, 'INSTRUCTION_MISSING', 'The "instruction" field is required and must be a non-empty string.');
   } else if ((spec.instruction as string).trim().length > MAX_TEXT_LENGTH) {
-    const len = (spec.instruction as string).trim().length;
-    addError(errors, 'INSTRUCTION_TOO_LONG', `"instruction" exceeds ${MAX_TEXT_LENGTH} characters (${len}).`);
+    const instructionLength = (spec.instruction as string).trim().length;
+    addError(
+      errors,
+      'INSTRUCTION_TOO_LONG',
+      `"instruction" exceeds ${MAX_TEXT_LENGTH} characters (${instructionLength}).`,
+    );
   }
 
   // Validate title
@@ -184,12 +193,17 @@ export const diagnoseLiveArtifactInteraction = (content: string): LiveArtifactIn
     typeof spec.title === 'string' &&
     spec.title.trim().length > MAX_SHORT_TEXT_LENGTH
   ) {
-    const len = spec.title.trim().length;
+    const titleLength = spec.title.trim().length;
     spec.title = spec.title.trim().slice(0, MAX_SHORT_TEXT_LENGTH);
-    addError(repairs, 'TITLE_TOO_LONG', `"title" truncated from ${len} to ${MAX_SHORT_TEXT_LENGTH} characters.`, {
-      originalLength: len,
-      max: MAX_SHORT_TEXT_LENGTH,
-    });
+    addError(
+      repairs,
+      'TITLE_TOO_LONG',
+      `"title" truncated from ${titleLength} to ${MAX_SHORT_TEXT_LENGTH} characters.`,
+      {
+        originalLength: titleLength,
+        max: MAX_SHORT_TEXT_LENGTH,
+      },
+    );
   }
 
   // Validate description

@@ -22,7 +22,8 @@ async function readDirectory(
   for await (const entry of handle.values()) {
     if (entry.kind === 'directory') {
       const directoryEntry = entry as FileSystemDirectoryHandle;
-      if (options.skipDefaultIgnoredDirectories !== false && IGNORED_DIRS.has(directoryEntry.name)) {
+      const shouldSkipDefaultIgnored = options.skipDefaultIgnoredDirectories ?? true;
+      if (shouldSkipDefaultIgnored && IGNORED_DIRS.has(directoryEntry.name)) {
         continue;
       }
 

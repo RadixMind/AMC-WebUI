@@ -38,7 +38,7 @@ const formatDate = (dateVal: unknown): string => {
   if (!dateVal) return '未知时间';
   try {
     const parsedDate = new Date(dateVal as number | string | Date);
-    return isNaN(parsedDate.getTime()) ? String(dateVal) : parsedDate.toLocaleString();
+    return Number.isNaN(parsedDate.getTime()) ? String(dateVal) : parsedDate.toLocaleString();
   } catch {
     return String(dateVal);
   }

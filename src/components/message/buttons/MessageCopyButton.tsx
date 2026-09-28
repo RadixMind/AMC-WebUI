@@ -26,7 +26,7 @@ export const MessageCopyButton: React.FC<MessageCopyButtonProps> = ({ textToCopy
     <button
       onClick={handleCopy}
       disabled={!textToCopy}
-      className={`${className}`}
+      className={className}
       aria-label={isCopied ? t('copiedButtonTitle') : t('copyButtonTitle')}
       title={isCopied ? t('copiedButtonTitle') : t('copyButtonTitle')}
     >

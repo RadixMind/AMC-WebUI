@@ -3,7 +3,7 @@
  * YYYY-MM-DD_HH-mm-ss (e.g., 2026-09-10_20-15-30)
  */
 export const formatTimestampFilename = (date: Date = new Date()): string => {
-  const targetDate = isNaN(date.getTime()) ? new Date() : date;
+  const targetDate = Number.isNaN(date.getTime()) ? new Date() : date;
   const pad = (num: number) => String(num).padStart(2, '0');
   const year = targetDate.getFullYear();
   const month = pad(targetDate.getMonth() + 1);

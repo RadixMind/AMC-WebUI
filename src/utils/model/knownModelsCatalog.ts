@@ -16,7 +16,7 @@ export const formatContextWindow = (tokens?: number | null): string => {
     const thousands = Math.round(tokens / 1_000);
     return `${thousands}K`;
   }
-  return `${tokens}`;
+  return String(tokens);
 };
 
 /**

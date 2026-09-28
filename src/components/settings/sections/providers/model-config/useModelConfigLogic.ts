@@ -123,19 +123,19 @@ export function useModelConfigLogic({
       .filter(Boolean);
 
     const params: ModelParameters = {};
-    if (typeof temperature === 'number' && !isNaN(temperature)) params.temperature = temperature;
-    if (typeof maxOutputTokens === 'number' && !isNaN(maxOutputTokens)) params.maxOutputTokens = maxOutputTokens;
-    if (typeof topP === 'number' && !isNaN(topP)) params.topP = topP;
-    if (typeof topK === 'number' && !isNaN(topK)) params.topK = topK;
+    if (Number.isFinite(temperature)) params.temperature = temperature;
+    if (Number.isFinite(maxOutputTokens)) params.maxOutputTokens = maxOutputTokens;
+    if (Number.isFinite(topP)) params.topP = topP;
+    if (Number.isFinite(topK)) params.topK = topK;
     if (!isGemini) {
-      if (typeof presencePenalty === 'number' && !isNaN(presencePenalty)) params.presencePenalty = presencePenalty;
-      if (typeof frequencyPenalty === 'number' && !isNaN(frequencyPenalty)) params.frequencyPenalty = frequencyPenalty;
+      if (Number.isFinite(presencePenalty)) params.presencePenalty = presencePenalty;
+      if (Number.isFinite(frequencyPenalty)) params.frequencyPenalty = frequencyPenalty;
     }
     if (trimmedStops.length > 0) params.stopSequences = trimmedStops;
-    if (typeof seed === 'number' && !isNaN(seed)) params.seed = seed;
+    if (Number.isFinite(seed)) params.seed = seed;
     if (reasoningEffort) params.reasoningEffort = reasoningEffort;
     if (thinkingLevel) params.thinkingLevel = thinkingLevel;
-    if (typeof thinkingBudget === 'number' && !isNaN(thinkingBudget) && thinkingBudget > 0) {
+    if (typeof thinkingBudget === 'number' && Number.isFinite(thinkingBudget) && thinkingBudget > 0) {
       params.thinkingBudget = thinkingBudget;
     }
 

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { setupProviderTestRenderer } from '@/test/render/providerRenderer';
 import { SidebarCollapsedRail } from './SidebarCollapsedRail';
 
-describe('SidebarCollapsedRail Logo-to-Panel Morph', () => {
+describe('SidebarCollapsedRail Toggle Button', () => {
   const renderer = setupProviderTestRenderer({ providers: { language: 'en' } });
 
   const defaultProps = {
@@ -20,7 +20,7 @@ describe('SidebarCollapsedRail Logo-to-Panel Morph', () => {
     onOpenSettingsModal: vi.fn(),
   };
 
-  it('renders morphing toggle button with brand logo mark and panel toggle icon', () => {
+  it('renders toggle button with panel toggle icon without logo', () => {
     act(() => {
       renderer.render(<SidebarCollapsedRail {...defaultProps} />);
     });
@@ -30,12 +30,11 @@ describe('SidebarCollapsedRail Logo-to-Panel Morph', () => {
     ) as HTMLButtonElement;
     expect(toggleBtn).not.toBeNull();
 
-    // Contains the resting brand favicon mark
+    // Does NOT render brand favicon logo in collapsed rail
     const img = toggleBtn.querySelector('img');
-    expect(img).not.toBeNull();
-    expect(img?.getAttribute('src')).toBe('/favicon.png');
+    expect(img).toBeNull();
 
-    // Contains the hover panel expand icon SVG
+    // Contains the panel expand icon SVG
     const svg = toggleBtn.querySelector('svg');
     expect(svg).not.toBeNull();
 

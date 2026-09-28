@@ -68,7 +68,9 @@ ${STREAM_SANITIZER_SCRIPT}
         if (window.echarts && window.echarts.getInstanceByDom(chartEl)) {
           window.echarts.getInstanceByDom(chartEl).dispose();
         }
-      } catch {}
+      } catch {
+        // Safe to ignore disposal errors if instance is already cleaned up
+      }
       chartEl.replaceChildren();
     });
   };

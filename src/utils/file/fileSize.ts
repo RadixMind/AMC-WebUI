@@ -1,7 +1,13 @@
-const FILE_SIZE_UNITS = ['KB', 'MB', 'GB', 'TB'];
+const FILE_SIZE_UNITS = ['KB', 'MB', 'GB', 'TB'] as const;
 
+/**
+ * Formats a file size in bytes into a human-readable string with binary units (B, KB, MB, GB, TB).
+ *
+ * @param sizeInBytes Size in bytes (must be a positive finite number).
+ * @returns Human-readable size string (e.g. '512 B', '1.5 KB', '2.50 MB'), or an empty string if input is invalid or non-positive.
+ */
 export const formatFileSize = (sizeInBytes: number): string => {
-  if (!sizeInBytes) return '';
+  if (!Number.isFinite(sizeInBytes) || sizeInBytes <= 0) return '';
   if (sizeInBytes < 1024) return `${Math.round(sizeInBytes)} B`;
 
   let value = sizeInBytes / 1024;

@@ -655,7 +655,8 @@ export const createStaticPreviewSnapshotContainer = async (
   const normalized = normalizeLiveUiHtmlForPreview(htmlContent);
   const parsedDocument = parser.parseFromString(normalized, 'text/html');
 
-  if (options.sanitize !== false) {
+  const shouldSanitize = options.sanitize ?? true;
+  if (shouldSanitize) {
     sanitizeElementTree(parsedDocument);
   }
   balanceFourItemGrids(parsedDocument);
@@ -769,7 +770,8 @@ export const buildStandaloneHtmlArtifact = async (
   const normalized = normalizeLiveUiHtmlForPreview(htmlContent);
   const parsedDocument = parser.parseFromString(normalized, 'text/html');
 
-  if (options.sanitize !== false) {
+  const shouldSanitize = options.sanitize ?? true;
+  if (shouldSanitize) {
     sanitizeElementTree(parsedDocument);
   }
 

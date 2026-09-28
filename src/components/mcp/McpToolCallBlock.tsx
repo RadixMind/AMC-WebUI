@@ -60,7 +60,7 @@ const formatElapsed = (ms: number): string => {
 };
 
 /** Finished-run duration with tenth-second precision below a minute. */
-const formatDuration = (ms: number): string => {
+const formatDurationMs = (ms: number): string => {
   if (ms < 60_000) return `${(ms / 1000).toFixed(1)}s`;
   return formatElapsed(ms);
 };
@@ -129,7 +129,7 @@ export const McpToolCallBlock: React.FC<{
   // reloaded history keep the plain settled label.
   const finishedSummary = (() => {
     if (!run || run.status === 'running' || run.endedAt === undefined) return undefined;
-    const duration = formatDuration(run.endedAt - run.startedAt);
+    const duration = formatDurationMs(run.endedAt - run.startedAt);
     if (status === 'success') {
       if (events.length === 0) return duration;
       return `${duration} · ${t('mcpToolStepCount').replace('{n}', String(events.length))}`;

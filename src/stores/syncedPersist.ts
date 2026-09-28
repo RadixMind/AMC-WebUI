@@ -84,7 +84,7 @@ export const createSyncedPersist = <T>(
   opts: SyncedPersistOptions<T> = {},
 ): { storage: StateStorage; sync: (store: PersistedStoreApi) => () => void } => {
   // Wrap createPersistedStateStorage to reuse debounce/flush/notify logic centrally (no duplication)
-  const enableCrossTabSync = opts.enableCrossTabSync !== false;
+  const enableCrossTabSync = opts.enableCrossTabSync ?? true;
   const baseStorage = createPersistedStateStorage({
     debounceMs: opts.debounceMs,
     storageArea: opts.storageArea,

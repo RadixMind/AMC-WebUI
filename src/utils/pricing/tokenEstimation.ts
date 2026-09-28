@@ -5,7 +5,7 @@ import { probeMediaDuration } from '@/utils/media/mediaDuration';
 
 // Token cost per video frame for Gemini 3 models, by media resolution.
 // Source: https://ai.google.dev/gemini-api/docs/media-resolution
-// ponytail: ultra_high is N/A for video (downgraded to high upstream in
+// Note: ultra_high is N/A for video (downgraded to high upstream in
 // builder.ts#normalizePartMediaResolution), mirrored here as a safety net.
 const VIDEO_TOKENS_PER_FRAME_GEMINI_3: Record<MediaResolution, number> = {
   [MediaResolution.MEDIA_RESOLUTION_UNSPECIFIED]: 70,
@@ -17,7 +17,7 @@ const VIDEO_TOKENS_PER_FRAME_GEMINI_3: Record<MediaResolution, number> = {
 
 // Earlier Gemini models (2.5 / 2.0 / 1.5) document ~263 tokens/second at the
 // default media resolution. Per-resolution figures aren't published for them,
-// so this is a flat rate. ponytail: only documented figure; refine if Google
+// so this is a flat rate. Note: only documented figure; refine if Google
 // publishes a per-level table for legacy models.
 const VIDEO_TOKENS_PER_SECOND_LEGACY = 263;
 

@@ -130,4 +130,17 @@ describe('MessageList scroll configuration', () => {
     expect(latestProps.components).toBe(initialProps.components);
     expect(latestProps.itemContent).toBe(initialProps.itemContent);
   });
+
+  it('renders data-chat-turn and data-message-index attributes on message items', () => {
+    ({ unmount } = renderWithChatAreaProviders(<MessageList />, { value: createProviderValue() }));
+
+    const props = virtuosoPropsSpy.mock.calls[0]?.[0] as VirtuosoMockProps<ChatMessage>;
+    const itemElement = props.itemContent(0, messages[0]) as React.ReactElement<{
+      'data-chat-turn'?: number;
+      'data-message-index'?: number;
+    }>;
+
+    expect(itemElement.props['data-chat-turn']).toBe(1);
+    expect(itemElement.props['data-message-index']).toBe(0);
+  });
 });

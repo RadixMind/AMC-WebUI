@@ -55,11 +55,11 @@ export const useAppTitle = ({ isLoading, messages, language, sessionTitle }: Use
     let intervalId: number;
 
     if (currentGenerationStartTime) {
-      const update = () => {
+      const updateElapsedTime = () => {
         setGenerationTime(Math.max(0, Math.floor((Date.now() - currentGenerationStartTime) / 1000)));
       };
-      update();
-      intervalId = window.setInterval(update, GENERATION_TITLE_REFRESH_MS);
+      updateElapsedTime();
+      intervalId = window.setInterval(updateElapsedTime, GENERATION_TITLE_REFRESH_MS);
     }
 
     return () => clearInterval(intervalId);

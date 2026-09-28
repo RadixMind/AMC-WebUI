@@ -45,7 +45,7 @@ export async function persistSessionChanges({
   // If a metadata-only persistence helper is provided, fast-path all inactive sessions
   // whose runtime messages are empty. This avoids calling getSession (which attaches
   // file blobs) and saveSession (which runs file-record GC and scans fileIndex).
-  const hasMetadataSaver = !!(saveManySessionMetadata || saveSessionMetadata);
+  const hasMetadataSaver = Boolean(saveManySessionMetadata || saveSessionMetadata);
   const metadataOnlySessions = hasMetadataSaver
     ? modifiedSessions.filter((session) => session.id !== activeSessionId && session.messages.length === 0)
     : [];

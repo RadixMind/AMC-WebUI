@@ -40,13 +40,13 @@ export const useResponsiveValue = <T>(
     if (typeof targetWindow === 'undefined') return;
     const mediaQuery = targetWindow.matchMedia(`(max-width: ${breakpoint}px)`);
 
-    const update = () => {
+    const updateBreakpointMatch = () => {
       setValue(mediaQuery.matches ? mobileValue : desktopValue);
     };
 
-    update();
-    mediaQuery.addEventListener('change', update);
-    return () => mediaQuery.removeEventListener('change', update);
+    updateBreakpointMatch();
+    mediaQuery.addEventListener('change', updateBreakpointMatch);
+    return () => mediaQuery.removeEventListener('change', updateBreakpointMatch);
   }, [targetWindow, breakpoint, mobileValue, desktopValue]);
 
   return value;

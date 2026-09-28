@@ -205,7 +205,7 @@ export const createSettingsVirtualMcpServer = (): VirtualMcpServer => {
 
         case 'list_mcp_servers': {
           const filter = (typeof args.filter === 'string' ? args.filter : 'all').toLowerCase();
-          const includeVirtual = args.includeVirtual !== false;
+          const includeVirtual = args.includeVirtual ?? true;
 
           const appSettings = useSettingsStore.getState().appSettings;
           const externalServers = appSettings.mcpServers ?? [];

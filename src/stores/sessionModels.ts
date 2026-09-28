@@ -10,7 +10,7 @@ export function compareSessionOrder(
   leftSession: Pick<SavedChatSession, 'isPinned' | 'timestamp' | 'sortOrder'>,
   rightSession: Pick<SavedChatSession, 'isPinned' | 'timestamp' | 'sortOrder'>,
 ): number {
-  if (!!leftSession.isPinned !== !!rightSession.isPinned) {
+  if (Boolean(leftSession.isPinned) !== Boolean(rightSession.isPinned)) {
     return leftSession.isPinned ? -1 : 1;
   }
 

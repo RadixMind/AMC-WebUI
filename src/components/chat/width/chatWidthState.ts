@@ -125,7 +125,7 @@ export function applyChatWidth(
         localStorage.removeItem('amc.chat.contentWidth.v2');
         localStorage.removeItem('amc.chat.contentWidth');
       } else {
-        localStorage.setItem(CHAT_WIDTH_PREF_KEY, `${resolved}`);
+        localStorage.setItem(CHAT_WIDTH_PREF_KEY, String(resolved));
       }
     } catch {
       // Ignore storage errors in private browsing/sandboxes

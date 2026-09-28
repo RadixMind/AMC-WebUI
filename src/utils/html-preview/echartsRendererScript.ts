@@ -480,7 +480,11 @@ export const ECHARTS_RENDERER_SCRIPT = `
 
   window.addEventListener('resize', () => {
     chartInstances.forEach((chart) => {
-      try { chart.resize(); } catch {}
+      try {
+        chart.resize();
+      } catch {
+        // Safe to ignore resize failure if chart DOM is detached or unmounted
+      }
     });
   });
 

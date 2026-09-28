@@ -131,7 +131,7 @@ export const executeThirdPartyChat = async ({
     presencePenalty: params?.presencePenalty ?? sessionToUpdate.presencePenalty,
     frequencyPenalty: params?.frequencyPenalty ?? sessionToUpdate.frequencyPenalty,
     seed: params?.seed ?? sessionToUpdate.seed,
-    thinkingLevel: activeModel?.enableThinking === false ? ('NONE' as const) : sessionToUpdate.thinkingLevel,
+    thinkingLevel: (activeModel?.enableThinking ?? true) ? sessionToUpdate.thinkingLevel : ('NONE' as const),
     thinkingBudget: params?.thinkingBudget ?? sessionToUpdate.thinkingBudget,
     reasoningEffort: params?.reasoningEffort,
     extraHeaders: activeProvider.extraHeaders,
@@ -146,7 +146,8 @@ export const executeThirdPartyChat = async ({
     : historyForChat;
   const effectiveFinalParts = !isAnthropic ? await normalizePartsForNonAnthropicProvider(finalParts) : finalParts;
 
-  const hasClientFunctions = activeModel?.enableTools !== false && Object.keys(combinedClientFunctions).length > 0;
+  const allowsTools = activeModel?.enableTools ?? true;
+  const hasClientFunctions = allowsTools && Object.keys(combinedClientFunctions).length > 0;
   if (hasClientFunctions) {
     try {
       const thirdPartyOnThoughtChunk = (chunk: string) => onThoughtChunk(chunk, { source: 'third-party' });

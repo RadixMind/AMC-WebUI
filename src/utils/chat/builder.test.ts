@@ -8,9 +8,13 @@ vi.mock('@/utils/file/fileEncoding', () => ({
   fileToString: vi.fn().mockResolvedValue('file text content'),
 }));
 
-vi.mock('@/utils/model/modelCapabilities', () => ({
-  isGemini3Model: vi.fn((id: string) => id?.includes('gemini-3')),
-}));
+vi.mock('@/utils/model/modelCapabilities', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/model/modelCapabilities')>();
+  return {
+    ...actual,
+    isGemini3Model: vi.fn((id: string) => id?.includes('gemini-3')),
+  };
+});
 
 const makeFile = (overrides: Partial<UploadedFile> = {}): UploadedFile => ({
   id: 'file-1',

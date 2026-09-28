@@ -4,12 +4,14 @@
   top: 0;
   right: 0;
   bottom: 0;
+  left: 0;
   z-index: 30;
   pointer-events: none;
+  container-type: inline-size;
 }
 
 .frame {
-  --turn-rail-band: 100%;
+  --turn-rail-band: calc(100% - var(--chat-input-height, 0px));
   --turn-preview-height: 100px;
 
   /* DeepSeek-Harness Light Design Tokens */
@@ -24,11 +26,11 @@
     0 0 0 0.5px rgba(0, 0, 0, 0.16), 0 3px 8px 0 rgba(0, 0, 0, 0.03), 0 0 16px 0 rgba(0, 0, 0, 0.02);
 
   position: absolute;
-  top: 50%;
+  top: calc(var(--turn-rail-band) / 2);
   right: 12px;
   width: 28px;
   /* Fixed-pitch marks never compress: a ladder taller than the band scrolls inside this frame */
-  max-height: min(max(0px, calc(100% - 64px)), 420px);
+  max-height: min(max(0px, calc(var(--turn-rail-band) - 64px)), 420px);
   contain: layout;
   cursor: pointer;
   pointer-events: auto;
@@ -223,7 +225,13 @@
   }
 }
 
-@media (max-width: 900px) {
+@container (max-width: 640px) {
+  .frame {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
   .frame {
     display: none;
   }

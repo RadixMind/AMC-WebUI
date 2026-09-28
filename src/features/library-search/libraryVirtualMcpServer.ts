@@ -67,7 +67,8 @@ export interface LibraryVirtualMcpDeps {
   readLibraryFile?: (options: ReadLibraryFileOptions) => Promise<ReadLibraryFileResult>;
 }
 
-const asNumber = (val: unknown): number | undefined => (typeof val === 'number' && !isNaN(val) ? val : undefined);
+const asNumber = (val: unknown): number | undefined =>
+  typeof val === 'number' && !Number.isNaN(val) ? val : undefined;
 
 const getFileExtension = (filename: string): string => {
   const parts = filename.split('.');

@@ -106,4 +106,13 @@ describe('TurnNavigator', () => {
       ref.current?.scrollToTurn(2);
     });
   });
+
+  it('passes chatInputHeight as a CSS custom property to the slot element', () => {
+    const { container } = render(
+      <TurnNavigator items={sampleItems} activeTurn={1} onNavigate={vi.fn()} chatInputHeight={160} t={mockT} />,
+    );
+
+    const slot = container.firstElementChild as HTMLElement;
+    expect(slot.style.getPropertyValue('--chat-input-height')).toBe('160px');
+  });
 });

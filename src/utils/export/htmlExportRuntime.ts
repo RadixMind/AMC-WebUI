@@ -246,7 +246,9 @@ export const buildHtmlExportRuntime = (jsonCopiedText: string): string => `
                     try {
                         document.execCommand('copy');
                         cb();
-                    } catch (execCopyError) {}
+                    } catch (execCopyError) {
+                        // Ignored if execCommand fails in restricted permissions context
+                    }
                     document.body.removeChild(ta);
                 }
             })();

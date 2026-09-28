@@ -138,9 +138,9 @@ export const Message: React.FC<MessageProps> = React.memo((props) => {
       data-message-role={message.role}
       data-is-editing={isCurrentlyEditing ? 'true' : undefined}
     >
-      <div className={`${messageContainerClasses}`}>
+      <div className={messageContainerClasses}>
         {message.role !== 'user' && messageActions}
-        <div className={`${bubbleClasses}`}>
+        <div className={bubbleClasses}>
           <MessageContent
             message={message}
             onImageClick={handleImageClick}

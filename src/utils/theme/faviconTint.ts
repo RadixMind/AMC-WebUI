@@ -58,6 +58,7 @@ export const getTintedFaviconUrl = async (baseSrc: string, color: string): Promi
     tintedUrlCache.set(cacheKey, dataUrl);
     return dataUrl;
   } catch {
+    // Canvas error or image load rejection (e.g. cross-origin taint); fall back to null
     return null;
   }
 };

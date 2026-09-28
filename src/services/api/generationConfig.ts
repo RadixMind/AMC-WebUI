@@ -18,6 +18,7 @@ import { logService } from '@/services/logService';
 import { toApiSafetySettings } from '@/constants/safetySettings';
 import {
   isGemini3Model,
+  isGemini3ImageModel,
   isGeminiRoboticsModel,
   isGemmaModel,
   isTranscribeModel,
@@ -202,14 +203,8 @@ async function buildGenerationConfigFromOptions({
   const normalizedImageSize = normalizeImageSizeForModel(modelId, imageSize);
   const googleSearchTool = buildGoogleSearchToolForModel(modelId);
 
-  const normModelId = normalizeModelId(modelId);
-  if (
-    normModelId === 'gemini-3-pro-image' ||
-    normModelId === 'gemini-3-pro-image-preview' ||
-    normModelId === 'gemini-3.1-flash-image' ||
-    normModelId === 'gemini-3.1-flash-image-preview' ||
-    normModelId === 'gemini-3.1-flash-lite-image'
-  ) {
+  if (isGemini3ImageModel(modelId)) {
+    const normalizedModelId = normalizeModelId(modelId);
     const imageConfig: NonNullable<GenerationConfig['imageConfig']> = {
       imageSize: normalizedImageSize || '1K',
     };
@@ -223,9 +218,9 @@ async function buildGenerationConfigFromOptions({
     };
 
     if (
-      normModelId === 'gemini-3.1-flash-image' ||
-      normModelId === 'gemini-3.1-flash-image-preview' ||
-      normModelId === 'gemini-3.1-flash-lite-image'
+      normalizedModelId === 'gemini-3.1-flash-image' ||
+      normalizedModelId === 'gemini-3.1-flash-image-preview' ||
+      normalizedModelId === 'gemini-3.1-flash-lite-image'
     ) {
       generationConfig.thinkingConfig = {
         includeThoughts: true,
@@ -237,7 +232,7 @@ async function buildGenerationConfigFromOptions({
     const tools: NonNullable<GenerationConfig['tools']> = [];
     // gemini-3.1-flash-lite-image does not support Google Search or Maps grounding;
     // Maps grounding is not documented for any image-generation model.
-    if (normalizeModelId(modelId) !== 'gemini-3.1-flash-lite-image') {
+    if (normalizedModelId !== 'gemini-3.1-flash-lite-image') {
       if (isGoogleSearchEnabled) tools.push(googleSearchTool);
     }
     if (tools.length > 0) generationConfig.tools = tools;

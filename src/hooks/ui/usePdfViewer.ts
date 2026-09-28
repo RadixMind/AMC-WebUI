@@ -206,7 +206,7 @@ export const usePdfViewer = (_file: UploadedFile, options?: UsePdfViewerOptions)
         }
 
         const pageNum = Number(bestEntry.target.getAttribute('data-page-number'));
-        if (!isNaN(pageNum) && pageNum > 0 && Math.abs(pageNum - currentPageRef.current) <= 1) {
+        if (!Number.isNaN(pageNum) && pageNum > 0 && Math.abs(pageNum - currentPageRef.current) <= 1) {
           currentPageRef.current = pageNum;
           setCurrentPage(pageNum);
         }
@@ -329,7 +329,7 @@ export const usePdfViewer = (_file: UploadedFile, options?: UsePdfViewerOptions)
 
   const handlePageInputCommit = (pageInput: string) => {
     const page = parseInt(pageInput, 10);
-    if (!isNaN(page) && page >= 1 && page <= (numPages || 1)) {
+    if (!Number.isNaN(page) && page >= 1 && page <= (numPages || 1)) {
       scrollToPage(page);
     }
   };

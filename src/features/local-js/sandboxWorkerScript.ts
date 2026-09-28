@@ -19,7 +19,9 @@ for (const api of blockedApis) {
       writable: false,
       configurable: false,
     });
-  } catch (_) {}
+  } catch (_) {
+    // Some worker environment globals may be non-configurable
+  }
 }
 
 self.onmessage = async (event) => {
@@ -34,6 +36,7 @@ self.onmessage = async (event) => {
     try {
       return JSON.stringify(val, null, 2);
     } catch (_) {
+      // Fallback for circular references or BigInt values that cannot be JSON serialized
       return String(val);
     }
   };

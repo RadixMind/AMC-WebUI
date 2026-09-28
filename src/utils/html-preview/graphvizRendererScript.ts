@@ -402,7 +402,9 @@ export const GRAPHVIZ_RENDERER_SCRIPT = `
     try {
       const sel = window.getSelection();
       if (sel && !sel.isCollapsed && sel.toString().trim().length > 0) return;
-    } catch {}
+    } catch {
+      // Ignored if window selection API throws in constrained contexts
+    }
 
     const target = event.target;
     if (!(target instanceof Element)) return;

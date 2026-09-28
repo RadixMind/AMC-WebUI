@@ -238,13 +238,17 @@ const supportsThinkingLevel = (modelId: string): boolean => {
   );
 };
 
-const isGemini3ImageModel = (modelId: string): boolean => {
+/**
+ * Checks whether the given model is a Gemini 3 native image-generation model.
+ */
+export const isGemini3ImageModel = (modelId: string): boolean => {
   const norm = normalizeModelId(modelId);
   return (
     norm === 'gemini-3-pro-image' ||
     norm === 'gemini-3-pro-image-preview' ||
     norm === 'gemini-3.1-flash-image' ||
-    norm === 'gemini-3.1-flash-image-preview'
+    norm === 'gemini-3.1-flash-image-preview' ||
+    norm === 'gemini-3.1-flash-lite-image'
   );
 };
 

@@ -16,7 +16,7 @@ const YEAR_MS = 365 * DAY_MS;
  * - >= 365 days: {n}y ({n}年 / {n}y)
  */
 export function formatRelativeTime(timestamp: number, t: RelativeTimeTranslator, now: number = Date.now()): string {
-  if (typeof timestamp !== 'number' || isNaN(timestamp)) {
+  if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) {
     return t('historyTimeJustNow');
   }
 
@@ -49,7 +49,7 @@ export function formatRelativeTime(timestamp: number, t: RelativeTimeTranslator,
  * Format timestamp to standardized date string: YYYY-MM-DD HH:mm
  */
 export function formatDateTime(timestamp: number): string {
-  if (typeof timestamp !== 'number' || isNaN(timestamp)) {
+  if (typeof timestamp !== 'number' || !Number.isFinite(timestamp)) {
     return '';
   }
   const date = new Date(timestamp);

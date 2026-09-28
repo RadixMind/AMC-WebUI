@@ -12,7 +12,7 @@ type OrderableSession = Pick<SavedChatSession, 'id' | 'groupId' | 'isPinned' | '
 const bucketKeyOf = (session: Pick<SavedChatSession, 'groupId'>): string | null => session.groupId ?? null;
 
 const isSameSection = (left: OrderableSession, right: OrderableSession): boolean =>
-  !!left.isPinned === !!right.isPinned;
+  Boolean(left.isPinned) === Boolean(right.isPinned);
 
 const makeOrderKey = (position: number): number => position * SESSION_ORDER_SPACING;
 

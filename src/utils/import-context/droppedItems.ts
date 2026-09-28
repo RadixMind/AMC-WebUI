@@ -19,6 +19,7 @@ export async function processDroppedItemsSnapshot(
   signal?: AbortSignal,
   options: ProcessDroppedItemsOptions = {},
 ): Promise<DroppedItemsResult> {
+  const shouldSkipDefaultIgnored = options.skipDefaultIgnoredDirectories ?? true;
   const allFiles = [...snapshot.files];
   const emptyDirectoryPaths: string[] = [];
 
@@ -42,7 +43,7 @@ export async function processDroppedItemsSnapshot(
     }
 
     if (entry.isDirectory) {
-      if (options.skipDefaultIgnoredDirectories !== false && IGNORED_DIRS.has(entry.name)) {
+      if (shouldSkipDefaultIgnored && IGNORED_DIRS.has(entry.name)) {
         return { files: [], emptyDirectoryPaths: [] };
       }
 
@@ -93,7 +94,7 @@ export async function processDroppedItemsSnapshot(
     }
 
     if (handle.kind === 'directory') {
-      if (options.skipDefaultIgnoredDirectories !== false && IGNORED_DIRS.has(handle.name)) {
+      if (shouldSkipDefaultIgnored && IGNORED_DIRS.has(handle.name)) {
         return { files: [], emptyDirectoryPaths: [] };
       }
 

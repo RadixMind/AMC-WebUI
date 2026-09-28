@@ -46,7 +46,7 @@ const resolveLibraryDateLocale = (language: string): string => {
 };
 
 export const formatLibraryDate = (timestamp: number, language: string = 'zh'): string => {
-  if (!timestamp || isNaN(timestamp)) return '';
+  if (!timestamp || Number.isNaN(timestamp)) return '';
 
   const date = new Date(timestamp);
   const now = new Date();

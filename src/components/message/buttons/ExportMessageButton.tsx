@@ -41,7 +41,7 @@ export const ExportMessageButton: React.FC<ExportMessageButtonProps> = ({
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)} className={`${className}`} aria-label={t('export')} title={t('export')}>
+      <button onClick={() => setIsOpen(true)} className={className} aria-label={t('export')} title={t('export')}>
         <Download size={iconSize} strokeWidth={1.5} />
       </button>
 

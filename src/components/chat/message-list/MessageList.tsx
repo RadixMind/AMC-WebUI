@@ -4,7 +4,7 @@ import { Virtuoso } from 'react-virtuoso';
 import { Message } from '@/components/message/Message';
 import { WelcomeScreen } from './WelcomeScreen';
 import { TurnNavigator } from './TurnNavigator';
-import { useTurnNavigationItems } from './hooks/useTurnNavigationItems';
+import { useTurnNavigation } from './hooks/useTurnNavigation';
 import { TextSelectionToolbar } from './TextSelectionToolbar';
 import { SelectionAskPanel } from './text-selection/SelectionAskPanel';
 import { useMessageListUi } from './hooks/useMessageListUi';
@@ -114,34 +114,16 @@ const MessageListComponent: React.FC = () => {
     onRangeChanged,
     handleTotalListHeightChanged,
     scrollToTurn,
-    visibleStartIndex,
     scrollerRef,
     handleScroll,
   } = useMessageListScroll({ messages: visibleMessages, setScrollContainerRef, activeSessionId });
 
-  const turnItems = useTurnNavigationItems(visibleMessages);
-  const activeTurn = useMemo(() => {
-    if (turnItems.length === 0) return null;
-    if (atBottom) {
-      return turnItems[turnItems.length - 1].turn;
-    }
-    let current = turnItems[0].turn;
-    for (const item of turnItems) {
-      if (item.messageIndex <= visibleStartIndex) {
-        current = item.turn;
-      } else {
-        break;
-      }
-    }
-    return current;
-  }, [turnItems, visibleStartIndex, atBottom]);
-
-  const busyTurn = useMemo(() => {
-    if (turnItems.length === 0) return null;
-    const lastMsg = visibleMessages[visibleMessages.length - 1];
-    const isBusy = lastMsg?.role === 'model' && Boolean(lastMsg?.isLoading);
-    return isBusy ? turnItems[turnItems.length - 1].turn : null;
-  }, [turnItems, visibleMessages]);
+  const { turnItems, activeTurn, busyTurn, messageTurnMap, handleNavigateTurn } = useTurnNavigation({
+    messages: visibleMessages,
+    scroller: scrollerRef,
+    atBottom,
+    scrollToTurn,
+  });
 
   const isGemini3 = useMemo(() => isGemini3Model(currentChatSettings.modelId), [currentChatSettings.modelId]);
   const followOutput = React.useCallback((isAtBottom: boolean) => (isAtBottom ? 'auto' : false), []);
@@ -158,6 +140,7 @@ const MessageListComponent: React.FC = () => {
   const renderMessageItem = React.useCallback(
     (index: number, message: (typeof visibleMessages)[number]) => {
       const pair = mcpPairMap.get(message.id);
+      const turn = messageTurnMap.get(message.id);
       return (
         // flow-root contains the message's top margins inside the item wrapper;
         // collapsed-through margins otherwise create gaps Virtuoso never
@@ -165,6 +148,8 @@ const MessageListComponent: React.FC = () => {
         <div
           className="flow-root pl-2 pr-2 sm:pl-2.5 sm:pr-3 mx-auto w-full"
           style={{ maxWidth: 'var(--chat-content-width, 80rem)' }}
+          data-chat-turn={turn}
+          data-message-index={index}
         >
           <Message
             key={message.id}
@@ -203,6 +188,7 @@ const MessageListComponent: React.FC = () => {
       isGemini3,
       isLoading,
       mcpPairMap,
+      messageTurnMap,
       onContinueGeneration,
       onDeleteMessage,
       onEditMessage,
@@ -259,7 +245,14 @@ const MessageListComponent: React.FC = () => {
           />
         )}
 
-        <TurnNavigator items={turnItems} activeTurn={activeTurn} busyTurn={busyTurn} onNavigate={scrollToTurn} t={t} />
+        <TurnNavigator
+          items={turnItems}
+          activeTurn={activeTurn}
+          busyTurn={busyTurn}
+          onNavigate={handleNavigateTurn}
+          chatInputHeight={chatInputHeight}
+          t={t}
+        />
       </div>
 
       <MessageListModals

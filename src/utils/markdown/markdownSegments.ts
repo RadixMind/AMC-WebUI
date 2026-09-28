@@ -1,8 +1,20 @@
-type MarkdownSegment = {
+/**
+ * Represents a segmented chunk of markdown text.
+ * - `literal`: Code blocks (fenced ``` or inline `) that should not undergo text transforms.
+ * - `text`: Regular markdown text that can safely be transformed.
+ */
+export interface MarkdownSegment {
   type: 'text' | 'literal';
   value: string;
-};
+}
 
+/**
+ * Splits a markdown string into literal code segments (fenced code blocks and inline code)
+ * and regular text segments.
+ *
+ * @param value The markdown string to segment.
+ * @returns An array of MarkdownSegment objects preserving the original content order.
+ */
 export const splitMarkdownSegments = (value: string): MarkdownSegment[] => {
   if (!value) {
     return [];

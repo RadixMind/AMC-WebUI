@@ -197,7 +197,7 @@ export const ChatWidthControls: React.FC<ChatWidthControlsProps> = ({ containerR
       if (!container) return;
       const resolved = resolveChatContentWidth(container.offsetWidth, width);
       try {
-        localStorage.setItem(CHAT_WIDTH_PREF_KEY, `${resolved}`);
+        localStorage.setItem(CHAT_WIDTH_PREF_KEY, String(resolved));
       } catch {
         // Ignore quota/private mode errors
       }

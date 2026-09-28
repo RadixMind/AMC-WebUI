@@ -189,7 +189,7 @@ export const TokenDetailsCard: React.FC<TokenDetailsCardProps> = React.memo(
       if (!message.timestamp) return undefined;
       try {
         const date = message.timestamp instanceof Date ? message.timestamp : new Date(message.timestamp);
-        if (isNaN(date.getTime())) return undefined;
+        if (Number.isNaN(date.getTime())) return undefined;
         return new Intl.DateTimeFormat(language, {
           year: 'numeric',
           month: 'numeric',

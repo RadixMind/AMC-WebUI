@@ -208,7 +208,7 @@ export const getKeyForRequest = (
   const rotationMap = readRotationMap();
   let lastUsedIndex = rotationMap[rotationTarget] ?? -1;
 
-  if (isNaN(lastUsedIndex) || lastUsedIndex < 0 || lastUsedIndex >= availableKeys.length) {
+  if (Number.isNaN(lastUsedIndex) || lastUsedIndex < 0 || lastUsedIndex >= availableKeys.length) {
     lastUsedIndex = -1;
   }
 

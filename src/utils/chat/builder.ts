@@ -1,8 +1,7 @@
 import { type ChatMessage, type ContentPart, type UploadedFile, type ChatHistoryItem, MediaResolution } from '@/types';
 import { PartMediaResolutionLevel } from '@google/genai';
 import { logService } from '@/services/logService';
-import { isGemini3Model } from '@/utils/model/modelCapabilities';
-import { normalizeModelId } from '@/utils/model/modelId';
+import { isGemini3ImageModel, isGemini3Model } from '@/utils/model/modelCapabilities';
 import { blobToBase64, fileToString } from '@/utils/file/fileEncoding';
 import { getFileKindFlags, isImageMimeType, isTextFile } from '@/utils/file/fileTypeClassification';
 import { normalizeYoutubeUrl } from '@/utils/file/youtubeUrl';
@@ -14,18 +13,7 @@ import { stripReasoningMarkup } from './reasoning';
 export const GEMINI_IMAGE_HISTORY_REHYDRATION_ERROR =
   'A previously generated image is missing from this image edit history. Please reattach the image or start a new image edit turn.';
 
-const isGeminiImageHistoryTarget = (modelId?: string): boolean => {
-  if (!modelId) return false;
-
-  const normalizedId = normalizeModelId(modelId);
-  return (
-    normalizedId === 'gemini-3-pro-image' ||
-    normalizedId === 'gemini-3-pro-image-preview' ||
-    normalizedId === 'gemini-3.1-flash-image' ||
-    normalizedId === 'gemini-3.1-flash-image-preview' ||
-    normalizedId === 'gemini-3.1-flash-lite-image'
-  );
-};
+const isGeminiImageHistoryTarget = (modelId?: string): boolean => Boolean(modelId && isGemini3ImageModel(modelId));
 
 // Maps the local MediaResolution enum to @google/genai's PartMediaResolutionLevel enum.
 const MEDIA_RESOLUTION_MAP: Record<MediaResolution, PartMediaResolutionLevel> = {

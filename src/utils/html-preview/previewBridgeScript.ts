@@ -13,7 +13,9 @@ export const PREVIEW_BRIDGE_SCRIPT = `<script>
   const notify = (event, payload) => {
     try {
       parent.postMessage(payload === undefined ? { channel, event } : { channel, event, payload }, '*');
-    } catch {}
+    } catch {
+      // Ignored if parent window is unmounted or cross-origin restrictions apply
+    }
   };
   const notifyDiagnostic = (payload) => notify(${JSON.stringify(HTML_PREVIEW_DIAGNOSTIC_EVENT)}, payload);
   const readResourceUrl = (element) => {
@@ -144,7 +146,9 @@ export const PREVIEW_BRIDGE_SCRIPT = `<script>
     try {
       const height = measureContentHeight();
       parent.postMessage({ channel, event: 'resize', height }, '*');
-    } catch {}
+    } catch {
+      // Ignored if parent window is unmounted or detached
+    }
   };
 
   let resizeFrame = 0;
@@ -262,7 +266,9 @@ export const PREVIEW_BRIDGE_SCRIPT = `<script>
 
     try {
       window.getSelection()?.removeAllRanges();
-    } catch {}
+    } catch {
+      // Ignored if window selection is unavailable or detached
+    }
   });
 
   const parseFollowupPayload = (rawPayload) => {
