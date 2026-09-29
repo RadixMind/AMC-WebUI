@@ -25,6 +25,7 @@ jobs:
       - run: pnpm run typecheck
       - run: pnpm run lint
       - run: pnpm run knip
+      - run: pnpm run i18n:check
       - run: pnpm audit --prod --audit-level=moderate
 
   test:

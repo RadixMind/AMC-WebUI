@@ -15,8 +15,6 @@ export type LiveUiSegment = {
   suffix: string;
 };
 
-export type ArtifactSegment = LiveUiSegment;
-
 /**
  * Locates a self-contained HTML/SVG LiveUI element in the content, tolerating optional
  * trailing prose after `</html>` (comments are also tolerated by the whole-content
@@ -25,7 +23,7 @@ export type ArtifactSegment = LiveUiSegment;
  * markdown in the message DOM (with theme tokens available via the main-page
  * --amc-live-artifact-* variables), not promoted into a LiveUI frame.
  */
-export const extractLiveUiSegment = (textContent: string, isStreaming: boolean): LiveUiSegment | null => {
+const extractLiveUiSegment = (textContent: string, isStreaming: boolean): LiveUiSegment | null => {
   const trimmed = textContent.trim();
   if (!trimmed) {
     return null;
@@ -259,7 +257,7 @@ const findHtmlFragmentEnd = (text: string, startIndex: number): number | null =>
   return null;
 };
 
-export const findBareLiveUiRegion = (text: string, isStreaming = false): { start: number; end: number } | null => {
+const findBareLiveUiRegion = (text: string, isStreaming = false): { start: number; end: number } | null => {
   const lines = text.split('\n');
   const fencedRegions = getFencedRegionOffsets(text);
   // Absolute offset of each line so a matched region can be spliced back into

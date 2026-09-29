@@ -113,14 +113,6 @@ export async function countAll(storeName: string): Promise<number> {
 }
 
 /**
- * Counts the records matched by a key or key range, without materializing them.
- */
-export async function countByKey(storeName: string, key: IDBValidKey | IDBKeyRange): Promise<number> {
-  const db = await getDb();
-  return requestToPromise(db.transaction(storeName, 'readonly').objectStore(storeName).count(key));
-}
-
-/**
  * Writes many records in a single transaction. Far cheaper than one
  * read-modify-write cycle per record.
  */

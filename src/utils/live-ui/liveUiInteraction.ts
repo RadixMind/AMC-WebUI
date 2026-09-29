@@ -7,7 +7,7 @@ import type {
 } from './liveUiInteractionTypes';
 
 export * from './liveUiInteractionTypes';
-export { diagnoseLiveArtifactInteraction, diagnoseLiveUiInteraction } from './liveUiInteractionDiagnosis';
+export { diagnoseLiveArtifactInteraction } from './liveUiInteractionDiagnosis';
 
 const LIVE_ARTIFACT_INTERACTION_SOURCE = 'amc-live-artifact-interaction:v1';
 
@@ -65,10 +65,3 @@ export const buildLiveArtifactInteractionPayload = (
   source: LIVE_ARTIFACT_INTERACTION_SOURCE,
   state,
 });
-
-// LiveUI aliases
-export const LIVE_UI_INTERACTION_SOURCE = LIVE_ARTIFACT_INTERACTION_SOURCE;
-export const getLiveUiInteractionFields = getLiveArtifactInteractionFields;
-export const hasLiveUiInteractionShape = hasLiveArtifactInteractionShape;
-export const getLiveUiInteractionDefaultValue = getLiveArtifactInteractionDefaultValue;
-export const buildLiveUiInteractionPayload = buildLiveArtifactInteractionPayload;

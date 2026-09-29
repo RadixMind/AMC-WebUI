@@ -244,5 +244,3 @@ export const prepareStandardChatContext = async ({
     combinedClientFunctions,
   };
 };
-
-export const standardChatContext = prepareStandardChatContext;

@@ -29,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
@@ -42,6 +42,5 @@ jobs:
         if: ${{ env.CLOUDFLARE_API_TOKEN != '' }}
         continue-on-error: true
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: 25d40b22b5649c845becf90509bd98be
         run: npx wrangler pages deploy docs-site/dist --project-name=all-model-chat-docs --branch=main --commit-dirty=true

@@ -18,12 +18,10 @@ import {
   EPHEMERAL_TOKEN_PATH,
   LEGACY_AUTH_TOKENS_PATH,
 } from './security/ephemeralToken.js';
-import { abortJob, readJobSecret } from './stream-jobs/streamJobs.js';
+import { abortJob, readJobSecret } from './stream-jobs/streamJobStore.js';
 import { STREAM_ABORT_PREFIX, UNIFIED_STREAM_ABORT_PREFIX } from './stream-jobs/streamJobsRoutes.js';
 import { OPENAI_PROXY_PREFIX, proxyThirdPartyRequest, type ThirdPartyProxyConfig } from './proxy/thirdPartyProxy.js';
 import { timingSafePasswordEqual } from './security/passwordSecurity.js';
-
-export { readMacOsClipboardPng } from './clipboardImage.js';
 
 interface CreateServerDependencies {
   fetchImpl?: typeof fetch;

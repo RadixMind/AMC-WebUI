@@ -3,9 +3,6 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 export const Popover = PopoverPrimitive.Root;
 export const PopoverTrigger = PopoverPrimitive.Trigger;
-export const PopoverAnchor = PopoverPrimitive.Anchor;
-export const PopoverPortal = PopoverPrimitive.Portal;
-export const PopoverClose = PopoverPrimitive.Close;
 
 export type PopoverContentProps = React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>;
 

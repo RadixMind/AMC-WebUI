@@ -1,9 +1,9 @@
 import type { AppSettings } from '@/types';
 
-export const LIVE_UI_CUSTOM_FONT_SIZE_MIN = 10;
-export const LIVE_UI_CUSTOM_FONT_SIZE_MAX = 32;
+const LIVE_UI_CUSTOM_FONT_SIZE_MIN = 10;
+const LIVE_UI_CUSTOM_FONT_SIZE_MAX = 32;
 
-export const clampLiveUiCustomFontSize = (value: number): number => {
+const clampLiveUiCustomFontSize = (value: number): number => {
   if (!Number.isFinite(value)) {
     return 16;
   }
@@ -11,7 +11,7 @@ export const clampLiveUiCustomFontSize = (value: number): number => {
   return Math.min(LIVE_UI_CUSTOM_FONT_SIZE_MAX, Math.max(LIVE_UI_CUSTOM_FONT_SIZE_MIN, Math.round(value)));
 };
 
-export const resolveLiveUiFontSize = (settings: Pick<AppSettings, 'liveArtifactsCustomFontSize'>): number => {
+const resolveLiveUiFontSize = (settings: Pick<AppSettings, 'liveArtifactsCustomFontSize'>): number => {
   return clampLiveUiCustomFontSize(settings.liveArtifactsCustomFontSize ?? 16);
 };
 

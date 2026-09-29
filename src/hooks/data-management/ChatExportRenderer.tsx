@@ -36,12 +36,12 @@ const createExportAppSettings = (session: SavedChatSession, themeId: string): Ap
   showThoughts: false,
 });
 
-export interface ChatExportRendererProps {
+interface ChatExportRendererProps {
   session: SavedChatSession;
   themeId: string;
 }
 
-export const ChatExportRenderer: React.FC<ChatExportRendererProps> = ({ session, themeId }) => {
+const ChatExportRenderer: React.FC<ChatExportRendererProps> = ({ session, themeId }) => {
   const appSettings = createExportAppSettings(session, themeId);
   const appThemeId = appSettings.themeId;
   const visibleMessages = getVisibleChatMessages(session.messages);

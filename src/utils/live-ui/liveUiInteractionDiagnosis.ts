@@ -788,5 +788,3 @@ export const diagnoseLiveArtifactInteraction = (content: string): LiveArtifactIn
 
   return { spec: resultSpec, errors, repairs };
 };
-
-export const diagnoseLiveUiInteraction = diagnoseLiveArtifactInteraction;

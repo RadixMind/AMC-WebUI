@@ -149,8 +149,6 @@ export const translations: TranslationMap = {
   ...shellFeatureTranslations,
 };
 
-export const coreTranslations = translations;
-
 export const registerTranslations = (translationMap: TranslationMap) => {
   Object.assign(translations, translationMap);
 };

@@ -8,7 +8,7 @@ import { isLiveArtifactsSystemInstruction } from '@/features/prompts/promptRegis
  * Marker recognition is delegated to promptRegistry.isLiveArtifactsSystemInstruction
  * so every caller agrees on which markers count.
  */
-export function isLiveUiModeFromSettings(args: {
+function isLiveUiModeFromSettings(args: {
   isLiveArtifactsEnabled?: boolean | null;
   isVisualFormattingActive?: boolean | null;
   systemInstruction?: string | null;

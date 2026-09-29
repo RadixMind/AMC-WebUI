@@ -23,11 +23,14 @@ const makeDoc = (chartJson: string): Document => {
   return doc;
 };
 
+// `hydrateChartsIntoDocument` is async because ECharts is imported lazily (so the
+// ~1.1 MB library stays off the app's startup graph). These tests await it, which
+// also covers the rejected-promise path that a sync `toThrow` check could not see.
 describe('chart renderer export hydration', () => {
-  it('hydrateChartsIntoDocument produces valid SVG for legacy DSL and standard ECharts fixtures', () => {
+  it('hydrateChartsIntoDocument produces valid SVG for legacy DSL and standard ECharts fixtures', async () => {
     for (const fixture of FIXTURES) {
       const hydratedDoc = makeDoc(fixture);
-      hydrateChartsIntoDocument(hydratedDoc, { themeStyle: THEME_STYLE });
+      await hydrateChartsIntoDocument(hydratedDoc, { themeStyle: THEME_STYLE });
       const hydratedNode = hydratedDoc.querySelector('[data-amc-chart]')!;
 
       if (fixture.includes('"series":[{"name":"s"}]')) {
@@ -40,36 +43,46 @@ describe('chart renderer export hydration', () => {
     }
   });
 
-  it('hydrates standard ECharts options into static SVG', () => {
+  it('hydrates standard ECharts options into static SVG', async () => {
     const option =
       '{"xAxis":{"type":"category","data":["Mon","Tue"]},"yAxis":{"type":"value"},"series":[{"type":"bar","data":[10,20]}]}';
     const doc = makeDoc(option);
-    hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
+    await hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
     const node = doc.querySelector('[data-amc-chart]')!;
     expect(node.getAttribute('data-amc-chart-rendered')).toBe('1');
     expect(node.querySelector('svg')).not.toBeNull();
   });
 
-  it('injects the varsOnly theme style into the document head', () => {
+  it('injects the varsOnly theme style into the document head', async () => {
     const doc = makeDoc('{"type":"pie","slices":[{"name":"a","y":1}]}');
-    hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
+    await hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
 
     const style = doc.head.querySelector('[data-amc-live-artifact-theme]');
     expect(style).not.toBeNull();
     expect(style!.textContent).toContain('--amc-live-artifact-accent');
   });
 
-  it('does not duplicate the theme style when hydrated twice', () => {
+  it('does not duplicate the theme style when hydrated twice', async () => {
     const doc = makeDoc('{"type":"pie","slices":[{"name":"a","y":1}]}');
-    hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
-    hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
+    await hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
+    await hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE });
 
     expect(doc.head.querySelectorAll('[data-amc-live-artifact-theme]')).toHaveLength(1);
   });
 
-  it('hydrates an invalid spec into an error marker without throwing', () => {
+  it('hydrates an invalid spec into an error marker without throwing', async () => {
     const doc = makeDoc('{"type":"bar","x":["A"],"series":[]}');
-    expect(() => hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE })).not.toThrow();
+    await expect(hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE })).resolves.toBeUndefined();
     expect(doc.querySelector('[data-amc-chart]')!.getAttribute('data-amc-chart-error')).toBe('1');
+  });
+
+  it('does not fetch ECharts when the document contains no charts', async () => {
+    // Keeps the lazy-import guarantee honest: a chart-free export must not pay for ECharts.
+    const doc = new DOMParser().parseFromString(
+      '<!DOCTYPE html><html><head></head><body><p>no charts here</p></body></html>',
+      'text/html',
+    );
+    await expect(hydrateChartsIntoDocument(doc, { themeStyle: THEME_STYLE })).resolves.toBeUndefined();
+    expect(doc.head.querySelector('[data-amc-live-artifact-theme]')).not.toBeNull();
   });
 });

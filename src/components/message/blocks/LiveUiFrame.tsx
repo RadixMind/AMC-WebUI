@@ -38,8 +38,6 @@ export interface LiveUiFrameProps {
   onImageClick?: (file: UploadedFile) => void;
 }
 
-export type ArtifactFrameProps = LiveUiFrameProps;
-
 const MIN_FRAME_HEIGHT = 120;
 const DEFAULT_FRAME_HEIGHT = 320;
 const MAX_FRAME_HEIGHT_CACHE_ENTRIES = 200;
@@ -463,5 +461,3 @@ export const LiveUiFrame: React.FC<LiveUiFrameProps> = ({
     </div>
   );
 };
-
-export const ArtifactFrame = LiveUiFrame;

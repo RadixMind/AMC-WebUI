@@ -215,8 +215,6 @@ export const applyLiveArtifactsUserDirective = <T extends { text?: string }>(
   });
 };
 
-// LiveUI aliases
-export const LIVE_UI_INLINE_SYSTEM_PROMPT = LIVE_ARTIFACTS_INLINE_SYSTEM_PROMPT;
 export const getLiveUiUserDirective = getLiveArtifactsUserDirective;
 export const KNOWN_LIVE_UI_USER_DIRECTIVES = KNOWN_LIVE_ARTIFACTS_USER_DIRECTIVES;
 export const extractLiveUiDirective = extractLiveArtifactsDirective;

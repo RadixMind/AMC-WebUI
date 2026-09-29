@@ -59,6 +59,12 @@ export default defineConfig(async ({ mode }) => {
             '**/assets/KaTeX_*',
             '**/assets/html2canvas.esm-*.js',
             '**/assets/data-vendor-*.js',
+            // ECharts is lazily imported only when a document contains charts, and the
+            // model-icon registry is a large eager glob: neither belongs in the precache.
+            '**/assets/echarts-vendor-*.js',
+            '**/assets/model-icons-*.js',
+            // E2E-only seed page: must not be shipped to (or cached for) real users.
+            '**/e2e-seed.html',
             '**/fonts/NotoSansCJKsc-VF.ttf.part-*',
           ],
         },

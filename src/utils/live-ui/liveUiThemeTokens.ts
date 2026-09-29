@@ -54,5 +54,3 @@ export const buildLiveArtifactThemeVars = (colors: ThemeColors): string => {
     `--amc-live-artifact-warning-surface:${applySurfaceAlphaFloor(colors.bgWarning)}`,
   ].join(';');
 };
-
-export const buildLiveUiThemeVars = buildLiveArtifactThemeVars;

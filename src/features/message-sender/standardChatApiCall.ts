@@ -253,5 +253,3 @@ export const performStandardChatApiCall = async ({
     nonStreamOnComplete,
   });
 };
-
-export const standardChatApiCall = performStandardChatApiCall;

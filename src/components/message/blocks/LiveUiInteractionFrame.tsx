@@ -438,5 +438,3 @@ export const LiveUiInteractionFrame: React.FC<LiveUiInteractionFrameProps> = ({ 
     />
   );
 };
-
-export const LiveArtifactInteractionFrame = LiveUiInteractionFrame;

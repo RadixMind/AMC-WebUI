@@ -159,5 +159,3 @@ export const composeSystemInstruction = async (context: PromptCompositorContext)
 
   return segments.length > 0 ? segments.join('\n\n') : undefined;
 };
-
-export const promptCompositor = composeSystemInstruction;

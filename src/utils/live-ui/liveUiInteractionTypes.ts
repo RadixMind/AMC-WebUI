@@ -88,18 +88,3 @@ export interface LiveArtifactInteractionField {
   required: boolean;
   property: LiveArtifactInteractionProperty;
 }
-
-// LiveUI type aliases
-export type LiveUiInteractionPrimitive = LiveArtifactInteractionPrimitive;
-export type LiveUiInteractionArrayValue = LiveArtifactInteractionArrayValue;
-export type LiveUiInteractionValue = LiveArtifactInteractionValue;
-export type LiveUiInteractionScalarPropertyType = LiveArtifactInteractionScalarPropertyType;
-export type LiveUiInteractionPropertyType = LiveArtifactInteractionPropertyType;
-export type LiveUiInteractionErrorCode = LiveArtifactInteractionErrorCode;
-export type LiveUiInteractionParseError = LiveArtifactInteractionParseError;
-export type LiveUiInteractionDiagnosis = LiveArtifactInteractionDiagnosis;
-export type LiveUiInteractionArrayItems = LiveArtifactInteractionArrayItems;
-export type LiveUiInteractionProperty = LiveArtifactInteractionProperty;
-export type LiveUiInteractionSchema = LiveArtifactInteractionSchema;
-export type LiveUiInteractionSpec = LiveArtifactInteractionSpec;
-export type LiveUiInteractionField = LiveArtifactInteractionField;

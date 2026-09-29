@@ -294,5 +294,3 @@ export const sendStandardMessage = async (params: SendStandardMessageParams) => 
     },
   });
 };
-
-export const standardChatStrategy = sendStandardMessage;

@@ -1,5 +1,5 @@
-export const LIVE_UI_SELECTION_EVENT = 'amc-live-artifact-selection';
-export const LIVE_UI_CLEAR_SELECTION_EVENT = 'amc-live-artifact-clear-selection';
+const LIVE_UI_SELECTION_EVENT = 'amc-live-artifact-selection';
+const LIVE_UI_CLEAR_SELECTION_EVENT = 'amc-live-artifact-clear-selection';
 
 export const LIVE_ARTIFACT_SELECTION_EVENT = LIVE_UI_SELECTION_EVENT;
 export const LIVE_ARTIFACT_CLEAR_SELECTION_EVENT = LIVE_UI_CLEAR_SELECTION_EVENT;
@@ -12,19 +12,15 @@ export interface LiveUiSelectionRect {
   bottom: number;
 }
 
-export type LiveArtifactSelectionRect = LiveUiSelectionRect;
-
 export interface LiveUiSelectionDetail {
   text: string;
   copyText?: string;
   rect: LiveUiSelectionRect;
 }
 
-export type LiveArtifactSelectionDetail = LiveUiSelectionDetail;
-
 const isFiniteNumber = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value);
 
-export const isLiveUiSelectionRect = (value: unknown): value is LiveUiSelectionRect => {
+const isLiveUiSelectionRect = (value: unknown): value is LiveUiSelectionRect => {
   if (!value || typeof value !== 'object') {
     return false;
   }
@@ -39,9 +35,7 @@ export const isLiveUiSelectionRect = (value: unknown): value is LiveUiSelectionR
   );
 };
 
-export const isLiveArtifactSelectionRect = isLiveUiSelectionRect;
-
-export const isLiveUiSelectionDetail = (value: unknown): value is LiveUiSelectionDetail => {
+const isLiveUiSelectionDetail = (value: unknown): value is LiveUiSelectionDetail => {
   if (!value || typeof value !== 'object') {
     return false;
   }
@@ -57,7 +51,7 @@ export const isLiveUiSelectionDetail = (value: unknown): value is LiveUiSelectio
 
 export const isLiveArtifactSelectionDetail = isLiveUiSelectionDetail;
 
-export const dispatchLiveUiSelection = (targetWindow: Window, detail: LiveUiSelectionDetail | null) => {
+const dispatchLiveUiSelection = (targetWindow: Window, detail: LiveUiSelectionDetail | null) => {
   targetWindow.dispatchEvent(
     new CustomEvent(LIVE_UI_SELECTION_EVENT, {
       detail,
@@ -67,13 +61,13 @@ export const dispatchLiveUiSelection = (targetWindow: Window, detail: LiveUiSele
 
 export const dispatchLiveArtifactSelection = dispatchLiveUiSelection;
 
-export const dispatchLiveUiClearSelection = (targetWindow: Window) => {
+const dispatchLiveUiClearSelection = (targetWindow: Window) => {
   targetWindow.dispatchEvent(new CustomEvent(LIVE_UI_CLEAR_SELECTION_EVENT));
 };
 
 export const dispatchLiveArtifactClearSelection = dispatchLiveUiClearSelection;
 
-export const createRelayedLiveUiSelectionDetail = (
+const createRelayedLiveUiSelectionDetail = (
   iframe: HTMLIFrameElement | null,
   payload: unknown,
   scale = 1,

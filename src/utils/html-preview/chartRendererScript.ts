@@ -17,7 +17,6 @@
  *   missing binding in the `new Function` scope cannot throw (a bad chart spec
  *   must never break an entire PNG export)
  */
-import * as echarts from 'echarts';
 import { buildEchartsThemeFromCssVars, normalizeEchartsOption } from './echartsRendererScript';
 
 export const CHART_RENDERER_SCRIPT = `
@@ -549,12 +548,19 @@ interface HydrateChartsIntoDocumentOptions {
 }
 
 /**
- * Renders every `data-amc-chart` node in `doc` as static SVG, synchronously.
+ * Renders every `data-amc-chart` node in `doc` as static SVG.
  *
  * Uses Apache ECharts SSR SVG renderer to produce crisp, publication-ready vector
  * graphics for PNG snapshots and offline export previews.
+ *
+ * Async by design: ECharts is imported lazily below so the ~1.1 MB library stays
+ * off the application's startup graph and is only fetched when a document actually
+ * contains charts. Both call sites are already async.
  */
-export const hydrateChartsIntoDocument = (doc: Document, options: HydrateChartsIntoDocumentOptions = {}): void => {
+export const hydrateChartsIntoDocument = async (
+  doc: Document,
+  options: HydrateChartsIntoDocumentOptions = {},
+): Promise<void> => {
   if (options.themeStyle) {
     const normalized = options.themeStyle.replace(/<\/?style[^>]*>/g, '');
     if (doc.head && !doc.head.querySelector('[data-amc-live-artifact-theme]')) {
@@ -575,6 +581,13 @@ export const hydrateChartsIntoDocument = (doc: Document, options: HydrateChartsI
   const theme = buildEchartsThemeFromCssVars(cssVars);
 
   const nodes = doc.querySelectorAll('[data-amc-chart], [data-amc-echarts]');
+  if (nodes.length === 0) {
+    // Nothing to hydrate: skip the lazy ECharts fetch entirely.
+    return;
+  }
+
+  const echarts = await import('echarts');
+
   nodes.forEach((node) => {
     const attr = node.getAttribute('data-amc-chart') || node.getAttribute('data-amc-echarts') || '';
     let raw: unknown;

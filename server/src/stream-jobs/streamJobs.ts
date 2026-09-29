@@ -3,12 +3,6 @@ import { sendJson } from '../cors.js';
 import { JOB_ID_HEADER, runDetachedUpstream, maybeStreamWithSharedJob, type StreamJob } from './streamJobStore.js';
 import { buildGeminiProxyHeaders, resolveGeminiRequestApiKey } from '../proxy/proxyHeaders.js';
 
-// Re-export the shared job-store abort primitive so existing callers
-// (createServer, geminiProxy) keep importing from a single module.
-// Header constants and the rest of the store live in streamJobStore —
-// import them from there directly (thirdPartyProxy already does).
-export { abortJob, readJobSecret } from './streamJobStore.js';
-
 const isStreamPath = (pathname: string): boolean => pathname.includes(':streamGenerateContent');
 
 // ── Gemini-specific header builders ─────────────────────────────────────────

@@ -14,7 +14,7 @@ interface ExportHtmlLabels {
   printTitle: string;
 }
 
-export const EXPORT_HTML_LABELS: Record<string, ExportHtmlLabels> = {
+const EXPORT_HTML_LABELS: Record<string, ExportHtmlLabels> = {
   zh: {
     copyText: '复制',
     copyTitle: '复制正文',

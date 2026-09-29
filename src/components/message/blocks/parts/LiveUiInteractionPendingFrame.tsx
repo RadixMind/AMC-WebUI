@@ -5,8 +5,6 @@ export interface LiveUiInteractionPendingFrameProps {
   baseFontSize?: number;
 }
 
-export type LiveArtifactInteractionPendingFrameProps = LiveUiInteractionPendingFrameProps;
-
 export const LiveUiInteractionPendingFrame: React.FC<LiveUiInteractionPendingFrameProps> = ({
   label,
   baseFontSize,
@@ -28,5 +26,3 @@ export const LiveUiInteractionPendingFrame: React.FC<LiveUiInteractionPendingFra
     </div>
   </div>
 );
-
-export const LiveArtifactInteractionPendingFrame = LiveUiInteractionPendingFrame;

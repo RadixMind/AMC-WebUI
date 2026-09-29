@@ -40,8 +40,6 @@ export interface UseLiveUiPromptModeOptions {
   ) => Promise<string>;
 }
 
-export type UseLiveArtifactsPromptModeOptions = UseLiveUiPromptModeOptions;
-
 export const useLiveUiPromptMode = ({
   language = 'zh',
   appSettings,
@@ -445,5 +443,3 @@ export const useLiveUiPromptMode = ({
     toggleLiveArtifactsPrompt,
   };
 };
-
-export const useLiveArtifactsPromptMode = useLiveUiPromptMode;

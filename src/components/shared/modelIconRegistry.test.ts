@@ -3,8 +3,33 @@ import { CHERRY_MODEL_LOGOS, CHERRY_PROVIDER_LOGOS, resolveIconRef } from './mod
 
 describe('modelIconRegistry', () => {
   it('loads cherry models and providers via Vite glob', () => {
-    expect(Object.keys(CHERRY_MODEL_LOGOS).length).toBeGreaterThan(150);
-    expect(Object.keys(CHERRY_PROVIDER_LOGOS).length).toBeGreaterThan(150);
+    const modelKeys = Object.keys(CHERRY_MODEL_LOGOS);
+    const providerKeys = Object.keys(CHERRY_PROVIDER_LOGOS);
+
+    // Sanity floor only: this must not pin the exact icon count, because unreachable
+    // icons are pruned on purpose (see the reachability guard below).
+    expect(modelKeys.length).toBeGreaterThan(50);
+    expect(providerKeys.length).toBeGreaterThan(50);
+
+    // Every globbed entry must resolve to a real, non-empty asset URL.
+    for (const url of [...Object.values(CHERRY_MODEL_LOGOS), ...Object.values(CHERRY_PROVIDER_LOGOS)]) {
+      expect(typeof url).toBe('string');
+      expect(url.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('ships only icons that a lookup tier can actually reach', () => {
+    // Every tier consults the provider map before the model map for aliases/templates,
+    // so a model-dir icon whose basename also exists in the provider dir is dead weight.
+    expect(CHERRY_PROVIDER_LOGOS).toHaveProperty('openai');
+    expect(CHERRY_MODEL_LOGOS).not.toHaveProperty('openai');
+    // `zai` was byte-identical to the reachable `glm` and is not a catalog key.
+    expect(CHERRY_MODEL_LOGOS).toHaveProperty('glm');
+    expect(CHERRY_MODEL_LOGOS).not.toHaveProperty('zai');
+    // Icons only reachable through a pattern table must survive pruning.
+    expect(CHERRY_MODEL_LOGOS).toHaveProperty('gpt-5-chat');
+    expect(CHERRY_MODEL_LOGOS).toHaveProperty('claude');
+    expect(CHERRY_PROVIDER_LOGOS).toHaveProperty('bailian');
   });
 
   describe('resolveIconRef pattern boundaries and dedicated marks', () => {

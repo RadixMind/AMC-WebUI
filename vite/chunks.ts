@@ -58,6 +58,14 @@ export const HEAVY_PRELOAD_PATTERNS = [
   /^assets\/genai-vendor-.*\.js$/,
   /^assets\/graphviz-vendor-.*\.js$/,
   /^assets\/html2canvas\.esm-.*\.js$/,
+  // ECharts is lazily imported by the chart hydration path, so it must not be
+  // pulled onto the startup graph. Keeping it out of modulepreload also lets the
+  // browser discover it only after the index chunk has parsed.
+  /^assets\/echarts-vendor-.*\.js$/,
+  // The model-icon registry is an eager `import.meta.glob` of every brand SVG
+  // (~486 kB of JS). It is deliberately isolated into its own chunk, so it must
+  // be excluded here too — otherwise that isolation is defeated on every page load.
+  /^assets\/model-icons-.*\.js$/,
 ];
 
 const isSourcePath = (id: string, sourcePath: string) =>

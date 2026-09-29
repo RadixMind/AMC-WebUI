@@ -209,7 +209,3 @@ export const useUIStore = create<UIState & UIActions>()(
 );
 
 registerActiveViewGetter(() => useUIStore.getState().activeView);
-
-export const useUiStore = useUIStore;
-export type UiState = UIState;
-export type UiActions = UIActions;

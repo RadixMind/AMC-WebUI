@@ -276,6 +276,3 @@ export const loadInitialSessionData = async ({
     }
   }
 };
-
-export const sessionInitialLoad = loadInitialSessionData;
-export type SessionInitialLoadOptions = LoadInitialSessionDataOptions;

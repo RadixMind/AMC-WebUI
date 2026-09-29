@@ -13,9 +13,6 @@ export const TASK_SUGGESTION_PROMPT_MARKER = '[Task Directive';
 export const isLiveArtifactsSystemInstruction = (instruction?: string | null) =>
   !!instruction && LIVE_ARTIFACTS_PROMPT_MARKERS.some((marker) => instruction.includes(marker));
 
-export const LIVE_UI_PROMPT_MARKERS = LIVE_ARTIFACTS_PROMPT_MARKERS;
-export const isLiveUiSystemInstruction = isLiveArtifactsSystemInstruction;
-
 export const isBboxSystemInstruction = (instruction?: string | null) =>
   !!instruction && instruction.includes(BBOX_PROMPT_MARKER);
 
@@ -42,8 +39,6 @@ export const loadLiveArtifactsSystemPrompt = async (
   const key = LIVE_ARTIFACT_PROMPT_EXPORT_BY_MODE[mode][language] ?? LIVE_ARTIFACT_PROMPT_EXPORT_BY_MODE[mode].en;
   return prompts[key] as string;
 };
-
-export const loadLiveUiSystemPrompt = loadLiveArtifactsSystemPrompt;
 
 export const loadDeepSearchSystemPrompt = async () => (await import('./deepSearch')).DEEP_SEARCH_SYSTEM_PROMPT;
 
@@ -88,9 +83,4 @@ export {
   stripLiveArtifactsUserDirective,
   extractLiveArtifactsDirective,
   KNOWN_LIVE_ARTIFACTS_USER_DIRECTIVES,
-  getLiveUiUserDirective,
-  applyLiveUiUserDirective,
-  stripLiveUiUserDirective,
-  extractLiveUiDirective,
-  KNOWN_LIVE_UI_USER_DIRECTIVES,
 } from './liveUi';

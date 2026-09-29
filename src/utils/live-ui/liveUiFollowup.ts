@@ -112,9 +112,3 @@ export const formatLiveArtifactFollowupPrompt = (
     .filter(Boolean)
     .join('\n\n');
 };
-
-export type LiveUiFollowupPayload = LiveArtifactFollowupPayload;
-export const isLiveUiFollowupStateWithinLimit = isLiveArtifactFollowupStateWithinLimit;
-export const normalizeLiveUiFollowupPayload = normalizeLiveArtifactFollowupPayload;
-export const formatLiveUiFollowupPrompt = formatLiveArtifactFollowupPrompt;
-export const buildLiveUiFollowupPrompt = formatLiveArtifactFollowupPrompt;

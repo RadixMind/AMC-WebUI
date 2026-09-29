@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import type { ModelOption, ThirdPartyProviderId, ThirdPartyTemplateId } from '@/types';
-import { getModelIcon, THIRD_PARTY_PROVIDER_LOGO } from './ModelIcon';
+import { getModelIcon } from './ModelIcon';
 
 const renderIconHtml = (model: ModelOption): string => renderToStaticMarkup(getModelIcon(model));
 
@@ -117,6 +117,5 @@ describe('getModelIcon', () => {
 
     expect(html).toContain(`data-model-provider-logo="${expectedKey}"`);
     expect(html).toContain('<img');
-    expect(THIRD_PARTY_PROVIDER_LOGO[providerId]).toBeTruthy();
   });
 });

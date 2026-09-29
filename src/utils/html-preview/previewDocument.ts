@@ -678,7 +678,7 @@ export const createStaticPreviewSnapshotContainer = async (
   // Hydrate declarative charts as static SVG so the PNG export matches the
   // on-screen artifact. The theme style (varsOnly) is injected so chart SVG
   // colors resolve on the parent page, which never defines --amc-live-artifact-*.
-  hydrateChartsIntoDocument(parsedDocument, {
+  await hydrateChartsIntoDocument(parsedDocument, {
     themeStyle: buildPreviewThemeStyle(options.themeId, {
       varsOnly: true,
       baseFontSize: options.baseFontSize,
@@ -793,7 +793,7 @@ export const buildStandaloneHtmlArtifact = async (
   }
 
   // Hydrate declarative charts as self-contained static SVG
-  hydrateChartsIntoDocument(parsedDocument, {
+  await hydrateChartsIntoDocument(parsedDocument, {
     themeStyle: buildPreviewThemeStyle(options.themeId, {
       varsOnly: true,
       baseFontSize: options.baseFontSize,

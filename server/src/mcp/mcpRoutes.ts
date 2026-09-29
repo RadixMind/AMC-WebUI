@@ -491,6 +491,9 @@ const handleCallTool = async (
   });
 };
 
+/** Resources + templates for one server, derived from the single unified bridge method. */
+type McpResourceListing = Awaited<ReturnType<NonNullable<McpClientBridge['listResourcesAndTemplates']>>>;
+
 const handleListResources = async (
   request: IncomingMessage,
   response: ServerResponse,
@@ -504,8 +507,8 @@ const handleListResources = async (
   const servers: Array<{
     serverId: string;
     serverName: string;
-    resources: Awaited<ReturnType<NonNullable<McpClientBridge['listResources']>>>;
-    resourceTemplates: Awaited<ReturnType<NonNullable<McpClientBridge['listResourceTemplates']>>>;
+    resources: McpResourceListing['resources'];
+    resourceTemplates: McpResourceListing['resourceTemplates'];
   }> = [];
   const errors = [...parsed.errors];
 
@@ -635,17 +638,13 @@ export const handleMcpRequest = async (
         sendJson(request, response, 400, { error: 'serverId required' }, allowedOrigins);
         return true;
       }
-      // C1: private-host guard parity and 404 for unknown serverId.
-      // GET /api/mcp/logs sits before POST-only guard; enforce same private-HTTP awareness
-      // as handleListTools/handleCallTool. Unknown serverIds return 404 to avoid probing.
+      // GET /api/mcp/logs sits before the POST-only guard. Unknown serverIds 404 to
+      // avoid probing. This endpoint carries no hostname, so there is nothing for
+      // isPrivateNetworkHostname to check — the hasLogs gate is the equivalent guard.
       if (mcpClient.hasLogs && !mcpClient.hasLogs(serverId)) {
         sendJson(request, response, 404, { error: 'MCP server not found.' }, allowedOrigins);
         return true;
       }
-      // When private HTTP is disabled, we still serve logs for known servers but unknown
-      // already 404s above; no hostname to check via isPrivateNetworkHostname here.
-      // The hasLogs gate is the equivalent guard for this GET endpoint.
-      void options.enablePrivateHttp;
       const logs = mcpClient.getLogs?.(serverId) ?? [];
       sendJson(request, response, 200, { logs }, allowedOrigins);
     } catch (logsError) {

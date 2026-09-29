@@ -58,8 +58,6 @@ export interface McpClientBridge {
     args: Record<string, unknown>,
     onProgress?: (update: McpToolProgressUpdate) => void,
   ): Promise<unknown>;
-  listResources?(server: McpServerConfig): Promise<McpResource[]>;
-  listResourceTemplates?(server: McpServerConfig): Promise<McpResourceTemplate[]>;
   listResourcesAndTemplates?(server: McpServerConfig): Promise<{
     resources: McpResource[];
     resourceTemplates: McpResourceTemplate[];

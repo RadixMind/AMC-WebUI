@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createServer, readMacOsClipboardPng } from './createServer';
+import { createServer } from './createServer';
+import { readMacOsClipboardPng } from './clipboardImage';
 import { createHttpServerCleanup, startHttpServer } from '../test/httpServer';
 import http from 'node:http';
 import { Buffer } from 'node:buffer';

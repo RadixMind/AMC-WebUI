@@ -15,8 +15,6 @@ export interface LiveUiInteractionDiagnosticProps {
   onFollowUp?: (payload: LiveArtifactFollowupPayload) => void;
 }
 
-export type LiveArtifactInteractionDiagnosticProps = LiveUiInteractionDiagnosticProps;
-
 const ERROR_ICON_COLOR = 'var(--theme-text-danger)';
 
 export const LiveUiInteractionDiagnostic: React.FC<LiveUiInteractionDiagnosticProps> = ({
@@ -140,5 +138,3 @@ export const LiveUiInteractionDiagnostic: React.FC<LiveUiInteractionDiagnosticPr
 function renderError(error: LiveArtifactInteractionParseError): string {
   return error.message;
 }
-
-export const LiveArtifactInteractionDiagnostic = LiveUiInteractionDiagnostic;

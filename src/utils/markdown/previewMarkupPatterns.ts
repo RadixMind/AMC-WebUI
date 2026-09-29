@@ -2,8 +2,6 @@ export type PreviewMarkupType = 'html' | 'svg';
 
 export const LIVE_ARTIFACT_HTML_LANGUAGE = 'amc-live-artifact-html';
 export const LIVE_ARTIFACT_INTERACTION_LANGUAGE = 'amc-live-artifact-interaction';
-export const LIVE_UI_HTML_LANGUAGE = LIVE_ARTIFACT_HTML_LANGUAGE;
-export const LIVE_UI_INTERACTION_LANGUAGE = LIVE_ARTIFACT_INTERACTION_LANGUAGE;
 const HTML_LANGUAGE_ALIASES = new Set(['html', 'htm']);
 const SVG_LANGUAGE_ALIASES = new Set(['svg']);
 
@@ -311,6 +309,3 @@ export const isPromotableBareArtifact = (artifact: string): boolean => {
 export const isPromotableStreamingBareFragment = (artifact: string): boolean => {
   return LIVE_ARTIFACT_MARKER_REGEX.test(artifact) && HTML_FRAGMENT_START_REGEX.test(artifact.trimStart());
 };
-
-export const isPromotableBareLiveUi = isPromotableBareArtifact;
-export const isPromotableStreamingBareLiveUiFragment = isPromotableStreamingBareFragment;

@@ -20,8 +20,6 @@ export interface LiveUiFontSizeControlProps {
   onUpdate: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
 }
 
-export type LiveArtifactsFontSizeControlProps = LiveUiFontSizeControlProps;
-
 export const LiveUiFontSizeControl: React.FC<LiveUiFontSizeControlProps> = ({ settings, onUpdate }) => {
   const { t } = useI18n();
   const customFontSize = clampLiveArtifactsCustomFontSize(settings.liveArtifactsCustomFontSize ?? 16);
@@ -60,5 +58,3 @@ export const LiveUiFontSizeControl: React.FC<LiveUiFontSizeControlProps> = ({ se
     </div>
   );
 };
-
-export const LiveArtifactsFontSizeControl = LiveUiFontSizeControl;

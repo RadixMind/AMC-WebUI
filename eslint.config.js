@@ -57,26 +57,9 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.test.{ts,tsx}', '**/*.d.ts'],
-    rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      'react-hooks/immutability': 'off',
-      'react-hooks/purity': 'off',
-      'react-hooks/refs': 'off',
-    },
-  },
-  {
     files: ['src/test/**/*.{ts,tsx}'],
     rules: {
       'react-refresh/only-export-components': 'off',
-    },
-  },
-  {
-    files: ['src/test/chat-input/harness.tsx'],
-    rules: {
-      'react-hooks/immutability': 'off',
-      'react-hooks/purity': 'off',
-      'react-hooks/refs': 'off',
     },
   },
   {

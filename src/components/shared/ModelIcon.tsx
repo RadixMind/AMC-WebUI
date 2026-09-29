@@ -3,17 +3,10 @@ import { Box, Sparkles } from 'lucide-react';
 import geminiIconUrl from '@/assets/model-icons/gemini.svg';
 import gemmaIconUrl from '@/assets/model-icons/gemma.svg';
 import nanoBananaIconUrl from '@/assets/model-icons/nanobanana.svg';
-import customLogoUrl from '@/assets/model-icons/providers/custom.png';
 import { getCachedModelCapabilities } from '@/stores/modelCapabilitiesStore';
 import { THIRD_PARTY_PROVIDER_LABELS, THIRD_PARTY_TEMPLATE_LABELS } from '@/utils/third-party/thirdPartyApiProviders';
 import { type ModelOption, type ThirdPartyProviderId, type ThirdPartyTemplateId, GEMINI_PROVIDER_ID } from '@/types';
-import {
-  CHERRY_MODEL_LOGOS,
-  CHERRY_PROVIDER_LOGOS,
-  CHERRY_PROVIDER_LABELS,
-  formatIconLabel,
-  resolveIconRef,
-} from './modelIconRegistry';
+import { CHERRY_PROVIDER_LABELS, formatIconLabel, resolveIconRef } from './modelIconRegistry';
 
 /** 统一图标外框尺寸，解决 Brand(22) vs Provider(26) 混排大小不一 */
 const MODEL_ICON_SIZE = 22;
@@ -34,26 +27,10 @@ const THIN_LINE_ICON_KEYS = new Set<string>([
 /**
  * 第三方 Provider 与 Model Logo 映射
  * 融合 Cherry Studio 168+ 模型矢量图标与 157+ 服务商矢量图标 (AGPL-3.0)
+ *
+ * Icon lookup is handled exclusively by `resolveIconRef` (see modelIconRegistry);
+ * this file renders the result and does not need its own provider→logo table.
  */
-export const THIRD_PARTY_PROVIDER_LOGO: Record<string, string> = {
-  ...CHERRY_PROVIDER_LOGOS,
-  ...CHERRY_MODEL_LOGOS,
-  custom: customLogoUrl,
-  openai: CHERRY_PROVIDER_LOGOS['openai'] || customLogoUrl,
-  deepseek: CHERRY_PROVIDER_LOGOS['deepseek'] || customLogoUrl,
-  anthropic: CHERRY_PROVIDER_LOGOS['anthropic'] || customLogoUrl,
-  openrouter: CHERRY_PROVIDER_LOGOS['openrouter'] || customLogoUrl,
-  qwen: CHERRY_PROVIDER_LOGOS['qwen'] || customLogoUrl,
-  kimi: CHERRY_PROVIDER_LOGOS['moonshot'] || CHERRY_MODEL_LOGOS['kimi'] || customLogoUrl,
-  glm: CHERRY_PROVIDER_LOGOS['zhipu'] || CHERRY_MODEL_LOGOS['glm'] || customLogoUrl,
-  siliconflow: CHERRY_PROVIDER_LOGOS['silicon'] || customLogoUrl,
-  doubao: CHERRY_PROVIDER_LOGOS['doubao'] || CHERRY_PROVIDER_LOGOS['volcengine'] || customLogoUrl,
-  stepfun: CHERRY_PROVIDER_LOGOS['step'] || customLogoUrl,
-  yi: CHERRY_PROVIDER_LOGOS['zero-one'] || customLogoUrl,
-  opencode: CHERRY_PROVIDER_LOGOS['opencode'] || customLogoUrl,
-  hunyuan: CHERRY_PROVIDER_LOGOS['hunyuan'] || customLogoUrl,
-  huggingface: CHERRY_PROVIDER_LOGOS['huggingface'] || customLogoUrl,
-};
 
 type ModelBrandIconKey = 'gemini' | 'gemma' | 'nanobanana';
 
@@ -197,12 +174,4 @@ export const getModelIcon = (model: ModelOption | undefined) => {
       strokeWidth={1.5}
     />
   );
-};
-
-export interface ModelIconProps {
-  model?: ModelOption;
-}
-
-export const ModelIcon: React.FC<ModelIconProps> = ({ model }) => {
-  return getModelIcon(model);
 };

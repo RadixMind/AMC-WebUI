@@ -3,12 +3,11 @@ import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
 import { Z_INDEX_MODAL_BACKDROP } from '@/constants/layout';
 
 export const AlertDialog = AlertDialogPrimitive.Root;
-export const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
-export const AlertDialogPortal = AlertDialogPrimitive.Portal;
+const AlertDialogPortal = AlertDialogPrimitive.Portal;
 
 export type AlertDialogOverlayProps = React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>;
 
-export const AlertDialogOverlay = React.forwardRef<
+const AlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
   AlertDialogOverlayProps
 >(({ className = '', ...props }, ref) => (

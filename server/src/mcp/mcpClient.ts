@@ -512,52 +512,6 @@ export const createMcpClientBridge = (options: McpClientBridgeOptions = {}): Mcp
       }
     },
 
-    listResources: async (server) =>
-      withConnectedClient(server, async (client) => {
-        const resources: McpResource[] = [];
-        let cursor: string | undefined;
-
-        try {
-          do {
-            const result = await client.listResources(cursor ? { cursor } : undefined, {
-              timeout: MCP_REQUEST_TIMEOUT_MS,
-            });
-            resources.push(...result.resources.map(mapResource));
-            cursor = result.nextCursor;
-          } while (cursor);
-        } catch (listResourcesError) {
-          if (isUnsupportedMethodError(listResourcesError)) {
-            return [];
-          }
-          throw listResourcesError;
-        }
-
-        return resources;
-      }),
-
-    listResourceTemplates: async (server) =>
-      withConnectedClient(server, async (client) => {
-        const resourceTemplates: McpResourceTemplate[] = [];
-        let cursor: string | undefined;
-
-        try {
-          do {
-            const result = await client.listResourceTemplates(cursor ? { cursor } : undefined, {
-              timeout: MCP_REQUEST_TIMEOUT_MS,
-            });
-            resourceTemplates.push(...result.resourceTemplates.map(mapResourceTemplate));
-            cursor = result.nextCursor;
-          } while (cursor);
-        } catch (listTemplatesError) {
-          if (isUnsupportedMethodError(listTemplatesError)) {
-            return [];
-          }
-          throw listTemplatesError;
-        }
-
-        return resourceTemplates;
-      }),
-
     listResourcesAndTemplates: async (server) =>
       withConnectedClient(server, async (client) => {
         const resources: McpResource[] = [];

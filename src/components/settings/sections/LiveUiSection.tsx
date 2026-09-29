@@ -18,8 +18,6 @@ export interface LiveUiSectionProps {
   onUpdateSetting: SettingsUpdateHandler;
 }
 
-export type LiveArtifactsSectionProps = LiveUiSectionProps;
-
 export const LiveUiSection: React.FC<LiveUiSectionProps> = ({ currentSettings, onUpdateSetting }) => {
   const { language, t } = useI18n();
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
@@ -142,5 +140,3 @@ export const LiveUiSection: React.FC<LiveUiSectionProps> = ({ currentSettings, o
     </div>
   );
 };
-
-export const LiveArtifactsSection = LiveUiSection;

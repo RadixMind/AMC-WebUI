@@ -53,9 +53,3 @@ export const updateLiveArtifactsSystemPromptForMode = (
   ...normalizeLiveArtifactsSystemPrompts(settings),
   [promptMode]: prompt,
 });
-
-export const createEmptyLiveUiSystemPrompts = createEmptyLiveArtifactsSystemPrompts;
-export const normalizeLiveUiSystemPrompts = normalizeLiveArtifactsSystemPrompts;
-export const getLiveUiSystemPromptOverride = getLiveArtifactsSystemPromptOverride;
-export const getLiveUiSystemPromptValue = getLiveArtifactsSystemPromptValue;
-export const updateLiveUiSystemPromptForMode = updateLiveArtifactsSystemPromptForMode;

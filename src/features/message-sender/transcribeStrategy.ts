@@ -270,5 +270,3 @@ export const sendTranscribeMessage = async ({
     },
   });
 };
-
-export const transcribeStrategy = sendTranscribeMessage;

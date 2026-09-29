@@ -75,5 +75,3 @@ export const sendTtsMessage = async ({
     },
   });
 };
-
-export const ttsStrategy = sendTtsMessage;
