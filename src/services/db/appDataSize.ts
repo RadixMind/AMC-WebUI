@@ -54,23 +54,27 @@ const estimateStoredValueBytes = (value: unknown): number => {
 };
 
 const estimateLocalStorageBytes = (): number => {
-  if (typeof localStorage === 'undefined') {
-    return 0;
-  }
-
-  let total = 0;
-
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
-    if (key === null) {
-      continue;
+  try {
+    if (typeof localStorage === 'undefined') {
+      return 0;
     }
 
-    total += estimateUtf8Bytes(key);
-    total += estimateUtf8Bytes(localStorage.getItem(key) ?? '');
-  }
+    let total = 0;
 
-  return total;
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = localStorage.key(index);
+      if (key === null) {
+        continue;
+      }
+
+      total += estimateUtf8Bytes(key);
+      total += estimateUtf8Bytes(localStorage.getItem(key) ?? '');
+    }
+
+    return total;
+  } catch {
+    return 0;
+  }
 };
 
 const estimateStoreBytes = async (db: IDBDatabase, storeName: string): Promise<number> =>

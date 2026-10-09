@@ -27,14 +27,26 @@ import { EnvConfigGenerator } from '@/components/EnvConfigGenerator';
 | `PORT` | Node API 后端监听端口 | 服务端 | `3001` |
 | `GEMINI_API_KEY` | 可选的服务端统一托管 Gemini Key | **仅服务端** | 空 |
 | `LIVE_GEMINI_API_KEY` | 专门用于 Live WebSocket 代理的服务端 Key | **仅服务端** | 空 |
+| `GEMINI_API_BASE` | 上游 Gemini API 基地址（可指向自建反代） | 服务端 | `https://generativelanguage.googleapis.com` |
 | `SERVER_KEY_PRIORITY` | `true`=服务端优先；`false`=浏览器 BYOK 优先 | 服务端 | `false` |
+| `ACCESS_PASSWORD` | 访问口令，保护 Node API 不被匿名调用 | **仅服务端** | 空 |
+| `SERVER_ACCESS_TOKEN` | `ACCESS_PASSWORD` 的兼容别名 | **仅服务端** | 空 |
 | `ALLOWED_ORIGINS` | 跨域允许的 Origin 白名单（逗号分隔） | 服务端 | 空 |
 | `ENABLE_LIVE_WS_PROXY`| 是否启用 `/api/live` 的 WebSocket 全代理 | 服务端 | `true` |
+| `LIVE_WS_IDLE_TIMEOUT_MS` | Live WebSocket 空闲回收超时（毫秒） | 服务端 | `300000` |
 | `ENABLE_MCP_STDIO` | 允许执行本地 stdio 形式的 MCP 进程 | 服务端 | `false` |
+| `ENABLE_MCP_PRIVATE_HTTP` | 允许 MCP 访问内网/本机 HTTP 服务 | 服务端 | `false` |
+| `ENABLE_THIRD_PARTY_PRIVATE_HTTP` | 允许第三方路由访问内网/本机端点（如本地 Ollama） | 服务端 | `false` |
 | `THIRD_PARTY_ROUTES` | 第三方服务商安全路由表 JSON | **仅服务端** | 空 |
+| `NPM_REGISTRY` | 构建镜像时使用的 npm 源 | 构建参数 | `https://registry.npmjs.org` |
+| `RUNTIME_SERVER_MANAGED_API` | 前端是否使用服务端统一下发的 Key | 公开前端 | `true`（Docker） |
+| `RUNTIME_SERVER_ACCESS_PASSWORD` | 前端访问受保护 Node API 时携带的口令 | 公开前端 | 空 |
+| `RUNTIME_USE_API_PROXY` | 是否让前端走服务端代理 | 公开前端 | `true`（Docker） |
+| `RUNTIME_USE_CUSTOM_API_CONFIG` | 是否允许浏览器端自定义 API 配置覆盖 | 公开前端 | `true`（Docker） |
 | `RUNTIME_API_PROXY_URL`| 前端 Gemini 默认代理地址 | 公开前端 | `/api/gemini` |
 | `RUNTIME_LIVE_API_BASE_URL`| 前端 Live API 连接地址（留空直连官方） | 公开前端 | `/api/live` |
 | `RUNTIME_THIRD_PARTY_PROXY_URL`| 前端第三方兼容代理地址（留空直连） | 公开前端 | `/api/openai` |
+| `RUNTIME_PYODIDE_BASE_URL` | Pyodide WASM 运行时资源地址（留空使用默认 CDN） | 公开前端 | 空 |
 
 ---
 

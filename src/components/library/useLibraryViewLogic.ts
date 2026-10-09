@@ -34,6 +34,9 @@ export const useLibraryViewLogic = ({ onNewChat, onSelectSession }: UseLibraryVi
   const selectedFileIds = useLibraryStore((state) => state.selectedFileIds);
   const clearSelection = useLibraryStore((state) => state.clearSelection);
   const selectAllFiles = useLibraryStore((state) => state.selectAllFiles);
+  const invertSelection = useLibraryStore((state) => state.invertSelection);
+  const selectRange = useLibraryStore((state) => state.selectRange);
+  const toggleSelectFile = useLibraryStore((state) => state.toggleSelectFile);
   const setCategoryFilter = useLibraryStore((state) => state.setCategoryFilter);
   const setSourceFilter = useLibraryStore((state) => state.setSourceFilter);
   const setFileTypeFilter = useLibraryStore((state) => state.setFileTypeFilter);
@@ -226,6 +229,66 @@ export const useLibraryViewLogic = ({ onNewChat, onSelectSession }: UseLibraryVi
     selectAllFiles(filteredItems.map((item) => item.id));
   }, [filteredItems, selectAllFiles]);
 
+  const lastSelectedIdRef = useRef<string | null>(null);
+
+  const handleToggleSelect = useCallback(
+    (id: string, event?: React.MouseEvent | React.KeyboardEvent) => {
+      const isShift = event?.shiftKey;
+      if (isShift && lastSelectedIdRef.current && lastSelectedIdRef.current !== id) {
+        const lastIndex = filteredItems.findIndex((item) => item.id === lastSelectedIdRef.current);
+        const currentIndex = filteredItems.findIndex((item) => item.id === id);
+        if (lastIndex !== -1 && currentIndex !== -1) {
+          const start = Math.min(lastIndex, currentIndex);
+          const end = Math.max(lastIndex, currentIndex);
+          const rangeIds = filteredItems.slice(start, end + 1).map((item) => item.id);
+          selectRange(rangeIds);
+          lastSelectedIdRef.current = id;
+          return;
+        }
+      }
+
+      toggleSelectFile(id);
+      lastSelectedIdRef.current = id;
+    },
+    [filteredItems, selectRange, toggleSelectFile],
+  );
+
+  const handleInvertSelection = useCallback(() => {
+    invertSelection(filteredItems.map((item) => item.id));
+  }, [filteredItems, invertSelection]);
+
+  const handleClearSelection = useCallback(() => {
+    clearSelection();
+    lastSelectedIdRef.current = null;
+  }, [clearSelection]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target) {
+        const tagName = target.tagName;
+        if (tagName === 'INPUT' || tagName === 'TEXTAREA' || target.isContentEditable) {
+          return;
+        }
+      }
+
+      if (previewFile || deleteConfirmTarget || showCreateNote) {
+        return;
+      }
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a') {
+        event.preventDefault();
+        handleSelectAll();
+      } else if (event.key === 'Escape' && selectedFileIds.size > 0) {
+        event.preventDefault();
+        handleClearSelection();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [deleteConfirmTarget, handleClearSelection, handleSelectAll, previewFile, selectedFileIds.size, showCreateNote]);
+
   const handleSaveNote = useCallback(
     async (content: string | Blob, filename: string) => {
       const safeFilename = filename.trim() ? sanitizeFilename(filename) : `note-${Date.now()}.md`;
@@ -402,6 +465,9 @@ export const useLibraryViewLogic = ({ onNewChat, onSelectSession }: UseLibraryVi
     handleStartChatWithItems,
     handleStartChatWithSelected,
     handleSelectAll,
+    handleToggleSelect,
+    handleInvertSelection,
+    handleClearSelection,
     handleSaveNote,
     handleDownloadItem,
     handleDownloadSelected,

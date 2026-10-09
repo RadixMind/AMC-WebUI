@@ -11,7 +11,7 @@ export interface LibraryPickerListProps {
   selectedIds: Set<string>;
   allFilteredSelected: boolean;
   handleSelectAllToggle: () => void;
-  toggleSelectItem: (id: string) => void;
+  toggleSelectItem: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
   handleItemDoubleClick: (item: LibraryItem) => void;
   handlePreviewItem: (item: LibraryItem) => void;
   language: string;
@@ -39,7 +39,7 @@ export const LibraryPickerList: React.FC<LibraryPickerListProps> = ({
                 type="checkbox"
                 checked={allFilteredSelected}
                 onChange={handleSelectAllToggle}
-                className="rounded border-[var(--theme-border-secondary)] text-blue-600 focus:ring-blue-500 cursor-pointer"
+                className="rounded border-[var(--theme-border-secondary)] text-[var(--theme-accent)] focus:ring-[var(--theme-accent)] cursor-pointer"
                 aria-label={t('librarySelectAll')}
               />
             </th>
@@ -56,18 +56,38 @@ export const LibraryPickerList: React.FC<LibraryPickerListProps> = ({
             return (
               <tr
                 key={item.id}
-                onClick={() => toggleSelectItem(item.id)}
+                tabIndex={0}
+                onClick={(event) => toggleSelectItem(item.id, event)}
                 onDoubleClick={() => handleItemDoubleClick(item)}
-                className={`group cursor-pointer transition-colors ${
-                  isSelected ? 'bg-blue-500/10 hover:bg-blue-500/15' : 'hover:bg-[var(--theme-bg-secondary)]'
+                onKeyDown={(event) => {
+                  if (event.key === ' ' || event.key === 'Enter') {
+                    event.preventDefault();
+                    toggleSelectItem(item.id, event);
+                  }
+                }}
+                className={`group cursor-pointer transition-colors focus:outline-none focus-visible:bg-[var(--theme-accent)]/10 ${
+                  isSelected
+                    ? 'bg-[var(--theme-accent)]/10 hover:bg-[var(--theme-accent)]/15'
+                    : 'hover:bg-[var(--theme-bg-secondary)]'
                 }`}
               >
-                <td className="py-2.5 px-3 text-center" onClick={(event) => event.stopPropagation()}>
+                <td
+                  className="py-2.5 px-3 text-center"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleSelectItem(item.id, event);
+                  }}
+                >
                   <input
                     type="checkbox"
                     checked={isSelected}
-                    onChange={() => toggleSelectItem(item.id)}
-                    className="rounded border-[var(--theme-border-secondary)] text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    readOnly
+                    aria-label={item.name}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleSelectItem(item.id, event);
+                    }}
+                    className="rounded border-[var(--theme-border-secondary)] text-[var(--theme-accent)] focus:ring-[var(--theme-accent)] cursor-pointer"
                   />
                 </td>
                 <td className="py-2.5 px-3">

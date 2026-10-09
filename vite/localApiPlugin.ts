@@ -57,11 +57,15 @@ const readRequestBody = async (request: DevServerRequest): Promise<Blob | undefi
     return undefined;
   }
 
+  const MAX_DEV_BODY_BYTES = 1024 * 1024;
   const chunks: BlobPart[] = [];
   let totalBytes = 0;
   for await (const chunk of request as AsyncIterable<Buffer | string | Uint8Array>) {
     const blobPart = typeof chunk === 'string' ? chunk : new Uint8Array(chunk);
     totalBytes += typeof blobPart === 'string' ? Buffer.byteLength(blobPart) : blobPart.byteLength;
+    if (totalBytes > MAX_DEV_BODY_BYTES) {
+      return undefined;
+    }
     chunks.push(blobPart);
   }
 
@@ -193,7 +197,7 @@ const localClipboardImageRequest = async (request: { method?: string }, response
     'content-length': String(image.data.byteLength),
     'cache-control': 'no-store',
     'x-content-type-options': 'nosniff',
-    'x-clipboard-file-name': image.fileName,
+    'x-clipboard-file-name': encodeURIComponent(image.fileName),
   });
   response.end(method === 'HEAD' ? undefined : image.data);
 };
@@ -225,7 +229,7 @@ const handleLocalApiRequest = (request: DevServerRequest, response: DevServerRes
     return;
   }
 
-  if (requestUrl.pathname === '/api/live/ephemeral-token' || requestUrl.pathname === '/api/auth_tokens') {
+  if (requestUrl.pathname === '/api/live/ephemeral-token') {
     void (async () => {
       if (request.method !== 'POST') {
         response.writeHead(405, { 'content-type': 'application/json' });

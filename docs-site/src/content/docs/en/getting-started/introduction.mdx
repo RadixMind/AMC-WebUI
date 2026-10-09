@@ -30,7 +30,7 @@ Unlike generic chat UIs, AMC WebUI splits network communication into two isolate
 
 <CardGrid>
   <Card title="🧠 Deep Reasoning (Thinking)" icon="rocket">
-    Fine-tune thinking token budgets (up to 32,768 tokens) and levels (Low / Medium / High), with automated thought translation powered by lightweight models.
+    Fine-tune thinking token budgets (slider up to 65,536 tokens; 128–32,768 effective for Gemini 3.x) and levels (Off / Minimal / Low / Medium / High), with automated thought translation powered by lightweight models.
   </Card>
   <Card title="🎙️ Real-time Audio/Video (Live API)" icon="laptop">
     Low-latency bidirectional voice chat, webcam vision analysis, and screen sharing powered by WebSocket and AudioWorklet rendering.
@@ -39,6 +39,6 @@ Unlike generic chat UIs, AMC WebUI splits network communication into two isolate
     Automatic sandbox rendering of HTML/SVG code blocks. Built-in **Apache ECharts**, **Mermaid**, and **Graphviz** visualization engines.
   </Card>
   <Card title="🐍 Local Python WASM Sandbox" icon="setting">
-    Run Python scientific computing code directly in a Web Worker via Pyodide (numpy, pandas, matplotlib) with automatic plot capture and zero server overhead.
+    Run Python code directly in a Web Worker via Pyodide with automatic plot capture and zero server overhead. The runtime ships `micropip` and auto-installs third-party packages such as numpy, pandas, and matplotlib on demand when they are imported.
   </Card>
 </CardGrid>

@@ -20,7 +20,7 @@ AMC WebUI provides robust pipelines for parsing project repositories, compressin
 
 Audio inputs can quickly consume massive token allocations and bandwidth:
 - AMC WebUI features a dedicated browser-based **Audio Compression Worker**.
-- Recorded or uploaded audio is resampled, silence-trimmed, and compressed client-side, reducing up to 70% of audio token usage while maintaining high recognition fidelity.
+- Recorded or uploaded audio is resampled to **16 kHz mono** and encoded as **64 kbps MP3** client-side, cutting upload size and audio token usage while maintaining high recognition fidelity. To avoid needless work, compression is skipped for clips under `50 KiB` or shorter than `1.5 seconds`, and MP3s already below `80 kbps` are reused as-is.
 
 ---
 

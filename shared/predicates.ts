@@ -1,3 +1,6 @@
+/**
+ * Type guard checking whether a value is a non-null object record (excluding arrays).
+ */
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 

@@ -117,6 +117,10 @@ export const Modal: React.FC<ModalProps> = ({
         return;
       }
 
+      if (event.defaultPrevented) {
+        return;
+      }
+
       if (event.key === 'Escape') {
         onClose();
         return;

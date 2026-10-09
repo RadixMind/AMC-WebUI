@@ -31,6 +31,7 @@ interface LibraryToolbarProps {
   onDownloadSelected: () => void;
   onDeleteSelected: () => void;
   onSelectAll?: () => void;
+  onInvertSelection?: () => void;
 }
 
 export const LibraryToolbar: React.FC<LibraryToolbarProps> = ({
@@ -40,6 +41,7 @@ export const LibraryToolbar: React.FC<LibraryToolbarProps> = ({
   onDownloadSelected,
   onDeleteSelected,
   onSelectAll,
+  onInvertSelection,
 }) => {
   const { t } = useI18n();
   const viewMode = useLibraryStore((state) => state.viewMode);
@@ -131,6 +133,20 @@ export const LibraryToolbar: React.FC<LibraryToolbarProps> = ({
               <span>{t('librarySelectAll')}</span>
             </button>
           )}
+
+          {onInvertSelection && totalCount !== undefined && totalCount > 0 && (
+            <button
+              onClick={onInvertSelection}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-full border border-[var(--theme-border-primary)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-bg-tertiary)] active:scale-95 transition-all cursor-pointer"
+              title={t('libraryInvertSelection')}
+            >
+              <span>{t('libraryInvertSelection')}</span>
+            </button>
+          )}
+
+          <span className="text-xs text-[var(--theme-text-tertiary)] hidden xl:inline ml-2 select-none">
+            {t('libraryShortcutHint')}
+          </span>
         </div>
       ) : (
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth">

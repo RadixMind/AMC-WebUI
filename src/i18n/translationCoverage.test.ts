@@ -872,7 +872,7 @@ describe('translation coverage for protected UI surfaces', () => {
       }
     }
 
-    const allowedDuplicates = new Set(['settingsMcpVirtualBadge', 'settingsTitle']);
+    const allowedDuplicates = new Set<string>();
     const duplicateOffenders = Object.entries(keyDefinitions)
       .filter(([k, defs]) => defs.length > 1 && !allowedDuplicates.has(k))
       .map(([k, defs]) => `${k} defined in: ${defs.map((d) => d.file).join(', ')}`);

@@ -15,7 +15,7 @@ Node.js 26 is recommended for local development. The repository includes `.nvmrc
 
 ```bash
 nvm use
-npm ci
+pnpm install
 pnpm dev
 ```
 

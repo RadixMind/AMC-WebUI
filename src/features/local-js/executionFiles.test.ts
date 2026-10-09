@@ -79,4 +79,29 @@ describe('collectLocalJsInputFiles', () => {
     const files = collectLocalJsInputFiles(messages);
     expect(files).toEqual({});
   });
+
+  it('preserves user text files with empty textContent', () => {
+    const messages: ChatMessage[] = [
+      {
+        id: 'msg-1',
+        role: 'user',
+        content: 'check empty file',
+        timestamp: new Date(),
+        files: [
+          {
+            id: 'file-empty',
+            name: 'empty.txt',
+            type: 'text/plain',
+            size: 0,
+            textContent: '',
+          },
+        ],
+      },
+    ];
+
+    const files = collectLocalJsInputFiles(messages);
+    expect(files).toEqual({
+      'empty.txt': '',
+    });
+  });
 });

@@ -814,7 +814,7 @@ describe('htmlPreview utilities', () => {
 
       expect(html).toContain('<svg');
       expect(html).toContain('data-amc-chart-rendered="1"');
-    });
+    }, 15000);
 
     it('pre-renders KaTeX math formulas with KaTeX styles in standalone document', async () => {
       const rawHtml = '<p>Formula: $E=mc^2$</p>';

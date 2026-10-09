@@ -22,11 +22,6 @@ export type { TranslationMap } from './translationTypes';
  * Keep this list minimal and only for UI that renders on the main shell path
  * (sidebar, chat toolbar, PWA banner). Full settings copy lives under
  * `src/i18n/translations/settings/*` and is loaded on demand.
- *
- * Keys that also appear in lazy packs (e.g. settingsTitle) are intentional:
- * core owns the bootstrap value; the lazy pack may re-register the same
- * strings when the settings modal loads. Prefer editing both places if wording
- * changes, or move the key solely into core if only shell needs it early.
  */
 const shellFeatureTranslations: TranslationMap = {
   // Sidebar + settings modal chrome (modal also loads the full settings pack).
@@ -125,15 +120,6 @@ const shellFeatureTranslations: TranslationMap = {
     de: 'Neu laden, um die installierte Shell und die neuesten Ressourcen zu aktualisieren.',
   },
   pwaUpdateLater: { en: 'Later', zh: '稍后', ja: '後で', ko: '나중에', es: 'Más tarde', fr: 'Plus tard', de: 'Später' },
-  settingsMcpVirtualBadge: {
-    en: 'Built-in',
-    zh: '内置',
-    ja: '内蔵',
-    ko: '내장',
-    es: 'Integrado',
-    fr: 'Intégré',
-    de: 'Integriert',
-  },
   ...ttsStyleTranslations,
 };
 

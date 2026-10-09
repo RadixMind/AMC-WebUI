@@ -148,7 +148,7 @@ export const MessageActions: React.FC<MessageActionsProps> = ({
   }, [isOverflowOpen, targetDocument]);
 
   return (
-    <div className="flex-shrink-0 w-8 sm:w-10 flex flex-col items-center sticky top-2 sm:top-4 self-start z-10 h-full">
+    <div className="flex-shrink-0 w-8 sm:w-10 flex flex-col items-center sticky top-2 sm:top-4 self-start z-20 h-full">
       <div className="h-7 sm:h-8 flex items-center justify-center">
         {!isGrouped && (
           <>

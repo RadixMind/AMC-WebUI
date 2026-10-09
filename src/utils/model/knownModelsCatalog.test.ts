@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  normalizeModelId,
+  normalizeCanonicalModelId,
   formatContextWindow,
   KNOWN_MODELS_CATALOG,
   inferModelCapabilities,
@@ -23,24 +23,24 @@ describe('knownModelsCatalog', () => {
     });
   });
 
-  describe('normalizeModelId', () => {
+  describe('normalizeCanonicalModelId', () => {
     it('strips org/provider prefixes', () => {
-      expect(normalizeModelId('openai/gpt-4o')).toBe('gpt-4o');
-      expect(normalizeModelId('anthropic/claude-3-5-sonnet')).toBe('claude-3-5-sonnet');
-      expect(normalizeModelId('deepseek-ai/deepseek-v3')).toBe('deepseek-v3');
-      expect(normalizeModelId('meta-llama/llama-3.3-70b-instruct')).toBe('llama-3.3-70b-instruct');
+      expect(normalizeCanonicalModelId('openai/gpt-4o')).toBe('gpt-4o');
+      expect(normalizeCanonicalModelId('anthropic/claude-3-5-sonnet')).toBe('claude-3-5-sonnet');
+      expect(normalizeCanonicalModelId('deepseek-ai/deepseek-v3')).toBe('deepseek-v3');
+      expect(normalizeCanonicalModelId('meta-llama/llama-3.3-70b-instruct')).toBe('llama-3.3-70b-instruct');
     });
 
     it('strips aws bedrock prefixes', () => {
-      expect(normalizeModelId('us.anthropic.claude-3-5-sonnet-20241022-v2:0')).toBe('claude-3-5-sonnet');
-      expect(normalizeModelId('anthropic.claude-3-haiku-20240307-v1:0')).toBe('claude-3-haiku');
+      expect(normalizeCanonicalModelId('us.anthropic.claude-3-5-sonnet-20241022-v2:0')).toBe('claude-3-5-sonnet');
+      expect(normalizeCanonicalModelId('anthropic.claude-3-haiku-20240307-v1:0')).toBe('claude-3-haiku');
     });
 
     it('strips date suffixes and tags', () => {
-      expect(normalizeModelId('gpt-4o-2024-08-06')).toBe('gpt-4o');
-      expect(normalizeModelId('gpt-4o-mini-2024-07-18')).toBe('gpt-4o-mini');
-      expect(normalizeModelId('claude-3-7-sonnet-20250219')).toBe('claude-3-7-sonnet');
-      expect(normalizeModelId('deepseek-r1:free')).toBe('deepseek-r1');
+      expect(normalizeCanonicalModelId('gpt-4o-2024-08-06')).toBe('gpt-4o');
+      expect(normalizeCanonicalModelId('gpt-4o-mini-2024-07-18')).toBe('gpt-4o-mini');
+      expect(normalizeCanonicalModelId('claude-3-7-sonnet-20250219')).toBe('claude-3-7-sonnet');
+      expect(normalizeCanonicalModelId('deepseek-r1:free')).toBe('deepseek-r1');
     });
   });
 

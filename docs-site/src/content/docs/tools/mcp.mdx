@@ -1,6 +1,6 @@
 ---
 title: MCP 协议生态 (Model Context Protocol)
-description: 在 AMC WebUI 中接入 Anthropic 开源的 MCP 协议，支持本地 stdio 进程服务、远程 SSE/Stream 服务与工具调用安全审批。
+description: 在 AMC WebUI 中接入 Anthropic 开源的 MCP 协议，支持本地 stdio 进程服务、远程 http/sse 服务与工具调用安全审批。
 ---
 
 # MCP 协议生态 (Model Context Protocol)
@@ -26,16 +26,16 @@ description: 在 AMC WebUI 中接入 Anthropic 开源的 MCP 协议，支持本�
   ```
 - **安全开关**：服务端必须显式设置环境变量 `ENABLE_MCP_STDIO=true` 允许启动子进程。
 
-### 2. 远程网络服务 (`sse` / `http-stream`)
-- **运行机制**：通过 Server-Sent Events (SSE) 或 HTTP 长连接与远程部署的 MCP 服务通信。
-- **架构与部署依赖**：所有 MCP 传输形态（无论是本地 `stdio` 还是远程 `sse` / `http-stream`）均统一由后端 Node API 服务（`api` 容器或独立 `server/` 服务）作为安全桥接代理转发（端点为 `/api/mcp/*`）。纯静态托管（如 Cloudflare Pages）必须配置后端 Node API 地址，无法脱离后端独立运行 MCP。
+### 2. 远程网络服务 (`http` / `sse`)
+- **运行机制**：通过 Streamable HTTP 长连接（`http`）或 Server-Sent Events（`sse`）与远程部署的 MCP 服务通信。
+- **架构与部署依赖**：所有 MCP 传输形态（无论是本地 `stdio` 还是远程 `http` / `sse`）均统一由后端 Node API 服务（`api` 容器或独立 `server/` 服务）作为安全桥接代理转发（端点为 `/api/mcp/*`）。纯静态托管（如 Cloudflare Pages）必须配置后端 Node API 地址，无法脱离后端独立运行 MCP。
 - **内网保护**：若需允许 Node API 服务访问局域网或本机 HTTP MCP 服务，需在服务端显式设置 `ENABLE_MCP_PRIVATE_HTTP=true`。
 
 ---
 
 ## 核心功能与操作面板
 
-进入 **设置 -> MCP 服务与扩展**：
+进入 **设置 -> MCP**：
 
 1. **MCP Tools (工具链)**：
    - 自动拉取已连接 MCP 服务暴露的函数列表与 JSON Schema。

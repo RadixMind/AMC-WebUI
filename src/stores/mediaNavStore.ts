@@ -87,7 +87,7 @@ interface MediaNavState {
   ) => void;
   consumeVideoTarget: () => void;
   setCurrentPlayTime: (time: number | null) => void;
-  setWidth: (width: number) => void;
+  setWidth: (width: number, options?: { persist?: boolean }) => void;
 }
 
 export const MEDIA_NAV_MIN_WIDTH = 320;
@@ -209,15 +209,18 @@ export const useMediaNavStore = create<MediaNavState>((set) => ({
     }),
   consumeVideoTarget: () => set({ videoTarget: null }),
   setCurrentPlayTime: (time) => set({ currentPlayTime: time }),
-  setWidth: (width) => {
+  setWidth: (width, options) => {
     const maxWidth = resolveMediaNavMaxWidth();
     const clamped = Math.min(maxWidth, Math.max(MEDIA_NAV_MIN_WIDTH, Math.round(width)));
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(MEDIA_NAV_STORAGE_KEY, String(clamped));
+    const shouldPersist = options?.persist ?? true;
+    if (shouldPersist) {
+      try {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem(MEDIA_NAV_STORAGE_KEY, String(clamped));
+        }
+      } catch {
+        // Ignore storage errors
       }
-    } catch {
-      // Ignore storage errors
     }
     set({ width: clamped });
   },

@@ -1,5 +1,13 @@
 import { safeJsonParse } from './safeJsonParse';
 
+/**
+ * Safely extracts a displayable error message from an unknown thrown value or rejection.
+ * Handles Error instances, strings, nullish values, and custom error shapes.
+ *
+ * @param error - The caught value (Error, string, or unknown)
+ * @param fallbackMessage - Default message if extracted error is empty
+ * @returns Human-readable error string
+ */
 export const getErrorMessage = (error: unknown, fallbackMessage?: string): string => {
   if (error instanceof Error) {
     return error.message || fallbackMessage || '';
@@ -11,6 +19,12 @@ export const getErrorMessage = (error: unknown, fallbackMessage?: string): strin
   return errorString || (fallbackMessage ?? '');
 };
 
+/**
+ * Normalizes an unknown thrown value into a standard JavaScript Error instance.
+ *
+ * @param error - Caught value
+ * @param fallbackMessage - Fallback message if error has no readable string representation
+ */
 export const toError = (error: unknown, fallbackMessage?: string): Error => {
   if (error instanceof Error) return error;
   const errorString = error === undefined || error === null ? '' : String(error);

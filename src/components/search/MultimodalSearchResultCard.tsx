@@ -5,7 +5,7 @@ import { interpolate } from '@/i18n/interpolate';
 import { formatFileSize } from '@/utils/file/fileSize';
 import { LibraryItemThumbnail } from '@/components/library/LibraryItemThumbnail';
 import type { MultimodalSearchResult } from '@/services/embedding/embeddingTypes';
-import type { LibraryItem } from '@/types';
+import { toLibraryItemFromSearchResult } from './useMultimodalSearchLogic';
 
 export interface MultimodalSearchResultCardProps {
   result: MultimodalSearchResult;
@@ -28,19 +28,7 @@ export const MultimodalSearchResultCard: React.FC<MultimodalSearchResultCardProp
 }) => {
   const { t } = useI18n();
   const item = result.item;
-  const libraryItem: LibraryItem = {
-    id: item.id,
-    name: item.name,
-    type: item.type,
-    size: item.size || 0,
-    timestamp: item.createdAt || item.updatedAt,
-    sessionId: item.sessionId,
-    sessionTitle: item.sessionTitle,
-    messageId: item.messageId,
-    source: 'uploaded',
-    isStandalone: item.isStandalone,
-    dataUrl: item.thumbnailUrl,
-  };
+  const libraryItem = toLibraryItemFromSearchResult(item);
 
   const getSimilarityBadge = (similarity: number) => {
     const pct = Math.round(similarity * 100);

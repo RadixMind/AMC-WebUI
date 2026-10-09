@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Repeat, X } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { interpolate } from '@/i18n/interpolate';
 import type { UploadedFile } from '@/types';
@@ -9,6 +8,7 @@ import { formatTimestamp } from '@/utils/media-nav/timestamp';
 import { extractTimelineMarkers } from '@/utils/media-nav/timelineMarkers';
 import { extractYoutubeVideoId } from '@/utils/file/youtubeUrl';
 import { IconYoutube } from '@/components/icons';
+import { VideoSegmentBar } from '@/components/shared/file-preview/video/VideoSegmentBar';
 
 export interface YoutubeNavPlayerProps {
   file: UploadedFile;
@@ -156,38 +156,14 @@ export const YoutubeNavPlayer: React.FC<YoutubeNavPlayerProps> = ({ file }) => {
   return (
     <div className="h-full w-full flex flex-col bg-black select-none relative" data-testid="youtube-nav-player">
       {segment && (
-        <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-[#101113] border-b border-white/10 text-xs text-white/90 flex-shrink-0 z-30">
-          <span className="font-mono">
-            {t('videoLocateSegment')
-              .replace('{start}', formatTimestamp(segment.start))
-              .replace('{end}', formatTimestamp(segment.end))}
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setIsSegmentLoopEnabled((prev) => !prev)}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                isSegmentLoopEnabled ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
-              }`}
-              aria-pressed={isSegmentLoopEnabled}
-              aria-label={t('videoSegmentLoop')}
-              title={t('videoSegmentLoop')}
-              data-testid="youtube-segment-loop"
-            >
-              <Repeat size={14} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setSegment(null)}
-              className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-              aria-label={t('videoSegmentExit')}
-              title={t('videoSegmentExit')}
-              data-testid="youtube-segment-exit"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        </div>
+        <VideoSegmentBar
+          segment={segment}
+          isLoopEnabled={isSegmentLoopEnabled}
+          onToggleLoop={() => setIsSegmentLoopEnabled((prev) => !prev)}
+          onExit={() => setSegment(null)}
+          loopTestId="youtube-segment-loop"
+          exitTestId="youtube-segment-exit"
+        />
       )}
 
       <div className="flex-grow min-h-0 w-full flex items-center justify-center p-2 sm:p-4 bg-black relative">

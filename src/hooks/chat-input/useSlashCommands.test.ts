@@ -216,4 +216,33 @@ describe('useSlashCommands', () => {
     expect(useUIStore.getState().activeView).toBe('library');
     unmount();
   });
+
+  it('matches and executes /model by exact model ID or hyphenated keywords', () => {
+    const props = createProps({
+      availableModels: [
+        { id: 'gemini-2.5-pro', name: 'Gemini 2.5 Pro' },
+        { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash' },
+      ],
+    });
+    const { result, unmount } = renderHook(() => useSlashCommands(props));
+
+    // Match by exact ID
+    act(() => {
+      const handled = result.current.handleSlashCommandExecution('/model gemini-2.5-flash');
+      expect(handled).toBe(true);
+    });
+    expect(props.onSelectModel).toHaveBeenCalledWith('gemini-2.5-flash');
+    expect(props.setInputText).toHaveBeenCalledWith('');
+
+    // Autocomplete filter by ID / hyphenated string
+    act(() => {
+      result.current.handleInputChange('/model 2.5-pro');
+    });
+    expect(result.current.slashCommandState.isOpen).toBe(true);
+    expect(result.current.slashCommandState.filteredCommands.map((command) => command.name)).toEqual([
+      'Gemini 2.5 Pro',
+    ]);
+
+    unmount();
+  });
 });

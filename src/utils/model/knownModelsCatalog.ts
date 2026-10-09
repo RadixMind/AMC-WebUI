@@ -20,10 +20,13 @@ export const formatContextWindow = (tokens?: number | null): string => {
 };
 
 /**
- * Normalize model ID by stripping vendor/host prefixes and release-date / variant suffixes.
+ * Canonical normalization for model IDs from various third-party providers.
+ * Strips provider prefixes (e.g. "openai/", "anthropic/"), Bedrock prefixes, date tags,
+ * and service tiers (":free", ":nitro") to map to canonical known model identities.
+ *
  * Inspired by Cherry Studio's normalizeModelId pipeline.
  */
-export const normalizeModelId = (rawId: string): string => {
+export const normalizeCanonicalModelId = (rawId: string): string => {
   if (!rawId) return '';
   let id = rawId.trim().toLowerCase();
 
@@ -122,7 +125,7 @@ export const getOrInferModelCapabilities = (model: {
   capabilities?: ModelCapabilities;
   enableThinking?: boolean;
 }): ModelCapabilities => {
-  const normalizedId = normalizeModelId(model.id);
+  const normalizedId = normalizeCanonicalModelId(model.id);
   const catalogEntry = KNOWN_MODELS_CATALOG[normalizedId] || KNOWN_MODELS_CATALOG[model.id.toLowerCase()];
   const inferred = inferModelCapabilities(model.id).capabilities;
   const baseCaps = catalogEntry ? { ...inferred, ...catalogEntry.capabilities } : inferred;
@@ -141,7 +144,7 @@ export const getOrInferModelCapabilities = (model: {
  * Match a raw remote model to the known catalog or heuristically enrich its metadata.
  */
 export const enrichModelMetadata = (remote: { id: string; name?: string; owned_by?: string }): ModelOption => {
-  const normalizedId = normalizeModelId(remote.id);
+  const normalizedId = normalizeCanonicalModelId(remote.id);
   const catalogEntry = KNOWN_MODELS_CATALOG[normalizedId] || KNOWN_MODELS_CATALOG[remote.id.toLowerCase()];
   const inferred = inferModelCapabilities(remote.id);
 

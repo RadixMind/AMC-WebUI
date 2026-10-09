@@ -167,6 +167,11 @@ export const useFileSubtitles = ({
   useEffect(() => {
     return () => {
       subtitleAbortControllerRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
       if (subtitleVttBlobUrl) {
         URL.revokeObjectURL(subtitleVttBlobUrl);
       }

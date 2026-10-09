@@ -16,11 +16,13 @@ interface LibraryGridViewProps {
   onDownloadItem: (item: LibraryItem) => void;
   onDeleteItem: (item: LibraryItem) => void;
   onJumpToSession?: (sessionId: string) => void;
+  onToggleSelect?: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
 }
 
 interface LibraryGridCardProps {
   item: LibraryItem;
   isSelected: boolean;
+  selectedCount: number;
   language: string;
   isCopied: boolean;
   onPreviewItem: (item: LibraryItem) => void;
@@ -28,7 +30,7 @@ interface LibraryGridCardProps {
   onDownloadItem: (item: LibraryItem) => void;
   onDeleteItem: (item: LibraryItem) => void;
   onJumpToSession?: (sessionId: string) => void;
-  onToggleSelect: (id: string) => void;
+  onToggleSelect: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
   onCopyApiName: (name: string, id: string) => void;
   t: (key: any) => string;
 }
@@ -37,6 +39,7 @@ const LibraryGridCard = React.memo<LibraryGridCardProps>(
   ({
     item,
     isSelected,
+    selectedCount,
     language,
     isCopied,
     onPreviewItem,
@@ -53,11 +56,22 @@ const LibraryGridCard = React.memo<LibraryGridCardProps>(
         role="button"
         tabIndex={0}
         aria-label={item.name}
-        onClick={() => onPreviewItem(item)}
+        onClick={(event) => {
+          if (event.metaKey || event.ctrlKey || event.shiftKey || selectedCount > 0) {
+            onToggleSelect(item.id, event);
+          } else {
+            onPreviewItem(item);
+          }
+        }}
+        onDoubleClick={() => onPreviewItem(item)}
         onKeyDown={(event) => {
           if ((event.key === 'Enter' || event.key === ' ') && event.target === event.currentTarget) {
             event.preventDefault();
-            onPreviewItem(item);
+            if (event.key === ' ' && (event.metaKey || event.ctrlKey || event.shiftKey || selectedCount > 0)) {
+              onToggleSelect(item.id, event);
+            } else {
+              onPreviewItem(item);
+            }
           }
         }}
         className={`group relative flex flex-col rounded-2xl border transition-all duration-200 cursor-pointer overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-accent)] ${
@@ -73,12 +87,14 @@ const LibraryGridCard = React.memo<LibraryGridCardProps>(
             type="button"
             onClick={(event) => {
               event.stopPropagation();
-              onToggleSelect(item.id);
+              onToggleSelect(item.id, event);
             }}
             className={`absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center transition-all shadow-sm ${
               isSelected
-                ? 'bg-[var(--theme-text-primary)] text-[var(--theme-bg-primary)] scale-100 opacity-100'
-                : 'bg-black/40 text-white hover:bg-black/70 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 scale-90 hover:scale-100'
+                ? 'bg-[var(--theme-text-primary)] text-[var(--theme-bg-primary)] scale-100 opacity-100 ring-2 ring-white/30'
+                : selectedCount > 0
+                  ? 'bg-black/50 text-white/90 hover:bg-black/80 scale-95 opacity-90 hover:scale-100'
+                  : 'bg-black/40 text-white hover:bg-black/70 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 scale-90 hover:scale-100'
             }`}
             aria-label={`Select ${item.name}`}
           >
@@ -218,10 +234,13 @@ export const LibraryGridView: React.FC<LibraryGridViewProps> = ({
   onDownloadItem,
   onDeleteItem,
   onJumpToSession,
+  onToggleSelect,
 }) => {
   const { t, language } = useI18n();
   const selectedFileIds = useLibraryStore((state) => state.selectedFileIds);
-  const toggleSelectFile = useLibraryStore((state) => state.toggleSelectFile);
+  const storeToggleSelect = useLibraryStore((state) => state.toggleSelectFile);
+  const toggleSelect = onToggleSelect ?? storeToggleSelect;
+  const selectedCount = selectedFileIds.size;
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const handleCopyApiName = React.useCallback((name: string, id: string) => {
@@ -241,6 +260,7 @@ export const LibraryGridView: React.FC<LibraryGridViewProps> = ({
             key={item.id}
             item={item}
             isSelected={selectedFileIds.has(item.id)}
+            selectedCount={selectedCount}
             language={language}
             isCopied={copiedId === item.id}
             onPreviewItem={onPreviewItem}
@@ -248,7 +268,7 @@ export const LibraryGridView: React.FC<LibraryGridViewProps> = ({
             onDownloadItem={onDownloadItem}
             onDeleteItem={onDeleteItem}
             onJumpToSession={onJumpToSession}
-            onToggleSelect={toggleSelectFile}
+            onToggleSelect={toggleSelect}
             onCopyApiName={handleCopyApiName}
             t={t}
           />

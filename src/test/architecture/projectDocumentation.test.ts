@@ -69,12 +69,18 @@ describe('project documentation structure', () => {
     const zhReadme = readProjectFile('README.md');
     const enReadme = readProjectFile('README.en.md');
 
-    expect(zhReadme).toContain('预加载 numpy、pandas、matplotlib');
+    // Only micropip is preloaded; every scientific package arrives on first import
+    // (pyodideWorkerTemplate.ts: loadPackage(['micropip']) + loadPackagesFromImports).
+    expect(zhReadme).toContain('内置 micropip');
+    expect(zhReadme).toContain('按需自动加载');
     expect(zhReadme).toContain('按需安装 scipy、scikit-learn');
+    expect(zhReadme).not.toContain('预加载 numpy、pandas、matplotlib');
     expect(zhReadme).not.toContain('预装 numpy、pandas、matplotlib、scipy、scikit-learn');
 
-    expect(enReadme).toContain('Preloads numpy, pandas, and matplotlib');
+    expect(enReadme).toContain('Ships micropip');
+    expect(enReadme).toContain('installed on demand when imported');
     expect(enReadme).toContain('installs scipy and scikit-learn on demand');
+    expect(enReadme).not.toContain('Preloads numpy, pandas, and matplotlib');
     expect(enReadme).not.toContain(
       'Bundled scientific stack such as numpy, pandas, matplotlib, scipy, and scikit-learn',
     );

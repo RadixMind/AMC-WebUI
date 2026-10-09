@@ -95,8 +95,8 @@ const MODEL_REGISTRY: RegisteredModel[] = [
     groups: ['defaultPinned', 'liveArtifacts', 'connectionTest'],
   },
   {
-    id: 'gemini-3.1-flash-tts-preview',
-    name: 'Gemini 3.1 Flash TTS',
+    id: 'gemini-3.8-flash-tts',
+    name: 'Gemini 3.8 Flash TTS',
     groups: ['tts'],
   },
   {

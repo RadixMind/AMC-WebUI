@@ -35,6 +35,8 @@ interface LibraryActions {
   setSearchQuery: (query: string) => void;
   toggleSelectFile: (id: string) => void;
   selectAllFiles: (ids: string[]) => void;
+  invertSelection: (allIds: string[]) => void;
+  selectRange: (ids: string[]) => void;
   clearSelection: () => void;
   setIsFilterMenuOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void;
   setIsNewDropdownOpen: (isOpen: boolean | ((prev: boolean) => boolean)) => void;
@@ -87,6 +89,26 @@ export const useLibraryStore = create<LibraryState & LibraryActions>()(
           return {
             selectedFileIds: allSelected ? new Set() : new Set(ids),
           };
+        }),
+
+      invertSelection: (allIds) =>
+        set((state) => {
+          const next = new Set<string>();
+          for (const id of allIds) {
+            if (!state.selectedFileIds.has(id)) {
+              next.add(id);
+            }
+          }
+          return { selectedFileIds: next };
+        }),
+
+      selectRange: (ids) =>
+        set((state) => {
+          const next = new Set(state.selectedFileIds);
+          for (const id of ids) {
+            next.add(id);
+          }
+          return { selectedFileIds: next };
         }),
 
       clearSelection: () => set({ selectedFileIds: new Set() }),

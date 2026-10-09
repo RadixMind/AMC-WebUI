@@ -84,7 +84,7 @@ The project currently focuses on one main application shape: a **Vite + React SP
 ### Deep Thinking
 
 - Visualizes reasoning output for Gemini 3.x family models.
-- Supports token budgets and reasoning levels: Minimal, Low, Medium, and High.
+- Supports token budgets and reasoning levels: Off, Minimal, Low, Medium, High, XHigh, and Max.
 - Streams model reasoning in real time when supported.
 
 ### Realtime Audio and Video
@@ -113,7 +113,7 @@ The project currently focuses on one main application shape: a **Vite + React SP
 - Deep search powered by Google Search with planned search tasks and citations.
 - URL context ingestion for adding web pages to conversations.
 - Local Python sandbox based on Pyodide (WASM):
-  - Preloads numpy, pandas, and matplotlib.
+  - Ships micropip; numpy, pandas, and matplotlib are installed on demand when imported.
   - Detects imports automatically, and installs scipy and scikit-learn on demand when needed.
   - File mounting and generated file download support.
   - Automatic capture of matplotlib chart output.
@@ -195,7 +195,7 @@ Node.js 26 is recommended for local development. The repository includes `.nvmrc
 git clone https://github.com/yeahhe365/AMC-WebUI.git
 cd AMC-WebUI
 
-# Install dependencies (pnpm recommended, npm ci supported)
+# Install dependencies (pnpm only — the repo ships pnpm-lock.yaml exclusively)
 pnpm install
 pnpm dev
 ```
@@ -208,7 +208,7 @@ pnpm run build:analyze
 
 The command writes `dist/bundle-stats.html` for reviewing the main bundle, lazy chunks, and PWA precache boundaries.
 
-Open `http://localhost:5175`, then add your Gemini API key in **Settings -> Providers & APIs**.
+Open `http://localhost:5175`, then add your Gemini API key in **Settings -> Third-Party Providers**.
 
 For local frontend development, you can also create `.env.local` in the repository root:
 
@@ -219,10 +219,10 @@ VITE_OPENAI_API_KEY=your_openai_compatible_key_here
 
 To configure third-party providers (OpenAI compatible and more):
 
-1. Open **Settings -> Providers & APIs**, select an existing provider (OpenAI, DeepSeek, Anthropic, OpenRouter, etc.) or click to add a new provider.
+1. Open **Settings -> Third-Party Providers**, select an existing provider (OpenAI, DeepSeek, Anthropic, OpenRouter, etc.) or click to add a new provider.
 2. Enter the provider API key, or preload `VITE_OPENAI_API_KEY` in `.env.local`.
 3. Set the provider Base URL (for example `https://api.openai.com/v1`), and test connectivity and latency.
-4. Open **Settings -> Models** or synchronize the model catalog in the provider detail view to select or edit models.
+4. Open **Settings -> Chat & Generation** or synchronize the model catalog in the provider detail view to select or edit models.
 
 Example Base URLs:
 
@@ -250,7 +250,7 @@ docker compose down
 
 Notes:
 
-- Docker defaults to BYOK for personal deployments. After startup, enter your Gemini API key in **Settings -> Providers & APIs** to use both regular chat, Live API, and third-party compatible endpoints. You do not need to set `GEMINI_API_KEY` or `THIRD_PARTY_ROUTES` in `.env` or `docker-compose.yml`.
+- Docker defaults to BYOK for personal deployments. After startup, enter your Gemini API key in **Settings -> Third-Party Providers** to use both regular chat, Live API, and third-party compatible endpoints. You do not need to set `GEMINI_API_KEY` or `THIRD_PARTY_ROUTES` in `.env` or `docker-compose.yml`.
 - The `web` image packages the already built local `dist/` directory.
 - After frontend or backend API changes, run `pnpm run build:docker` before rebuilding the Docker services.
 
@@ -334,7 +334,7 @@ Example:
 RUNTIME_API_PROXY_URL=https://your-aistudio-to-api.example.com/v1beta
 ```
 
-You can also open **Settings -> Providers & APIs** (or API Configuration), enable custom API configuration and API proxy, then enter the AIStudioToAPI Gemini-compatible Base URL, such as `http://localhost:7860/v1beta`. The API key entered in AMC WebUI should match one of the `API_KEYS` configured for the AIStudioToAPI deployment.
+You can also open **Settings -> Third-Party Providers** (or API Configuration), enable custom API configuration and API proxy, then enter the AIStudioToAPI Gemini-compatible Base URL, such as `http://localhost:7860/v1beta`. The API key entered in AMC WebUI should match one of the `API_KEYS` configured for the AIStudioToAPI deployment.
 
 Note: AIStudioToAPI is a third-party project, so review its account login, authentication, rate limiting, and public exposure risks before use. It can replace the regular Gemini API proxy source. AMC WebUI's Live API in static deployments connects directly from the browser to the official Live service.
 
@@ -394,7 +394,7 @@ Optional variable:
 | Gemini SDK     | `@google/genai` 2.20+ for streaming, non-streaming, file upload, image generation, TTS, and transcription |
 | Audio          | AudioWorklet API plus browser Worker based audio preprocessing and compression                            |
 | Rendering      | React-Markdown + KaTeX + Highlight.js + Mermaid + Graphviz                                                |
-| Python sandbox | Pyodide (WASM) in a Web Worker, with common packages preloaded and extra packages installed on demand     |
+| Python sandbox | Pyodide (WASM) in a Web Worker, installing scientific packages on demand at first import                  |
 | API proxy      | Gemini proxy through `@google/genai` `httpOptions.baseUrl`                                                |
 | PWA            | Web App Manifest + install/update event handling                                                          |
 | Deployment     | Vite static build, Docker Compose (`web + api`), or Cloudflare Pages + standalone API                     |
@@ -417,7 +417,7 @@ Placement rules:
 - `src/features/` contains domain capability boundaries such as message sending, local Python, audio processing, and the standard chat tool loop.
 - `src/hooks/` contains React orchestration; hooks that are only a React entry point for one domain should keep naming close to that domain.
 - `src/services/` contains external-system and persistence boundaries such as API clients, IndexedDB, logging, and object URL lifecycle management.
-- `src/utils/` contains small cross-domain helpers without React state. Group related helpers under domain subdirectories (for example `utils/model/`, `utils/file/`, `utils/live-artifacts/`, `utils/export/`) instead of catch-all `*Helpers` buckets.
+- `src/utils/` contains small cross-domain helpers without React state. Group related helpers under domain subdirectories (for example `utils/model/`, `utils/file/`, `utils/live-ui/`, `utils/export/`) instead of catch-all `*Helpers` buckets.
 - `src/test/architecture/` contains structure and style guardrail tests that keep cleaned-up problems from returning.
 - `shared/` contains pure logic used by both the web app and the Node API (image proxy, MCP config, private-network checks, and similar).
 - Cross-directory imports inside `src` use the `@/` alias; same-directory imports keep `./`.
@@ -440,7 +440,7 @@ AMC-WebUI/
 │   ├── hooks/                  # App, chat, input, data management, live API, and UI hooks
 │   ├── services/               # API, IndexedDB, logging, object URL, and infrastructure services
 │   ├── stores/                 # Zustand stores for chat, settings, and UI state
-│   ├── utils/                  # Domain-subdirectory helpers (model / file / live-artifacts / export / chat)
+│   ├── utils/                  # Domain-subdirectory helpers (model / file / live-ui / export / chat)
 │   ├── i18n/                   # Translation aggregation, coverage tests, and multilingual copy
 │   ├── pwa/                    # Service worker, PWA registration, and install state
 │   ├── runtime/                # Runtime config loading and public config mapping
@@ -485,14 +485,14 @@ AMC-WebUI/
 
 OpenAI Compatible mode uses a separate model list that you can manage manually or fetch from a compatible endpoint. The table below lists the built-in Gemini Native defaults.
 
-| Type             | Models                                                                                                                                                          |
-| :--------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Gemini 3.x       | `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-live-preview`, `gemini-3.5-live-translate-preview`, `gemini-3.1-pro-preview` |
-| Robotics         | `gemini-robotics-er-2-preview`                                                                                                                                  |
-| Gemma 4          | `gemma-4-31b-it`, `gemma-4-26b-a4b-it`                                                                                                                          |
-| Image generation | `gemini-3-pro-image`, `gemini-3.1-flash-image`, `gemini-3.1-flash-lite-image`                                                                                   |
-| TTS              | `gemini-3.1-flash-tts-preview` with 30 voices                                                                                                                   |
-| Transcription    | `gemini-3.5-transcribe`, `gemini-3.5-transcribe-live`                                                                                                           |
+| Type             | Models                                                                                                                                                                                 |
+| :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gemini 3.x       | `gemini-3.8-flash`, `gemini-3.7-flash`, `gemini-3.5-flash-lite`, `gemini-3.8-live`, `gemini-3.8-live-extended-thinking`, `gemini-3.5-live-translate-preview`, `gemini-3.1-pro-preview` |
+| Robotics         | `gemini-robotics-er-2-preview`                                                                                                                                                         |
+| Gemma 4          | `gemma-4-31b-it`, `gemma-4-26b-a4b-it`                                                                                                                                                 |
+| Image generation | `gemini-3-pro-image`, `gemini-3.1-flash-image`, `gemini-3.1-flash-lite-image`                                                                                                          |
+| TTS              | `gemini-3.8-flash-tts` (default, 30 voices); `gemini-3.1-flash-tts-preview` is a legacy ID migrated automatically                                                                      |
+| Transcription    | `gemini-3.5-transcribe`, `gemini-3.5-transcribe-live`                                                                                                                                  |
 
 ---
 

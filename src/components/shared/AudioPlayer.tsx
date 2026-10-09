@@ -10,11 +10,35 @@ interface AudioPlayerProps {
   autoPlay?: boolean;
   className?: string;
   audioClassName?: string;
+  fileName?: string;
 }
 
 const PLAYBACK_SPEEDS = [1, 1.25, 1.5, 2];
 
-export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, autoPlay = false, className = '', audioClassName }) => {
+const resolveAudioExtension = (source: string): string => {
+  if (source.startsWith('data:audio/')) {
+    const mimeMatch = source.match(/^data:audio\/([a-zA-Z0-9]+)/);
+    if (mimeMatch && mimeMatch[1]) {
+      const sub = mimeMatch[1].toLowerCase();
+      if (sub === 'mpeg') return 'mp3';
+      return sub;
+    }
+  }
+  const clean = source.split('?')[0].split('#')[0];
+  const extMatch = clean.match(/\.([a-zA-Z0-9]+)$/);
+  if (extMatch && extMatch[1]) {
+    return extMatch[1].toLowerCase();
+  }
+  return 'wav';
+};
+
+export const AudioPlayer: React.FC<AudioPlayerProps> = ({
+  src,
+  autoPlay = false,
+  className = '',
+  audioClassName,
+  fileName,
+}) => {
   const { t } = useI18n();
   const playerRef = useRef<H5AudioPlayer>(null);
   const [playbackRate, setPlaybackRate] = useState(1);
@@ -35,7 +59,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ src, autoPlay = false,
   };
 
   const handleDownload = () => {
-    triggerDownload(src, `audio-${Date.now()}.wav`);
+    const ext = resolveAudioExtension(src);
+    const targetName = fileName || `audio-${Date.now()}.${ext}`;
+    triggerDownload(src, targetName);
   };
 
   const playLabel = t('audioPlayerPlay') || 'Play';

@@ -16,18 +16,20 @@ interface LibraryListViewProps {
   onDownloadItem: (item: LibraryItem) => void;
   onDeleteItem: (item: LibraryItem) => void;
   onJumpToSession?: (sessionId: string) => void;
+  onToggleSelect?: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
 }
 
 interface LibraryListRowProps {
   item: LibraryItem;
   isSelected: boolean;
+  selectedCount: number;
   language: string;
   isCopied: boolean;
   onPreviewItem: (item: LibraryItem) => void;
   onStartChatWithItem: (item: LibraryItem) => void;
   onDownloadItem: (item: LibraryItem) => void;
   onDeleteItem: (item: LibraryItem) => void;
-  onToggleSelect: (id: string) => void;
+  onToggleSelect: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
   onJumpToSession?: (sessionId: string) => void;
   onCopyApiName: (name: string, id: string) => void;
   t: (key: any) => string;
@@ -37,6 +39,7 @@ const LibraryListRow = React.memo<LibraryListRowProps>(
   ({
     item,
     isSelected,
+    selectedCount,
     language,
     isCopied,
     onPreviewItem,
@@ -51,15 +54,26 @@ const LibraryListRow = React.memo<LibraryListRowProps>(
     return (
       <tr
         tabIndex={0}
-        onClick={() => onPreviewItem(item)}
+        onClick={(event) => {
+          if (event.metaKey || event.ctrlKey || event.shiftKey || selectedCount > 0) {
+            onToggleSelect(item.id, event);
+          } else {
+            onPreviewItem(item);
+          }
+        }}
+        onDoubleClick={() => onPreviewItem(item)}
         onKeyDown={(event) => {
           if (
-            event.key === 'Enter' &&
+            (event.key === 'Enter' || event.key === ' ') &&
             (event.target as HTMLElement).tagName !== 'BUTTON' &&
             (event.target as HTMLElement).tagName !== 'INPUT'
           ) {
             event.preventDefault();
-            onPreviewItem(item);
+            if (event.key === ' ' && (event.metaKey || event.ctrlKey || event.shiftKey || selectedCount > 0)) {
+              onToggleSelect(item.id, event);
+            } else {
+              onPreviewItem(item);
+            }
           }
         }}
         className={`group cursor-pointer transition-colors focus:outline-none focus-visible:bg-[var(--theme-bg-tertiary)]/80 ${
@@ -70,14 +84,17 @@ const LibraryListRow = React.memo<LibraryListRowProps>(
           className="py-3.5 px-4 sm:px-8 w-12 text-center"
           onClick={(event) => {
             event.stopPropagation();
-            onToggleSelect(item.id);
+            onToggleSelect(item.id, event);
           }}
         >
           <input
             type="checkbox"
             checked={isSelected}
-            onClick={(event) => event.stopPropagation()}
-            onChange={() => onToggleSelect(item.id)}
+            readOnly
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggleSelect(item.id, event);
+            }}
             aria-label={`Select ${item.name}`}
             className="w-4 h-4 rounded border-[var(--theme-border-secondary)] text-[var(--theme-accent)] focus:ring-[var(--theme-border-focus)] cursor-pointer"
           />
@@ -223,11 +240,14 @@ export const LibraryListView: React.FC<LibraryListViewProps> = ({
   onDownloadItem,
   onDeleteItem,
   onJumpToSession,
+  onToggleSelect,
 }) => {
   const { t, language } = useI18n();
   const selectedFileIds = useLibraryStore((state) => state.selectedFileIds);
-  const toggleSelectFile = useLibraryStore((state) => state.toggleSelectFile);
+  const storeToggleSelect = useLibraryStore((state) => state.toggleSelectFile);
+  const toggleSelect = onToggleSelect ?? storeToggleSelect;
   const selectAllFiles = useLibraryStore((state) => state.selectAllFiles);
+  const selectedCount = selectedFileIds.size;
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const headerCheckboxRef = useRef<HTMLInputElement>(null);
@@ -285,13 +305,14 @@ export const LibraryListView: React.FC<LibraryListViewProps> = ({
               key={item.id}
               item={item}
               isSelected={selectedFileIds.has(item.id)}
+              selectedCount={selectedCount}
               language={language}
               isCopied={copiedId === item.id}
               onPreviewItem={onPreviewItem}
               onStartChatWithItem={onStartChatWithItem}
               onDownloadItem={onDownloadItem}
               onDeleteItem={onDeleteItem}
-              onToggleSelect={toggleSelectFile}
+              onToggleSelect={toggleSelect}
               onJumpToSession={onJumpToSession}
               onCopyApiName={handleCopyApiName}
               t={t}

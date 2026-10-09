@@ -64,6 +64,28 @@ describe('probeMediaDuration', () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:media-test');
   });
 
+  it('resolves duration when given a full MIME type string', async () => {
+    class MockAudio {
+      preload = '';
+      src = '';
+      duration = 8.0;
+      addEventListener(event: string, handler: () => void) {
+        if (event === 'loadedmetadata') {
+          setTimeout(() => handler(), 10);
+        }
+      }
+      removeAttribute() {}
+    }
+
+    vi.stubGlobal('Audio', MockAudio);
+
+    const blob = new Blob(['fake audio'], { type: 'audio/mp3' });
+    const duration = await probeMediaDuration('audio/mp3', blob);
+
+    expect(duration).toBe(8.0);
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:media-test');
+  });
+
   it('returns null on media error event', async () => {
     class MockAudio {
       preload = '';

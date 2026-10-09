@@ -13,11 +13,7 @@ import { IMAGE_PROXY_PATH, proxyExternalImage } from './proxy/imageProxy.js';
 import { createMcpClientBridge } from './mcp/mcpClient.js';
 import { handleMcpRequest } from './mcp/mcpRoutes.js';
 import type { McpClientBridge } from './mcp/mcpTypes.js';
-import {
-  handleEphemeralTokenRequest,
-  EPHEMERAL_TOKEN_PATH,
-  LEGACY_AUTH_TOKENS_PATH,
-} from './security/ephemeralToken.js';
+import { handleEphemeralTokenRequest, EPHEMERAL_TOKEN_PATH } from './security/ephemeralToken.js';
 import { abortJob, readJobSecret } from './stream-jobs/streamJobStore.js';
 import { STREAM_ABORT_PREFIX, UNIFIED_STREAM_ABORT_PREFIX } from './stream-jobs/streamJobsRoutes.js';
 import { OPENAI_PROXY_PREFIX, proxyThirdPartyRequest, type ThirdPartyProxyConfig } from './proxy/thirdPartyProxy.js';
@@ -165,7 +161,7 @@ export function createServer(config: CreateServerConfig, dependencies: CreateSer
         return;
       }
 
-      if (path === '/api/auth/verify' || path === '/api/v1/auth/verify') {
+      if (path === '/api/auth/verify') {
         const authorized = isAuthorized(request, resolvedConfig.accessPassword);
         sendJson(
           request,
@@ -214,7 +210,7 @@ export function createServer(config: CreateServerConfig, dependencies: CreateSer
         return;
       }
 
-      if (path === EPHEMERAL_TOKEN_PATH || path === LEGACY_AUTH_TOKENS_PATH) {
+      if (path === EPHEMERAL_TOKEN_PATH) {
         await handleEphemeralTokenRequest(request, response, resolvedConfig, fetchImpl);
         return;
       }

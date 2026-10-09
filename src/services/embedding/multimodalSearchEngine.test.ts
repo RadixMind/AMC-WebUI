@@ -9,7 +9,7 @@ import {
 import * as geminiServiceModule from './geminiEmbeddingService';
 import * as indexStoreModule from './multimodalIndexStore';
 import * as pdfExtractionModule from '@/utils/file/pdfTextExtraction';
-import * as mediaDurationModule from '@/utils/file/mediaDuration';
+import * as mediaDurationModule from '@/utils/media/mediaDuration';
 import { dbService } from '@/services/db/dbService';
 import type { MultimodalEmbeddingItem } from './embeddingTypes';
 

@@ -16,6 +16,14 @@ export interface ChatMemorySearchDeps {
   getActiveSessionId?: () => string | null | undefined;
 }
 
+/**
+ * Extracts a strict contextual snippet around the matched query from chat messages.
+ * Returns an empty string if the query is not found or is empty.
+ *
+ * @param text - The message text
+ * @param query - The search query
+ * @param radius - Character radius around the match (defaults to 80)
+ */
 export const extractSnippet = (text: string, query: string, radius = 80): string => {
   if (!text || !query) return '';
   const lowerText = text.toLowerCase();

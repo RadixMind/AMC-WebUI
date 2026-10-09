@@ -103,6 +103,20 @@ const COMMAND_LIST: SlashItem[] = [
     scope: '多模态',
   },
   {
+    name: '/find',
+    category: 'tools',
+    descriptionZh: '以文搜图与全模态素材检索',
+    descriptionEn: 'Search images and media across library',
+    scope: '资料库',
+  },
+  {
+    name: '/library',
+    category: 'tools',
+    descriptionZh: '打开资料库面板',
+    descriptionEn: 'Open library',
+    scope: '资料库',
+  },
+  {
     name: '/fast',
     category: 'system',
     descriptionZh: '在低推理等级 (Low/Minimal) 与完全思考间快速切换',

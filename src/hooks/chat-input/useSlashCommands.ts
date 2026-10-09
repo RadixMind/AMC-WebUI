@@ -19,6 +19,20 @@ import { useSlashCommandActions, type CommandDefinition } from './useSlashComman
 
 export type { SlashCommandState };
 
+const matchesModelKeyword = (model: ModelOption, keyword: string): boolean => {
+  if (!keyword) return true;
+  const kw = keyword.toLowerCase();
+  const nameLower = model.name.toLowerCase();
+  const idLower = model.id.toLowerCase();
+  if (nameLower.includes(kw) || idLower.includes(kw)) {
+    return true;
+  }
+  const normKw = kw.replace(/[-_]/g, ' ');
+  const normName = nameLower.replace(/[-_]/g, ' ');
+  const normId = idLower.replace(/[-_]/g, ' ');
+  return normName.includes(normKw) || normId.includes(normKw);
+};
+
 interface UseSlashCommandsProps {
   t: (key: keyof typeof translations) => string;
   toolStates: ChatToolToggleStates;
@@ -221,8 +235,8 @@ export const useSlashCommands = ({
       }
 
       if (isModelQuery) {
-        const keyword = searchText.slice(6).trim().toLowerCase();
-        const filteredModels = availableModels.filter((model) => model.name.toLowerCase().includes(keyword));
+        const keyword = searchText.slice(6).trim();
+        const filteredModels = availableModels.filter((model) => matchesModelKeyword(model, keyword));
         const modelCommands = buildModelCommands(filteredModels, onSelectModel, setInputText, onMessageSent);
         setSlashCommandState({
           isOpen: true,
@@ -288,12 +302,16 @@ export const useSlashCommands = ({
         return false;
       }
 
-      const keyword = modelCommandMatch[1].trim().toLowerCase();
-      if (!keyword) {
+      const rawKeyword = modelCommandMatch[1].trim();
+      if (!rawKeyword) {
         return false;
       }
 
-      const model = availableModels.find((availableModel) => availableModel.name.toLowerCase().includes(keyword));
+      const keyword = rawKeyword.toLowerCase();
+      const model =
+        availableModels.find((availableModel) => availableModel.id.toLowerCase() === keyword) ??
+        availableModels.find((availableModel) => availableModel.name.toLowerCase() === keyword) ??
+        availableModels.find((availableModel) => matchesModelKeyword(availableModel, rawKeyword));
       if (!model) {
         return false;
       }

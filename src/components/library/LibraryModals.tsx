@@ -66,6 +66,7 @@ export const LibraryModals: React.FC<LibraryModalsProps> = ({
           isDanger
           confirmLabel={t('delete')}
           cancelLabel={t('cancel')}
+          confirmOnEnter
         />
       )}
 

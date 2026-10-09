@@ -12,7 +12,7 @@ description: 如何接入 DeepSeek、Claude、OpenRouter 等 OpenAI 兼容格式
 ## 严格的双路由配置隔离
 
 AMC WebUI 在设计之初就确立了**配置物理隔离**准则：
-- **独立 Base URL**：在 **设置 -> 服务商与 API -> OpenAI 兼容** 填写的端点，仅用于第三方请求。
+- **独立 Base URL**：在 **设置 -> 第三方服务商 -> OpenAI 兼容** 填写的端点，仅用于第三方请求。
 - **独立 API Key**：第三方 Key 单独保存在本地 IndexedDB 中，绝不会被带入 Gemini 原生请求，反之亦然。
 - **独立模型列表**：支持独立管理第三方模型名称（例如 `deepseek-chat`、`deepseek-reasoner`、`claude-3-5-sonnet` 等）。
 

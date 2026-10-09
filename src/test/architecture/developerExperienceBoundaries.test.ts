@@ -51,7 +51,7 @@ describe('developer experience detail boundaries', () => {
     expect(workerTemplateSource).toContain("'WARMUP'");
   });
 
-  it('keeps install commands consistent with the npmrc dependency policy', () => {
+  it('keeps install commands consistent with the pnpm-only lockfile policy', () => {
     const npmrc = readProjectFile('.npmrc');
     const zhReadme = readProjectFile('README.md');
     const enReadme = readProjectFile('README.en.md');
@@ -59,12 +59,17 @@ describe('developer experience detail boundaries', () => {
     const workflow = readProjectFile('.github/workflows/ci.yml');
 
     expect(npmrc).toContain('legacy-peer-deps=true');
-    expect(zhReadme).toContain('npm ci');
-    expect(enReadme).toContain('npm ci');
-    expect(contributing).toContain('npm ci');
-    expect(zhReadme).not.toMatch(/^npm install$/m);
-    expect(enReadme).not.toMatch(/^npm install$/m);
-    expect(contributing).not.toContain('npm ci --legacy-peer-deps');
+    // The repo ships only pnpm-lock.yaml, so `npm ci` cannot succeed here; docs must not claim it can.
+    expect(fs.existsSync(path.join(projectRoot, 'pnpm-lock.yaml'))).toBe(true);
+    expect(fs.existsSync(path.join(projectRoot, 'package-lock.json'))).toBe(false);
+    expect(zhReadme).toContain('pnpm install');
+    expect(enReadme).toContain('pnpm install');
+    expect(contributing).toContain('pnpm install');
+    for (const doc of [zhReadme, enReadme, contributing]) {
+      expect(doc).not.toMatch(/^npm ci$/m);
+      expect(doc).not.toMatch(/^npm install$/m);
+      expect(doc).not.toContain('npm ci --legacy-peer-deps');
+    }
     expect(workflow).not.toContain('npm ci --legacy-peer-deps');
     expect(workflow).toContain('pnpm install --frozen-lockfile');
   });

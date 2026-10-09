@@ -26,7 +26,8 @@ Live Artifacts 深度内置了 3 款行业标杆级的图表引擎：
 
 ## 自动触发与自定义 Prompt 配置
 
-进入 **设置 -> Live Artifacts**：
-- **触发模型设置**：可指定专门负责生成 Artifacts 的高智力模型（默认 `gemini-3.8-flash`）。
+进入 **设置 -> LiveUI**：
 - **提示词版本管理**：内置经过严密测试的标准提示词版本，同时支持用户注入**自定义系统提示词 (Custom Prompt)**，强制模型输出特定风格的 UI 组件库（如 Tailwind、Bootstrap 等）。
 - **快捷开关**：在输入框输入 `/artifacts` 可快速切换当前会话是否向模型注入生成提示词。
+
+> 💡 Artifacts 的生成由当前会话所选的模型负责，无需单独指定；如需高质量图表输出，请切换到 `gemini-3.8-flash` 或 `gemini-3.1-pro-preview` 等高智力模型。

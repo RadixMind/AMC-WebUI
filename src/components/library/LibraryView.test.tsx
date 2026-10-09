@@ -614,4 +614,113 @@ describe('LibraryView', () => {
     expect(savedItems[0].size).toBe(new Blob(['{"key": "value"}']).size);
     expect(savedItems[0].textContent).toBe('{"key": "value"}');
   });
+
+  it('supports Shift+Click range selection across multiple files', async () => {
+    useChatStore.setState({ savedSessions: [mockSession] });
+
+    await act(async () => {
+      renderer.root.render(<LibraryView />);
+      await Promise.resolve();
+    });
+
+    const row1 = screen.getByLabelText('Select quarterly_report.pdf');
+    const row3 = screen.getByLabelText('Select demo_video.mp4');
+
+    // Select first file
+    await act(async () => {
+      fireEvent.click(row1);
+    });
+    expect(useLibraryStore.getState().selectedFileIds.size).toBe(1);
+
+    // Shift-click third file to select all 3
+    await act(async () => {
+      fireEvent.click(row3, { shiftKey: true });
+    });
+    expect(useLibraryStore.getState().selectedFileIds.size).toBe(3);
+  });
+
+  it('supports Cmd/Ctrl+Click on cards or rows to toggle selection without opening preview', async () => {
+    useChatStore.setState({ savedSessions: [mockSession] });
+
+    await act(async () => {
+      renderer.root.render(<LibraryView />);
+      await Promise.resolve();
+    });
+
+    const reportRow = screen.getByText('quarterly_report.pdf').closest('tr')!;
+    await act(async () => {
+      fireEvent.click(reportRow, { metaKey: true });
+    });
+
+    expect(useLibraryStore.getState().selectedFileIds.size).toBe(1);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('automatically enters multi-select mode when selectedCount > 0, so normal click toggles selection', async () => {
+    useChatStore.setState({ savedSessions: [mockSession] });
+
+    await act(async () => {
+      renderer.root.render(<LibraryView />);
+      await Promise.resolve();
+    });
+
+    // Select first item
+    act(() => {
+      useLibraryStore.getState().toggleSelectFile('file-pdf-1');
+    });
+
+    // Now clicking another row without modifiers should toggle its selection instead of previewing
+    const imageRow = screen.getByText('revenue_graph.png').closest('tr')!;
+    await act(async () => {
+      fireEvent.click(imageRow);
+    });
+
+    expect(useLibraryStore.getState().selectedFileIds.size).toBe(2);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('supports Cmd+A to select all files and Esc to clear selection via keyboard', async () => {
+    useChatStore.setState({ savedSessions: [mockSession] });
+
+    await act(async () => {
+      renderer.root.render(<LibraryView />);
+      await Promise.resolve();
+    });
+
+    // Press Cmd+A
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'a', metaKey: true });
+    });
+    expect(useLibraryStore.getState().selectedFileIds.size).toBe(3);
+
+    // Press Escape
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'Escape' });
+    });
+    expect(useLibraryStore.getState().selectedFileIds.size).toBe(0);
+  });
+
+  it('inverts selection when Invert selection button is clicked', async () => {
+    useChatStore.setState({ savedSessions: [mockSession] });
+
+    await act(async () => {
+      renderer.root.render(<LibraryView />);
+      await Promise.resolve();
+    });
+
+    act(() => {
+      useLibraryStore.getState().toggleSelectFile('file-pdf-1');
+    });
+
+    const invertBtn = screen.getByRole('button', { name: /Invert selection|反选/i });
+    await act(async () => {
+      fireEvent.click(invertBtn);
+    });
+
+    const selected = useLibraryStore.getState().selectedFileIds;
+    expect(selected.size).toBe(2);
+    expect(selected.has('file-pdf-1')).toBe(false);
+    expect(selected.has('file-img-1')).toBe(true);
+    expect(selected.has('file-vid-1')).toBe(true);
+  });
 });

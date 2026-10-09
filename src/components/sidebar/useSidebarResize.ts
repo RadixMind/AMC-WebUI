@@ -25,6 +25,8 @@ export function useSidebarResize() {
   const [sidebarWidth, setSidebarWidth] = React.useState<number>(getInitialSidebarWidth);
   const [isResizingSidebar, setIsResizingSidebar] = React.useState(false);
   const isResizingSidebarRef = React.useRef(false);
+  const sidebarWidthRef = React.useRef(sidebarWidth);
+  sidebarWidthRef.current = sidebarWidth;
 
   const startSidebarResize = React.useCallback((event: React.MouseEvent) => {
     event.preventDefault();
@@ -35,6 +37,11 @@ export function useSidebarResize() {
   const stopSidebarResize = React.useCallback(() => {
     setIsResizingSidebar(false);
     isResizingSidebarRef.current = false;
+    try {
+      localStorage.setItem(SIDEBAR_STORAGE_KEY, String(Math.round(sidebarWidthRef.current)));
+    } catch {
+      // Ignore storage errors
+    }
   }, []);
 
   const handleSidebarResize = React.useCallback((event: MouseEvent) => {
@@ -43,12 +50,8 @@ export function useSidebarResize() {
       Math.max(event.clientX, MIN_SIDEBAR_WIDTH),
       Math.min(MAX_SIDEBAR_WIDTH, window.innerWidth * 0.5),
     );
+    sidebarWidthRef.current = newWidth;
     setSidebarWidth(newWidth);
-    try {
-      localStorage.setItem(SIDEBAR_STORAGE_KEY, String(Math.round(newWidth)));
-    } catch {
-      // Ignore storage errors
-    }
   }, []);
 
   const resetSidebarWidth = React.useCallback(() => {

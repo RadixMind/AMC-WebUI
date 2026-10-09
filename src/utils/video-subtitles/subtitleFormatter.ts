@@ -1,3 +1,5 @@
+import { parseTimeOffsetSecondsOrZero } from '@/utils/media/timeOffset';
+
 export interface WordAnnotation {
   text: string;
   start_offset: string; // e.g. "1.200s"
@@ -21,14 +23,9 @@ export interface SubtitleCue {
 export type SubtitleDisplayMode = 'original' | 'bilingual' | 'translation';
 
 /**
- * Parses offset string (e.g. "1.250s", "12s") to float seconds.
+ * Parses offset string (e.g. "1.250s", "12s") to float seconds, defaulting to 0.
  */
-export function parseOffsetSeconds(offset: string): number {
-  if (!offset || typeof offset !== 'string') return 0;
-  const match = offset.trim().match(/^([0-9]+(?:\.[0-9]+)?)s?$/i);
-  if (!match) return 0;
-  return parseFloat(match[1]);
-}
+export const parseOffsetSeconds = parseTimeOffsetSecondsOrZero;
 
 /**
  * Formats seconds into SRT timestamp format: HH:MM:SS,mmm

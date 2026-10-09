@@ -3,14 +3,23 @@ import { Repeat, X } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { formatTimestamp } from '@/utils/media-nav/timestamp';
 
-interface VideoSegmentBarProps {
+export interface VideoSegmentBarProps {
   segment: { start: number; end: number };
   isLoopEnabled: boolean;
   onToggleLoop: () => void;
   onExit: () => void;
+  loopTestId?: string;
+  exitTestId?: string;
 }
 
-export const VideoSegmentBar: React.FC<VideoSegmentBarProps> = ({ segment, isLoopEnabled, onToggleLoop, onExit }) => {
+export const VideoSegmentBar: React.FC<VideoSegmentBarProps> = ({
+  segment,
+  isLoopEnabled,
+  onToggleLoop,
+  onExit,
+  loopTestId = 'media-segment-loop',
+  exitTestId = 'media-segment-exit',
+}) => {
   const { t } = useI18n();
 
   return (
@@ -30,7 +39,7 @@ export const VideoSegmentBar: React.FC<VideoSegmentBarProps> = ({ segment, isLoo
           aria-pressed={isLoopEnabled}
           aria-label={t('videoSegmentLoop')}
           title={t('videoSegmentLoop')}
-          data-testid="media-segment-loop"
+          data-testid={loopTestId}
         >
           <Repeat size={14} />
         </button>
@@ -40,7 +49,7 @@ export const VideoSegmentBar: React.FC<VideoSegmentBarProps> = ({ segment, isLoo
           className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
           aria-label={t('videoSegmentExit')}
           title={t('videoSegmentExit')}
-          data-testid="media-segment-exit"
+          data-testid={exitTestId}
         >
           <X size={14} />
         </button>

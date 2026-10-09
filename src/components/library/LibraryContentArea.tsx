@@ -15,6 +15,7 @@ interface LibraryContentAreaProps {
   onDownloadItem: (item: LibraryItem) => void;
   onDeleteItem: (item: LibraryItem) => void;
   onJumpToSession: (sessionId: string) => void;
+  onToggleSelect?: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
 }
 
 export const LibraryContentArea: React.FC<LibraryContentAreaProps> = ({
@@ -28,6 +29,7 @@ export const LibraryContentArea: React.FC<LibraryContentAreaProps> = ({
   onDownloadItem,
   onDeleteItem,
   onJumpToSession,
+  onToggleSelect,
 }) => {
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar">
@@ -41,6 +43,7 @@ export const LibraryContentArea: React.FC<LibraryContentAreaProps> = ({
           onDownloadItem={onDownloadItem}
           onDeleteItem={onDeleteItem}
           onJumpToSession={onJumpToSession}
+          onToggleSelect={onToggleSelect}
         />
       ) : (
         <LibraryGridView
@@ -50,6 +53,7 @@ export const LibraryContentArea: React.FC<LibraryContentAreaProps> = ({
           onDownloadItem={onDownloadItem}
           onDeleteItem={onDeleteItem}
           onJumpToSession={onJumpToSession}
+          onToggleSelect={onToggleSelect}
         />
       )}
     </div>

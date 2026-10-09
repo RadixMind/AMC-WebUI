@@ -132,7 +132,9 @@ const MediaNavPanelComponent: React.FC = () => {
   const stopResizing = useCallback(() => {
     setIsResizing(false);
     isResizingRef.current = false;
-  }, []);
+    const currentWidth = useMediaNavStore.getState().width;
+    setWidth(currentWidth, { persist: true });
+  }, [setWidth]);
 
   const resetWidth = useCallback(() => {
     setWidth(MEDIA_NAV_DEFAULT_WIDTH);
@@ -148,7 +150,7 @@ const MediaNavPanelComponent: React.FC = () => {
   const resize = useCallback(
     (mouseEvent: MouseEvent) => {
       if (isResizingRef.current) {
-        setWidth(window.innerWidth - mouseEvent.clientX);
+        setWidth(window.innerWidth - mouseEvent.clientX, { persist: false });
       }
     },
     [setWidth],

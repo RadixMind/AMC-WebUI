@@ -95,6 +95,9 @@ export const SidePanel: React.FC<SidePanelProps> = ({ content, onClose, themeId 
     return () => clearTimeout(timer);
   }, [localCode]);
 
+  const widthRef = useRef(width);
+  widthRef.current = width;
+
   const startResizing = useCallback((event: React.MouseEvent) => {
     event.preventDefault();
     setIsResizing(true);
@@ -104,6 +107,11 @@ export const SidePanel: React.FC<SidePanelProps> = ({ content, onClose, themeId 
   const stopResizing = useCallback(() => {
     setIsResizing(false);
     isResizingRef.current = false;
+    try {
+      localStorage.setItem(SIDEPANEL_STORAGE_KEY, String(Math.round(widthRef.current)));
+    } catch {
+      // Ignore
+    }
   }, []);
 
   const resetWidth = useCallback(() => {
@@ -119,12 +127,8 @@ export const SidePanel: React.FC<SidePanelProps> = ({ content, onClose, themeId 
     if (isResizingRef.current) {
       const newWidth = window.innerWidth - mouseEvent.clientX;
       if (newWidth >= MIN_SIDEPANEL_WIDTH && newWidth < window.innerWidth * 0.9) {
+        widthRef.current = newWidth;
         setWidth(newWidth);
-        try {
-          localStorage.setItem(SIDEPANEL_STORAGE_KEY, String(Math.round(newWidth)));
-        } catch {
-          // Ignore
-        }
       }
     }
   }, []);
@@ -273,6 +277,7 @@ export const SidePanel: React.FC<SidePanelProps> = ({ content, onClose, themeId 
             aria-orientation="vertical"
             aria-valuenow={width}
             aria-valuemin={MIN_SIDEPANEL_WIDTH}
+            aria-valuemax={typeof window !== 'undefined' ? Math.round(window.innerWidth * 0.9) : 1200}
             tabIndex={0}
             onMouseDown={startResizing}
             onDoubleClick={resetWidth}

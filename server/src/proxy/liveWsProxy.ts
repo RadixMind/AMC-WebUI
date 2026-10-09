@@ -3,9 +3,8 @@ import { WebSocket, WebSocketServer } from 'ws';
 import type { ApiServerConfig } from '../config.js';
 import { timingSafePasswordEqual } from '../security/passwordSecurity.js';
 
-// Sentinel the browser sends when Live should use the server-managed key
-// (single-sourced in shared/, mirrored by src/utils/api/apiKeySelection).
 import { SERVER_MANAGED_API_KEY as SERVER_MANAGED_API_KEY_SENTINEL } from '../../../shared/serverManagedApiKey.js';
+import { resolveApiKeyPrecedence } from './apiKeyPrecedence.js';
 
 const LIVE_WS_PATH_PREFIX = '/api/live';
 // Full upstream base (scheme + host). Production always bridges to the public
@@ -61,26 +60,25 @@ export const resolveUpstream = (
 
   const queryKey = searchParams.get('key') ?? '';
   const accessToken = searchParams.get('access_token') ?? '';
+  const rawBrowserKey =
+    queryKey && queryKey !== SERVER_MANAGED_API_KEY_SENTINEL
+      ? queryKey
+      : accessToken && accessToken !== SERVER_MANAGED_API_KEY_SENTINEL
+        ? accessToken
+        : '';
 
-  let resolvedKey: string;
-  let hadBrowserKey = false;
-  const serverKey = serverApiKey?.trim();
+  const resolved = resolveApiKeyPrecedence({
+    browserKey: rawBrowserKey,
+    serverKey: serverApiKey,
+    serverKeyPriority,
+  });
 
-  if (serverKeyPriority && serverKey) {
-    resolvedKey = serverKey;
-    hadBrowserKey = false;
-  } else if (queryKey && queryKey !== SERVER_MANAGED_API_KEY_SENTINEL) {
-    resolvedKey = queryKey;
-    hadBrowserKey = true;
-  } else if (accessToken && accessToken !== SERVER_MANAGED_API_KEY_SENTINEL) {
-    resolvedKey = accessToken;
-    hadBrowserKey = true;
-  } else {
-    if (!serverKey) {
-      return null;
-    }
-    resolvedKey = serverKey;
+  if (!resolved) {
+    return null;
   }
+
+  const resolvedKey = resolved.apiKey;
+  const hadBrowserKey = resolved.isBrowserKey;
 
   // Overwrite the auth param with the resolved key (swaps the sentinel for the
   // real server key, or re-stamps a BYOK key).

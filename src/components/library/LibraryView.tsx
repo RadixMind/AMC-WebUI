@@ -42,6 +42,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     handleStartChatWithItems,
     handleStartChatWithSelected,
     handleSelectAll,
+    handleToggleSelect,
+    handleInvertSelection,
     handleSaveNote,
     handleDownloadItem,
     handleDownloadSelected,
@@ -75,6 +77,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         onDownloadSelected={handleDownloadSelected}
         onDeleteSelected={handleDeleteSelected}
         onSelectAll={handleSelectAll}
+        onInvertSelection={handleInvertSelection}
       />
 
       <LibraryContentArea
@@ -88,6 +91,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
         onDownloadItem={handleDownloadItem}
         onDeleteItem={handleDeleteItem}
         onJumpToSession={handleJumpToSession}
+        onToggleSelect={handleToggleSelect}
       />
 
       <input

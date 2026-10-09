@@ -84,7 +84,7 @@
 ### 深度推理 (Thinking)
 
 - 支持 Gemini 3.x 系列模型的思维链可视化
-- 可设置 **Token 预算** 或 **推理等级** (Minimal / Low / Medium / High)
+- 可设置 **Token 预算** 或 **推理等级** (Off / Minimal / Low / Medium / High / XHigh / Max)
 - 实时查看 AI 的逻辑演算过程
 
 ### 实时音视频 (Live API)
@@ -113,7 +113,7 @@
 - **深度搜索**：聚合 Google Search，自动规划搜索任务并提供精准引用
 - **URL 上下文**：自动抓取 URL 内容作为对话上下文
 - **本地 Python 沙箱**：基于 Pyodide (WASM) 的浏览器端 Python 运行环境
-  - 预加载 numpy、pandas、matplotlib
+  - 内置 micropip；`import` 到 numpy、pandas、matplotlib 等库时按需自动加载
   - 自动检测代码依赖，并在需要时按需安装 scipy、scikit-learn 等包
   - 支持文件挂载与生成文件下载
   - matplotlib 图表自动捕获输出
@@ -196,7 +196,7 @@
 git clone https://github.com/yeahhe365/AMC-WebUI.git
 cd AMC-WebUI
 
-# 安装依赖（推荐使用 pnpm，亦兼容 npm ci）
+# 安装依赖（必须使用 pnpm，仓库仅提供 pnpm-lock.yaml）
 pnpm install
 
 # 启动开发服务器
@@ -211,7 +211,7 @@ pnpm run build:analyze
 
 命令会生成 `dist/bundle-stats.html`，用于查看主包、懒加载 chunk 与 PWA 预缓存边界。
 
-访问 `http://localhost:5175`，在 **设置 -> 服务商与 API** 中填入你的 Gemini API Key。
+访问 `http://localhost:5175`，在 **设置 -> 第三方服务商 (Third-Party Providers)** 中填入你的 Gemini API Key。
 
 除了在界面中手动配置，也可在根目录创建 `.env.local`（仅前端开发模式使用）：
 
@@ -222,10 +222,10 @@ VITE_OPENAI_API_KEY=your_openai_compatible_key_here
 
 如需配置第三方服务商（OpenAI 兼容等）：
 
-1. 进入 **设置 -> 服务商与 API**，选择已有服务商（如 OpenAI、DeepSeek、Anthropic、OpenRouter 等）或点击添加新服务商
+1. 进入 **设置 -> 第三方服务商 (Third-Party Providers)**，选择已有服务商（如 OpenAI、DeepSeek、Anthropic、OpenRouter 等）或点击添加新服务商
 2. 填写 API Key，或在 `.env.local` 中预置 `VITE_OPENAI_API_KEY`
 3. 填写 Base URL（例如 `https://api.openai.com/v1`），并可点击测试连通性与延迟
-4. 进入 **设置 -> 模型** 或在服务商详情中同步模型列表，按需选择或编辑模型
+4. 进入 **设置 -> 对话与生成** 或在服务商详情中同步模型列表，按需选择或编辑模型
 
 示例 Base URL：
 
@@ -252,7 +252,7 @@ docker compose up -d --build
 
 说明：
 
-- Docker 默认是 BYOK 自用模式：启动后在 **设置 -> 服务商与 API** 填入 Gemini API Key 即可使用普通聊天、Live API 与第三方兼容接口，不需要在 `.env` 或 `docker-compose.yml` 里配置 `GEMINI_API_KEY` 或 `THIRD_PARTY_ROUTES`。服务端 Key 仅在浏览器未携带 Key 时兜底。
+- Docker 默认是 BYOK 自用模式：启动后在 **设置 -> 第三方服务商 (Third-Party Providers)** 填入 Gemini API Key 即可使用普通聊天、Live API 与第三方兼容接口，不需要在 `.env` 或 `docker-compose.yml` 里配置 `GEMINI_API_KEY` 或 `THIRD_PARTY_ROUTES`。服务端 Key 仅在浏览器未携带 Key 时兜底。
 - `web` 镜像默认直接打包宿主机已生成的 `dist/`，不再在容器内执行前端生产构建。
 - 修改前端或后端 API 代码后，请先重新执行 `pnpm run build:docker`，再执行 `docker compose up -d --build`。
 
@@ -343,7 +343,7 @@ RUNTIME_API_PROXY_URL=https://your-api.example.com/api/gemini
 RUNTIME_API_PROXY_URL=https://your-aistudio-to-api.example.com/v1beta
 ```
 
-在界面中也可以进入 **设置 -> 服务商与 API**（或 API 配置），启用“自定义 API 配置 / API 代理”，并填入 AIStudioToAPI 的 Gemini 兼容 Base URL（例如 `http://localhost:7860/v1beta`）。AMC WebUI 中填写的 API Key 应与 AIStudioToAPI 部署时配置的 `API_KEYS` 对应。
+在界面中也可以进入 **设置 -> 第三方服务商 (Third-Party Providers)**（或 API 配置），启用“自定义 API 配置 / API 代理”，并填入 AIStudioToAPI 的 Gemini 兼容 Base URL（例如 `http://localhost:7860/v1beta`）。AMC WebUI 中填写的 API Key 应与 AIStudioToAPI 部署时配置的 `API_KEYS` 对应。
 
 注意：AIStudioToAPI 属于第三方项目，请自行评估账号登录、鉴权、限流与公网暴露风险；它可替代普通 Gemini API 代理来源。静态部署下 AMC WebUI 的 Live API 采用浏览器直连官方 Live 服务。
 
@@ -410,7 +410,7 @@ GEMINI_API_KEY=your_key_here pnpm run verify:code-execution:api
 | **Gemini SDK**  | `@google/genai` 2.20+，含流式 / 非流式消息、文件上传、图片生成、TTS、转录                |
 | **音频引擎**    | AudioWorklet API（实时流处理）+ 浏览器端 Worker 音频预处理 / 压缩流程                    |
 | **渲染引擎**    | React-Markdown + KaTeX (公式) + Highlight.js (代码高亮) + Mermaid.js + Graphviz (viz.js) |
-| **Python 沙箱** | Pyodide (WASM)，Web Worker 内执行，预加载常用科学计算库并按需安装扩展包                  |
+| **Python 沙箱** | Pyodide (WASM)，Web Worker 内执行，科学计算库在首次 `import` 时按需安装                  |
 | **API 代理**    | 基于 `@google/genai` SDK `httpOptions.baseUrl` 的 Gemini API 代理配置                    |
 | **PWA**         | Web App Manifest + `beforeinstallprompt` / `appinstalled` 安装事件处理                   |
 | **部署形态**    | Vite 标准构建 / Docker Compose（web+api）/ Cloudflare Pages + 独立 API                   |
@@ -433,7 +433,7 @@ Live API 在静态部署下由浏览器使用本地 API Key 直连官方 Live �
 - `src/features/` 放领域能力的实现边界，例如消息发送、本地 Python、音频处理、标准聊天工具循环。
 - `src/hooks/` 放 React 编排层；如果 hook 只是某个领域能力的 React 入口，优先靠近对应领域目录命名。
 - `src/services/` 放外部系统与持久化边界，例如 API client、IndexedDB、日志和对象 URL 生命周期。
-- `src/utils/` 放无 React 状态的小型跨域工具；相关工具按领域分子目录（如 `utils/model/`、`utils/file/`、`utils/live-artifacts/`、`utils/export/`），避免笼统的 `*Helpers` 桶文件。
+- `src/utils/` 放无 React 状态的小型跨域工具；相关工具按领域分子目录（如 `utils/model/`、`utils/file/`、`utils/live-ui/`、`utils/export/`），避免笼统的 `*Helpers` 桶文件。
 - `src/test/architecture/` 放结构和风格护栏测试，用来防止历史清理问题回流。
 - `shared/` 放 web 与 Node API 共用的纯逻辑（例如 image proxy、MCP 配置、私网判断）。
 - `src` 内跨目录引用统一使用 `@/` alias，同目录引用保留 `./`。
@@ -456,7 +456,7 @@ AMC-WebUI/
 │   ├── hooks/                  # 业务 hooks（app / chat / chat-input / data-management / live-api / ui）
 │   ├── services/               # API、IndexedDB、日志、对象 URL 等基础设施
 │   ├── stores/                 # Zustand 状态（chat / settings / ui）
-│   ├── utils/                  # 领域子目录工具（model / file / live-artifacts / export / chat 等）
+│   ├── utils/                  # 领域子目录工具（model / file / live-ui / export / chat 等）
 │   ├── i18n/                   # 翻译聚合、覆盖率测试与多语言文案
 │   ├── pwa/                    # Service Worker、PWA 注册与安装状态
 │   ├── runtime/                # 运行时配置读取与公开配置映射
@@ -499,14 +499,14 @@ AMC-WebUI/
 
 OpenAI 兼容模式使用独立模型列表，可在设置中手动维护或从兼容端点拉取；下表列出应用内置的 Gemini 原生默认模型。
 
-| 类型                | 模型                                                                                                                                                |
-| :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Gemini 3.x**      | gemini-3.8-flash, gemini-3.7-flash, gemini-3.5-flash-lite, gemini-3.1-flash-live-preview, gemini-3.5-live-translate-preview, gemini-3.1-pro-preview |
-| **Robotics**        | gemini-robotics-er-2-preview                                                                                                                        |
-| **Gemma 4**         | gemma-4-31b-it, gemma-4-26b-a4b-it                                                                                                                  |
-| **图片生成**        | gemini-3-pro-image, gemini-3.1-flash-image, gemini-3.1-flash-lite-image                                                                             |
-| **TTS**             | gemini-3.1-flash-tts-preview (30 种语音)                                                                                                            |
-| **转写 / 实时转写** | gemini-3.5-transcribe, gemini-3.5-transcribe-live                                                                                                   |
+| 类型                | 模型                                                                                                                                                                     |
+| :------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Gemini 3.x**      | gemini-3.8-flash, gemini-3.7-flash, gemini-3.5-flash-lite, gemini-3.8-live, gemini-3.8-live-extended-thinking, gemini-3.5-live-translate-preview, gemini-3.1-pro-preview |
+| **Robotics**        | gemini-robotics-er-2-preview                                                                                                                                             |
+| **Gemma 4**         | gemma-4-31b-it, gemma-4-26b-a4b-it                                                                                                                                       |
+| **图片生成**        | gemini-3-pro-image, gemini-3.1-flash-image, gemini-3.1-flash-lite-image                                                                                                  |
+| **TTS**             | gemini-3.8-flash-tts (默认，30 种语音)；gemini-3.1-flash-tts-preview 为旧 ID，会自动迁移至前者                                                                           |
+| **转写 / 实时转写** | gemini-3.5-transcribe, gemini-3.5-transcribe-live                                                                                                                        |
 
 ---
 

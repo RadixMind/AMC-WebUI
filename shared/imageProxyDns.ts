@@ -16,7 +16,7 @@ const defaultLookup: ImageProxyDnsLookup = (hostname, options) => dns.lookup(hos
 /**
  * Reject hosts that are private literals or that resolve to private/link-local
  * addresses (DNS rebinding / SSRF). Mirrors the MCP HTTP allowlist in
- * server/src/mcpHttpSecurity.ts so image-proxy and MCP share the same bar.
+ * server/src/mcp/mcpHttpSecurity.ts so image-proxy and MCP share the same bar.
  *
  * Note: this is still a TOCTOU check (lookup then fetch); full IP pinning would
  * need a custom agent. Same trade-off as MCP safe fetch.

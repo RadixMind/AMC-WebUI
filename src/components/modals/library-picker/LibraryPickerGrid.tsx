@@ -7,7 +7,7 @@ import type { LibraryItem } from '@/types';
 export interface LibraryPickerGridProps {
   filteredItems: LibraryItem[];
   selectedIds: Set<string>;
-  toggleSelectItem: (id: string) => void;
+  toggleSelectItem: (id: string, event?: React.MouseEvent | React.KeyboardEvent) => void;
   handleItemDoubleClick: (item: LibraryItem) => void;
   handlePreviewItem: (item: LibraryItem) => void;
   t: (key: string) => string;
@@ -30,11 +30,21 @@ export const LibraryPickerGrid: React.FC<LibraryPickerGridProps> = ({
         return (
           <div
             key={item.id}
-            onClick={() => toggleSelectItem(item.id)}
+            tabIndex={0}
+            role="button"
+            aria-pressed={isSelected}
+            aria-label={item.name}
+            onClick={(event) => toggleSelectItem(item.id, event)}
             onDoubleClick={() => handleItemDoubleClick(item)}
-            className={`group relative flex flex-col rounded-xl border transition-all duration-150 cursor-pointer overflow-hidden select-none ${
+            onKeyDown={(event) => {
+              if (event.key === ' ' || event.key === 'Enter') {
+                event.preventDefault();
+                toggleSelectItem(item.id, event);
+              }
+            }}
+            className={`group relative flex flex-col rounded-xl border transition-all duration-150 cursor-pointer overflow-hidden select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--theme-border-focus)] ${
               isSelected
-                ? 'border-blue-500 ring-2 ring-blue-500/40 bg-blue-500/5 shadow-sm'
+                ? 'border-[var(--theme-accent)] ring-2 ring-[var(--theme-accent)]/40 bg-[var(--theme-accent)]/5 shadow-sm'
                 : 'border-[var(--theme-border-secondary)] hover:border-[var(--theme-border-primary)] bg-[var(--theme-bg-secondary)]/50 hover:bg-[var(--theme-bg-secondary)]'
             }`}
           >
@@ -44,7 +54,7 @@ export const LibraryPickerGrid: React.FC<LibraryPickerGridProps> = ({
               <div
                 className={`absolute bottom-2 right-2 w-5 h-5 rounded-full flex items-center justify-center transition-all shadow-sm ${
                   isSelected
-                    ? 'bg-blue-600 text-white scale-100 opacity-100'
+                    ? 'bg-[var(--theme-accent)] text-white scale-100 opacity-100'
                     : 'bg-black/30 border border-white/70 text-transparent group-hover:opacity-100 opacity-0 scale-90 group-hover:scale-100'
                 }`}
               >

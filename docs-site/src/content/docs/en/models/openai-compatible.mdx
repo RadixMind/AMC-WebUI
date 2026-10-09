@@ -12,7 +12,7 @@ In addition to Google Gemini, AMC WebUI connects to standard OpenAI `/chat/compl
 ## Configuration Isolation
 
 AMC WebUI implements strict data isolation:
-- **Independent Base URL**: Configured in **Settings -> Providers & API -> OpenAI Compatible**, completely separated from Gemini routes.
+- **Independent Base URL**: Configured in **Settings -> Third-Party Providers -> OpenAI Compatible**, completely separated from Gemini routes.
 - **Independent Key Storage**: Saved in a separate IndexedDB table, preventing accidental exposure to Google endpoints.
 - **Custom Model Lists**: Manage custom model names (e.g., `deepseek-chat`, `deepseek-reasoner`, `claude-3-5-sonnet`) independently.
 

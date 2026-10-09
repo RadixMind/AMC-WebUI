@@ -77,6 +77,7 @@ export const LibraryPickerModal: React.FC<LibraryPickerModalProps> = ({
   useEffect(() => {
     if (!isOpen) return;
     setSelectedIds(new Set());
+    lastSelectedIdRef.current = null;
     setSearchQuery('');
     setCategoryFilter(initialCategory);
     setSourceFilter('all');
@@ -142,17 +143,72 @@ export const LibraryPickerModal: React.FC<LibraryPickerModalProps> = ({
     }
   }, [previewIndex, previewFile, filteredItems, handlePreviewItem, previewOriginalDataUrlRef]);
 
-  const toggleSelectItem = useCallback((id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
+  const lastSelectedIdRef = useRef<string | null>(null);
+
+  const toggleSelectItem = useCallback(
+    (id: string, event?: React.MouseEvent | React.KeyboardEvent) => {
+      const isShift = event?.shiftKey;
+      if (isShift && lastSelectedIdRef.current && lastSelectedIdRef.current !== id) {
+        const lastIndex = filteredItems.findIndex((item) => item.id === lastSelectedIdRef.current);
+        const currentIndex = filteredItems.findIndex((item) => item.id === id);
+        if (lastIndex !== -1 && currentIndex !== -1) {
+          const start = Math.min(lastIndex, currentIndex);
+          const end = Math.max(lastIndex, currentIndex);
+          const rangeIds = filteredItems.slice(start, end + 1).map((item) => item.id);
+          setSelectedIds((prev) => {
+            const next = new Set(prev);
+            for (const rangeId of rangeIds) {
+              next.add(rangeId);
+            }
+            return next;
+          });
+          lastSelectedIdRef.current = id;
+          return;
+        }
       }
-      return next;
-    });
-  }, []);
+
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+        return next;
+      });
+      lastSelectedIdRef.current = id;
+    },
+    [filteredItems],
+  );
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (target) {
+        const tagName = target.tagName;
+        if (tagName === 'INPUT' || tagName === 'TEXTAREA' || target.isContentEditable) {
+          return;
+        }
+      }
+
+      if (previewFile) return;
+
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'a') {
+        event.preventDefault();
+        setSelectedIds(new Set(filteredItems.map((item) => item.id)));
+      } else if (event.key === 'Escape' && selectedIds.size > 0) {
+        event.preventDefault();
+        event.stopPropagation();
+        setSelectedIds(new Set());
+        lastSelectedIdRef.current = null;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [filteredItems, isOpen, previewFile, selectedIds.size]);
 
   const handleSelectAllToggle = useCallback(() => {
     if (filteredItems.length === 0) return;

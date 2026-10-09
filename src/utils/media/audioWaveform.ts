@@ -1,24 +1,11 @@
+import { createLruCache } from '@/utils/cache/lruCache';
+
 // Bounded LRU cache for computed audio waveform amplitude bars
 const AUDIO_WAVEFORM_CACHE_LIMIT = 50;
-const audioWaveformCache = new Map<string, number[]>();
+const audioWaveformCache = createLruCache<number[]>({ limit: AUDIO_WAVEFORM_CACHE_LIMIT });
 
-export const readAudioWaveformCache = (id: string): number[] | undefined => {
-  const cached = audioWaveformCache.get(id);
-  if (!cached) return undefined;
-  audioWaveformCache.delete(id);
-  audioWaveformCache.set(id, cached);
-  return cached;
-};
-
-export const writeAudioWaveformCache = (id: string, peaks: number[]): void => {
-  audioWaveformCache.delete(id);
-  audioWaveformCache.set(id, peaks);
-  while (audioWaveformCache.size > AUDIO_WAVEFORM_CACHE_LIMIT) {
-    const oldestKey = audioWaveformCache.keys().next().value;
-    if (oldestKey === undefined) break;
-    audioWaveformCache.delete(oldestKey);
-  }
-};
+export const readAudioWaveformCache = (id: string): number[] | undefined => audioWaveformCache.get(id);
+export const writeAudioWaveformCache = (id: string, peaks: number[]): void => audioWaveformCache.set(id, peaks);
 
 /**
  * Deterministic waveform generator: creates an aesthetic, natural-looking audio envelope from seed string.

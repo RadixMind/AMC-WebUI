@@ -3,7 +3,6 @@ import { sendJson } from '../cors.js';
 import { resolveGeminiRequestApiKey } from '../proxy/proxyHeaders.js';
 
 export const EPHEMERAL_TOKEN_PATH = '/api/live/ephemeral-token';
-export const LEGACY_AUTH_TOKENS_PATH = '/api/auth_tokens';
 
 export interface EphemeralTokenConfig {
   geminiApiBase: string;

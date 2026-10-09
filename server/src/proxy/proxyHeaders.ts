@@ -1,5 +1,5 @@
 import type { IncomingMessage } from 'node:http';
-import { SERVER_MANAGED_API_KEY } from '../../../shared/serverManagedApiKey.js';
+import { resolveApiKeyPrecedence } from './apiKeyPrecedence.js';
 
 // Shared proxy header machinery used by geminiProxy, thirdPartyProxy, and
 // streamJobs. Each proxy keeps its own STRIPPED_PROXY_REQUEST_HEADERS set and
@@ -102,21 +102,18 @@ export function resolveGeminiRequestApiKey(
   serverApiKey?: string,
   serverKeyPriority = false,
 ): string {
-  const trimmedServerApiKey = serverApiKey?.trim();
   const browserApiKeyHeader = request.headers['x-goog-api-key'];
   const browserApiKey = Array.isArray(browserApiKeyHeader)
     ? (browserApiKeyHeader[0]?.trim() ?? '')
     : (browserApiKeyHeader?.trim() ?? '');
 
-  if (serverKeyPriority && trimmedServerApiKey) {
-    return trimmedServerApiKey;
-  }
+  const resolved = resolveApiKeyPrecedence({
+    browserKey: browserApiKey,
+    serverKey: serverApiKey,
+    serverKeyPriority,
+  });
 
-  if (browserApiKey && browserApiKey !== SERVER_MANAGED_API_KEY) {
-    return browserApiKey;
-  }
-
-  return trimmedServerApiKey ?? '';
+  return resolved?.apiKey ?? '';
 }
 
 /**

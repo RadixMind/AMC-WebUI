@@ -2,6 +2,7 @@ import { MediaResolution } from '@/types';
 import { isGemini3Model } from '@/utils/model/modelCapabilities';
 import { isVideoMimeType } from '@/utils/file/fileTypeClassification';
 import { probeMediaDuration } from '@/utils/media/mediaDuration';
+import { parseTimeOffsetSeconds } from '@/utils/media/timeOffset';
 
 // Token cost per video frame for Gemini 3 models, by media resolution.
 // Source: https://ai.google.dev/gemini-api/docs/media-resolution
@@ -24,11 +25,7 @@ const VIDEO_TOKENS_PER_SECOND_LEGACY = 263;
 const DEFAULT_VIDEO_FPS = 1;
 
 /** "10s" / "10.5s" → 10 / 10.5. Returns null for anything else. */
-export const parseOffsetSeconds = (offset?: string): number | null => {
-  if (!offset) return null;
-  const match = offset.trim().match(/^(\d+(?:\.\d+)?)s$/);
-  return match ? Number(match[1]) : null;
-};
+export const parseOffsetSeconds = parseTimeOffsetSeconds;
 
 /** ultra_high is invalid for video (API returns N/A) — fall back to high. */
 const normalizeResolutionForVideo = (resolution: MediaResolution): MediaResolution =>

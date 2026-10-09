@@ -48,6 +48,12 @@ export interface ReadLibraryFileResult {
 
 /**
  * Extracts a contextual text snippet around the first keyword match.
+ * Normalizes all whitespace and line breaks into single spaces for card/preview display.
+ * If the query is not found in the text, returns an initial prefix fallback (up to `radius * 2` chars).
+ *
+ * @param text - Full file text content
+ * @param query - Keyword to locate
+ * @param radius - Character radius around the match (defaults to 70)
  */
 export const extractSnippet = (text: string, query: string, radius: number = 70): string => {
   if (!text || !query) return '';

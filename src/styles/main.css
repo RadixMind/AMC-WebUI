@@ -498,7 +498,7 @@ video::cue {
   cursor: col-resize;
   user-select: none;
   touch-action: none;
-  z-index: 20;
+  z-index: 5;
 }
 
 .chat-width-handle[data-side='left'] {

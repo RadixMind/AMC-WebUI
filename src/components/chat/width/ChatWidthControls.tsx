@@ -128,7 +128,7 @@ const WidthHandle: React.FC<WidthHandleProps> = (props) => {
       onLostPointerCapture={onPointerCancel}
       onWheel={onWheel}
       onDoubleClick={onDoubleClick}
-      title={props.title}
+      aria-label={props.title}
     />
   );
 };

@@ -23,7 +23,7 @@ describe('getDefaultModelOptions', () => {
       .map((model) => model.id)
       .sort();
 
-    expect(ttsIds).toEqual(['gemini-3.1-flash-tts-preview']);
+    expect(ttsIds).toEqual(['gemini-3.8-flash-tts']);
   });
 
   it('does not include removed Imagen models', () => {

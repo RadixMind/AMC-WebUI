@@ -45,6 +45,8 @@
   border-radius: 0.75rem !important;
   overflow-x: auto !important;
   border: 1px solid var(--theme-border-secondary) !important;
+  background-color: var(--theme-bg-code-block) !important;
+  line-height: 1.5 !important; /* Keep code blocks tighter */
 }
 
 .markdown-body strong {
@@ -286,11 +288,6 @@
 
 .markdown-body a {
   color: var(--theme-text-link) !important;
-}
-
-.markdown-body pre {
-  background-color: var(--theme-bg-code-block) !important;
-  line-height: 1.5 !important; /* Keep code blocks tighter */
 }
 
 /* Blockquote Overrides */

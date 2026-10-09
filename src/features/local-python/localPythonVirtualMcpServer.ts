@@ -14,7 +14,7 @@ export const LOCAL_PYTHON_MCP_TOOLS: McpToolDefinition[] = [
   {
     name: 'run_python',
     description:
-      'Execute Python code locally in the browser sandbox using Pyodide (CPython 3.12 WebAssembly). Pre-installed with numpy, pandas, matplotlib, scipy, sympy, scikit-learn. Use print() or return statements to output text. Context files (CSV, TXT, JSON) uploaded to the active chat session are automatically mounted in the working directory (.). Plots and charts are captured automatically as images.',
+      'Execute Python code locally in the browser sandbox using Pyodide (CPython 3.12 WebAssembly). Ships micropip; third-party packages such as numpy, pandas, matplotlib, scipy, sympy, and scikit-learn are installed on demand when imported. Use print() or return statements to output text. Context files (CSV, TXT, JSON) uploaded to the active chat session are automatically mounted in the working directory (.). Plots and charts are captured automatically as images.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -49,7 +49,8 @@ export const createLocalPythonVirtualMcpServer = (deps: LocalPythonVirtualMcpDep
   return {
     id: LOCAL_PYTHON_VIRTUAL_MCP_ID,
     name: 'Python Sandbox (Pyodide)',
-    description: 'Execute Python code locally in the browser sandbox using Pyodide (numpy, pandas, matplotlib, scipy).',
+    description:
+      'Execute Python code locally in the browser sandbox using Pyodide (micropip; numpy, pandas, matplotlib, scipy load on demand).',
     listTools: async () => LOCAL_PYTHON_MCP_TOOLS,
     callTool: async (toolName, args, signal) => {
       if (toolName !== 'run_python') {

@@ -3,52 +3,6 @@
 // ttsStyleTranslations are registered once in coreTranslations — do not re-spread here
 // or every key registers twice.
 const modelSettings = {
-  modelsSubNavAll: {
-    en: 'All',
-    zh: '全部',
-    ja: 'すべて',
-    de: 'Alle',
-    fr: 'Tout',
-    es: 'Todo',
-    ko: '전체',
-  },
-  modelsSubNavCatalog: {
-    en: 'Model Catalog',
-    zh: '模型库',
-    ja: 'モデルカタログ',
-    de: 'Modellkatalog',
-    fr: 'Catalogue de modèles',
-    es: 'Catálogo de modelos',
-    ko: '모델 카탈로그',
-  },
-  modelsSubNavGeneration: {
-    en: 'Generation',
-    zh: '生成参数',
-    ja: '生成パラメータ',
-    de: 'Generierung',
-    fr: 'Génération',
-    es: 'Generación',
-    ko: '생성 매개변수',
-  },
-  modelsSubNavFeatures: {
-    en: 'Features',
-    zh: '功能特性',
-    ja: '機能',
-    de: 'Funktionen',
-    fr: 'Fonctionnalités',
-    es: 'Características',
-    ko: '기능',
-  },
-  modelsSubNavSafety: {
-    en: 'Safety',
-    zh: '安全设置',
-    ja: '安全性',
-    de: 'Sicherheit',
-    fr: 'Sécurité',
-    es: 'Seguridad',
-    ko: '안전',
-  },
-
   settingsDefaultModel: {
     en: 'Primary Chat Model',
     zh: '主对话模型',

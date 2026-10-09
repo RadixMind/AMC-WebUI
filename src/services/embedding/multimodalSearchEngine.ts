@@ -15,7 +15,7 @@ import {
   MAX_EMBEDDING_VIDEO_SECONDS,
 } from './embeddingLimits';
 import { inspectPdfBlob } from '@/utils/file/pdfTextExtraction';
-import { probeMediaDuration } from '@/utils/file/mediaDuration';
+import { probeMediaDuration } from '@/utils/media/mediaDuration';
 import type {
   IndexableLibraryItem,
   IndexSkipReason,
@@ -168,7 +168,7 @@ export const indexSingleItem = async (fileItem: IndexableLibraryItem): Promise<I
   let embedding: number[];
 
   if (resolvedCategory === 'video' || resolvedCategory === 'audio') {
-    const duration = await probeMediaDuration(blob, resolvedMimeType);
+    const duration = await probeMediaDuration(resolvedMimeType, blob);
     if (duration !== null) {
       const maxDuration = resolvedCategory === 'video' ? MAX_EMBEDDING_VIDEO_SECONDS : MAX_EMBEDDING_AUDIO_SECONDS;
       if (duration > maxDuration) {

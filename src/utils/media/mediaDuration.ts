@@ -8,15 +8,23 @@ export type ProbeMediaType = 'audio' | 'video';
  * Returns null when the duration cannot be determined (unsupported codec,
  * missing metadata, non-browser environment) so callers can skip guards
  * instead of blocking the pipeline.
+ *
+ * @param typeOrMimeType - Either 'audio' | 'video' or a MIME type string (e.g. 'video/mp4', 'audio/wav')
+ * @param file - File or Blob instance containing the media
+ * @param timeoutMs - Upper bound timeout in milliseconds (defaults to 3000ms)
+ * @returns Duration in seconds, or null if it cannot be determined
  */
 export const probeMediaDuration = async (
-  type: ProbeMediaType,
+  typeOrMimeType: ProbeMediaType | string,
   file: File | Blob,
   timeoutMs: number = DEFAULT_MEDIA_DURATION_PROBE_TIMEOUT_MS,
 ): Promise<number | null> => {
   if (typeof window === 'undefined' || typeof document === 'undefined' || typeof URL?.createObjectURL !== 'function') {
     return null;
   }
+
+  const isVideo = typeOrMimeType.toLowerCase().startsWith('video');
+  const type: ProbeMediaType = isVideo ? 'video' : 'audio';
 
   if (type === 'audio' && typeof Audio === 'undefined') {
     return null;

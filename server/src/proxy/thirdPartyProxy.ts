@@ -9,6 +9,7 @@ import type { ThirdPartyProxyRoute } from '../config.js';
 import { forwardUpstream, guardPublicHttpsUrl } from './proxyForward.js';
 import { runDetachedUpstream, maybeStreamWithSharedJob, type StreamJob } from '../stream-jobs/streamJobStore.js';
 import { copyProxyRequestHeaders } from './proxyHeaders.js';
+import { resolveApiKeyPrecedence } from './apiKeyPrecedence.js';
 
 export const OPENAI_PROXY_PREFIX = '/api/openai';
 
@@ -118,16 +119,17 @@ const resolveRoute = (
   // configured; otherwise a real browser key wins and the route key is the
   // fallback.
   const routeKey = route.apiKey?.trim();
-  if (serverKeyPriority && routeKey) {
-    return { route: { baseUrl: route.baseUrl, apiKey: routeKey, isBrowserKey: false }, providerId };
-  }
+  const resolved = resolveApiKeyPrecedence({
+    browserKey,
+    serverKey: routeKey,
+    serverKeyPriority,
+  });
 
-  if (browserKey) {
-    return { route: { baseUrl: route.baseUrl, apiKey: browserKey, isBrowserKey: true }, providerId };
-  }
-
-  if (routeKey) {
-    return { route: { baseUrl: route.baseUrl, apiKey: routeKey, isBrowserKey: false }, providerId };
+  if (resolved) {
+    return {
+      route: { baseUrl: route.baseUrl, apiKey: resolved.apiKey, isBrowserKey: resolved.isBrowserKey },
+      providerId,
+    };
   }
 
   return {

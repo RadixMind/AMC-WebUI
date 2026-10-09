@@ -17,6 +17,20 @@ import { triggerDownload } from '@/utils/export/core';
 import type { LibraryItem } from '@/types';
 import type { MultimodalSearchResult } from '@/services/embedding/embeddingTypes';
 
+export const toLibraryItemFromSearchResult = (item: MultimodalSearchResult['item']): LibraryItem => ({
+  id: item.id,
+  name: item.name,
+  type: item.type,
+  size: item.size || 0,
+  timestamp: item.createdAt || item.updatedAt,
+  sessionId: item.sessionId,
+  sessionTitle: item.sessionTitle,
+  messageId: item.messageId,
+  source: 'uploaded',
+  isStandalone: item.isStandalone,
+  dataUrl: item.thumbnailUrl,
+});
+
 export function useMultimodalSearchLogic() {
   const isOpen = useMultimodalSearchStore((state) => state.isOpen);
   const closeModal = useMultimodalSearchStore((state) => state.closeModal);
@@ -105,20 +119,7 @@ export function useMultimodalSearchLogic() {
   };
 
   const resolveSearchResultToUploadedFile = async (result: MultimodalSearchResult) => {
-    const item = result.item;
-    const libraryItem: LibraryItem = {
-      id: item.id,
-      name: item.name,
-      type: item.type,
-      size: item.size || 0,
-      timestamp: item.createdAt || item.updatedAt,
-      sessionId: item.sessionId,
-      sessionTitle: item.sessionTitle,
-      messageId: item.messageId,
-      source: 'uploaded',
-      isStandalone: item.isStandalone,
-      dataUrl: item.thumbnailUrl,
-    };
+    const libraryItem = toLibraryItemFromSearchResult(result.item);
 
     return resolveLibraryItemToUploadedFile(libraryItem, (itemToFetch) => dbService.fetchLibraryFileBlob(itemToFetch), {
       generateNewId: true,
@@ -195,19 +196,7 @@ export function useMultimodalSearchLogic() {
 
   const handleDownloadItem = async (result: MultimodalSearchResult) => {
     const item = result.item;
-    const libraryItem: LibraryItem = {
-      id: item.id,
-      name: item.name,
-      type: item.type,
-      size: item.size || 0,
-      timestamp: item.createdAt || item.updatedAt,
-      sessionId: item.sessionId,
-      sessionTitle: item.sessionTitle,
-      messageId: item.messageId,
-      source: 'uploaded',
-      isStandalone: item.isStandalone,
-      dataUrl: item.thumbnailUrl,
-    };
+    const libraryItem = toLibraryItemFromSearchResult(item);
 
     const blob = await dbService.fetchLibraryFileBlob(libraryItem);
     if (blob) {

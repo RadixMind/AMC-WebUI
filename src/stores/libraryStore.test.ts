@@ -124,4 +124,17 @@ describe('useLibraryStore persistence', () => {
     expect(state.searchQuery).toBe('');
     expect(state.selectedFileIds.size).toBe(0);
   });
+
+  it('supports selectRange and invertSelection actions', async () => {
+    const { useLibraryStore } = await importFreshLibraryStore();
+
+    useLibraryStore.getState().selectRange(['f-1', 'f-2', 'f-3']);
+    expect(Array.from(useLibraryStore.getState().selectedFileIds)).toEqual(['f-1', 'f-2', 'f-3']);
+
+    useLibraryStore.getState().invertSelection(['f-1', 'f-2', 'f-3', 'f-4', 'f-5']);
+    expect(Array.from(useLibraryStore.getState().selectedFileIds)).toEqual(['f-4', 'f-5']);
+
+    useLibraryStore.getState().clearSelection();
+    expect(useLibraryStore.getState().selectedFileIds.size).toBe(0);
+  });
 });

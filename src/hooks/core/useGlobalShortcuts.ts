@@ -9,7 +9,7 @@ import { buildProviderAwareModelList } from '@/utils/third-party/thirdPartyApiPr
 import { isEditableElement } from '@/utils/chat-input/focus';
 import { useUIStore } from '@/stores/uiStore';
 
-interface UseGlobalShortcutsProps {
+export interface UseGlobalShortcutsProps {
   appSettings: AppSettings;
   setAppSettings: Dispatch<SetStateAction<AppSettings>>;
   startNewChat: () => void;

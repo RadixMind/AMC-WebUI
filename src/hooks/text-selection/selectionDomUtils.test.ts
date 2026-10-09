@@ -35,6 +35,9 @@ describe('selectionDomUtils', () => {
       const textarea = document.createElement('textarea');
       expect(isEditableElement(textarea)).toBe(true);
 
+      const select = document.createElement('select');
+      expect(isEditableElement(select)).toBe(true);
+
       const editableDiv = document.createElement('div');
       editableDiv.contentEditable = 'true';
       expect(isEditableElement(editableDiv)).toBe(true);

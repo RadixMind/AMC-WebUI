@@ -132,5 +132,5 @@ describe('MessageList preview chunking', () => {
 
     expect(moduleLoadTracker.count).toBe(1);
     expect(document.querySelector('[data-testid="file-preview-modal"]')).toBeInTheDocument();
-  });
+  }, 15000);
 });

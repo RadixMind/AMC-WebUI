@@ -17,6 +17,7 @@ export interface ConfirmationModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   isDanger?: boolean;
+  confirmOnEnter?: boolean;
 }
 
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -28,11 +29,11 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   confirmLabel,
   cancelLabel,
   isDanger = false,
+  confirmOnEnter = false,
 }) => {
   const { t } = useI18n();
 
-  const handleConfirm = (event: React.MouseEvent) => {
-    event.preventDefault();
+  const handleConfirm = () => {
     const result = onConfirm();
     if (result instanceof Promise) {
       void result.then(() => {
@@ -43,6 +44,13 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     }
   };
 
+  const handleConfirmKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!confirmOnEnter || event.key !== 'Enter' || event.nativeEvent.isComposing || event.repeat) return;
+
+    event.preventDefault();
+    handleConfirm();
+  };
+
   return (
     <AlertDialog
       open={isOpen}
@@ -50,7 +58,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         if (!open) onClose();
       }}
     >
-      <AlertDialogContent className="p-0 max-w-md">
+      <AlertDialogContent className="p-0 max-w-md" onKeyDown={handleConfirmKeyDown}>
         <div className="p-6 flex flex-col gap-4">
           <div className="flex items-start gap-4">
             <div

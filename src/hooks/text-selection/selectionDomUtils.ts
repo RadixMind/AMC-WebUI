@@ -9,16 +9,22 @@ export const resolveContainerElement = (containerRef: ContainerRefLike): HTMLEle
   return containerRef;
 };
 
+/**
+ * Safely determines if a DOM element is an interactive input control or contenteditable container.
+ * Fully cross-document safe (supporting iframe elements), null-safe, and includes
+ * INPUT, TEXTAREA, SELECT, and contenteditable elements.
+ */
 export const isEditableElement = (element: Element | null): boolean => {
   if (!element) return false;
 
-  const HTMLElementCtor = element.ownerDocument.defaultView?.HTMLElement ?? HTMLElement;
+  const HTMLElementCtor = element.ownerDocument?.defaultView?.HTMLElement ?? HTMLElement;
   if (!(element instanceof HTMLElementCtor)) return false;
   const htmlElement = element as HTMLElement;
 
   return Boolean(
     htmlElement.tagName === 'INPUT' ||
     htmlElement.tagName === 'TEXTAREA' ||
+    htmlElement.tagName === 'SELECT' ||
     htmlElement.isContentEditable ||
     htmlElement.contentEditable === 'true' ||
     htmlElement.getAttribute('contenteditable') === 'true',

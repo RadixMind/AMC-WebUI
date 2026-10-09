@@ -11,19 +11,21 @@ Google Gemini 3 models feature built-in reasoning mechanisms (Chain of Thought).
 
 ## Control Dimensions
 
-Under **Settings -> Generation Settings**:
+Under **Settings -> Chat & Generation**:
 
 ### 1. Thinking Level
-Select between 4 reasoning depths:
-- **Minimal**: Basic internal consistency check (`gemini-3.5-flash-lite` and `gemini-3.6-flash`; 3.7 and 3.8 Flash do not support Minimal per API constraints).
+For Gemini 3.x models the settings panel exposes **6 buttons** under **Settings -> Chat & Generation**:
+- **Default**: Leave unset; the app and model apply their default policy.
+- **Off** (`NONE`): Disable reasoning entirely.
+- **Minimal**: Basic internal consistency check only (`gemini-3.7-flash` and `gemini-3.8-flash` reject Minimal per API constraints; the app falls back to Low).
 - **Low**: Light reasoning, suitable for straightforward queries.
 - **Medium**: Balanced exploration for general problem solving.
 - **High**: Full-power deep reasoning for complex architecture, logic, and mathematics.
 
-> 💡 **Quick Toggle**: Type `/fast` in the chat input to toggle between Low and High thinking levels.
+> 💡 **Quick Toggle**: Type `/fast` in the chat input to switch the current session to the lightweight tier (`Minimal` only for Flash / Robotics models that accept it, such as `gemini-3.5-flash-lite`; models that reject Minimal, including `gemini-3.7-flash` and `gemini-3.8-flash`, fall back to `Low`); run `/fast` again to leave it.
 
 ### 2. Thinking Token Budget
-- Adjust the slider from `128` to `32,768` tokens.
+- Models without thinking levels (e.g. the Gemini 2.5 family) use the budget slider, adjustable from `0` to `65,536` tokens (step 1024); each model keeps its own effective range (Gemini 3.x uses `128`–`32,768`).
 - Set to `-1` for automatic allocation determined by the model based on question difficulty.
 
 ---

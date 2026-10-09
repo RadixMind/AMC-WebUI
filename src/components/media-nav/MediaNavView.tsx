@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Repeat, X } from 'lucide-react';
 import { useI18n } from '@/contexts/I18nContext';
 import { interpolate } from '@/i18n/interpolate';
 import type { UploadedFile } from '@/types';
@@ -9,6 +8,7 @@ import { formatTimestamp } from '@/utils/media-nav/timestamp';
 import { extractTimelineMarkers } from '@/utils/media-nav/timelineMarkers';
 import { type VideoAnnotation } from './VideoHighlightOverlay';
 import { VideoPlayer, type VideoPlayerHandle } from '@/components/shared/file-preview/VideoPlayer';
+import { VideoSegmentBar } from '@/components/shared/file-preview/video/VideoSegmentBar';
 import { isYoutubeVideoFile } from '@/utils/media-nav/sessionMediaFiles';
 import { YoutubeNavPlayer } from './YoutubeNavPlayer';
 import { focusChatInput } from '@/utils/chat-input/focus';
@@ -265,38 +265,12 @@ const MediaNavViewComponent: React.FC<MediaNavViewProps> = ({ file, kind }) => {
       ) : (
         <div className="h-full w-full flex flex-col select-none relative">
           {segment && (
-            <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-[#101113] border-b border-white/10 text-xs text-white/90 flex-shrink-0 z-30">
-              <span className="font-mono">
-                {t('videoLocateSegment')
-                  .replace('{start}', formatTimestamp(segment.start))
-                  .replace('{end}', formatTimestamp(segment.end))}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => setIsSegmentLoopEnabled((prev) => !prev)}
-                  className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                    isSegmentLoopEnabled ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
-                  }`}
-                  aria-pressed={isSegmentLoopEnabled}
-                  aria-label={t('videoSegmentLoop')}
-                  title={t('videoSegmentLoop')}
-                  data-testid="media-segment-loop"
-                >
-                  <Repeat size={14} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleSegmentChange(null)}
-                  className="p-1.5 rounded-lg text-white/70 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"
-                  aria-label={t('videoSegmentExit')}
-                  title={t('videoSegmentExit')}
-                  data-testid="media-segment-exit"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            </div>
+            <VideoSegmentBar
+              segment={segment}
+              isLoopEnabled={isSegmentLoopEnabled}
+              onToggleLoop={() => setIsSegmentLoopEnabled((prev) => !prev)}
+              onExit={() => handleSegmentChange(null)}
+            />
           )}
 
           <div className="flex-grow min-h-0 flex items-center justify-center p-2 sm:p-3 relative overflow-hidden">

@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { fireEvent } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { setupProviderTestRenderer as setupTestRenderer } from '@/test/render/providerRenderer';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { setupStoreStateReset } from '@/test/stores/reset';
@@ -312,5 +312,43 @@ describe('LibraryPickerModal', () => {
     expect(document.body.textContent).not.toContain('voice.wav');
     expect(document.body.textContent).toContain('notes.pdf');
     expect(document.body.textContent).toContain('clip.mp4');
+  });
+
+  it('supports Shift+Click range selection and keyboard shortcuts in picker modal', async () => {
+    const onConfirm = vi.fn();
+    const onClose = vi.fn();
+
+    await act(async () => {
+      renderer.root.render(<LibraryPickerModal isOpen onClose={onClose} onConfirm={onConfirm} />);
+      await Promise.resolve();
+    });
+
+    const clipCard = screen.getByText('clip.mp4').closest('div[class*="cursor-pointer"]')!;
+    const notesCard = screen.getByText('notes.pdf').closest('div[class*="cursor-pointer"]')!;
+
+    // Click first card
+    await act(async () => {
+      fireEvent.click(clipCard);
+    });
+
+    // Shift-click third card to range select clip.mp4, voice.wav, notes.pdf
+    await act(async () => {
+      fireEvent.click(notesCard, { shiftKey: true });
+    });
+
+    const confirmBtn = screen.getByRole('button', { name: /Add to Chat|添加到对话/i });
+    expect(confirmBtn.textContent).toContain('3');
+
+    // Press Cmd+A to select all 4 items
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'a', metaKey: true });
+    });
+    expect(confirmBtn.textContent).toContain('4');
+
+    // Press Escape to clear selection
+    await act(async () => {
+      fireEvent.keyDown(window, { key: 'Escape' });
+    });
+    expect(confirmBtn).toBeDisabled();
   });
 });

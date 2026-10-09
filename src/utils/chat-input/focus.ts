@@ -1,4 +1,7 @@
 import { CHAT_INPUT_TEXTAREA_SELECTOR, HISTORY_SIDEBAR_ROOT_SELECTOR } from '@/constants/layout';
+import { isEditableElement } from '@/hooks/text-selection/selectionDomUtils';
+
+export { isEditableElement };
 
 export type FocusChatInputOptions = {
   /** Place the caret at the end of the current input value after focusing. */
@@ -15,15 +18,6 @@ export const placeCaretAtEnd = (textarea: HTMLTextAreaElement) => {
   textarea.setSelectionRange(textLength, textLength);
   textarea.scrollTop = textarea.scrollHeight;
 };
-
-// 侧边栏内的可编辑控件（如双击标题重命名会话）。
-// 注意：链接/按钮（例如「新聊天」）不在此列——它们只是动作入口，
-// 点击后应正常把焦点移到聊天输入框。
-export const isEditableElement = (element: HTMLElement): boolean =>
-  element.tagName === 'INPUT' ||
-  element.tagName === 'TEXTAREA' ||
-  element.tagName === 'SELECT' ||
-  element.isContentEditable;
 
 export const focusChatInput = (delayMs = 50, options?: FocusChatInputOptions) => {
   const doFocus = () => {
