@@ -5,6 +5,7 @@ import {
   getModelCapabilities,
   isDeepSeekReasoningModel,
   isGemini3Model,
+  isGemini4Model,
   isLiveTranslateModel,
   isLiveTranscribeModel,
   isQwenReasoningModel,
@@ -16,8 +17,9 @@ import {
 } from './modelCapabilities';
 
 describe('raw mode support', () => {
-  it('includes Gemini Robotics-ER 2', () => {
+  it('includes Gemini Robotics-ER 2 and Gemini 4 Argon', () => {
     expect(MODELS_SUPPORTING_RAW_MODE).toContain('gemini-robotics-er-2-preview');
+    expect(MODELS_SUPPORTING_RAW_MODE).toContain('gemini-4-argon');
   });
 });
 
@@ -39,6 +41,11 @@ describe('isGemini3Model', () => {
     expect(isGemini3Model('models/gemini-3.8-flash')).toBe(true);
     expect(isGemini3Model('gemini-3.5-flash-lite')).toBe(true);
     expect(isGemini3Model('models/gemini-3.5-flash-lite')).toBe(true);
+    expect(isGemini3Model('gemini-4-argon')).toBe(true);
+    expect(isGemini3Model('models/gemini-4-argon')).toBe(true);
+    expect(isGemini4Model('gemini-4-argon')).toBe(true);
+    expect(isGemini4Model('models/gemini-4-argon')).toBe(true);
+    expect(isGemini4Model('gemini-3.8-flash')).toBe(false);
   });
 
   it('returns false for the retired bare gemini-3-flash ID', () => {
@@ -262,6 +269,11 @@ describe('getDefaultThinkingLevelForModel', () => {
     expect(getDefaultThinkingLevelForModel('gemini-robotics-er-2-preview')).toBe('MEDIUM');
   });
 
+  it('defaults Gemini 4 Argon to MEDIUM and rejects minimal thinking level', () => {
+    expect(getDefaultThinkingLevelForModel('gemini-4-argon')).toBe('MEDIUM');
+    expect(getModelCapabilities('gemini-4-argon').supportsMinimalThinkingLevel).toBe(false);
+  });
+
   it('defaults Gemini 3.5 Flash-Lite and Gemma 4 to MINIMAL per official API', () => {
     expect(getDefaultThinkingLevelForModel('gemini-3.5-flash-lite')).toBe('MINIMAL');
     expect(getDefaultThinkingLevelForModel('gemma-4-31b-it')).toBe('MINIMAL');
@@ -282,9 +294,11 @@ describe('normalizeThinkingLevelForModel', () => {
     expect(normalizeThinkingLevelForModel('models/gemini-3-pro-preview', 'MINIMAL')).toBe('LOW');
   });
 
-  it('maps MINIMAL to LOW for gemini-3.7-flash and gemini-3.8-flash, whose model cards reject minimal', () => {
+  it('maps MINIMAL to LOW for gemini-3.7-flash, gemini-3.8-flash and gemini-4-argon, whose model cards reject minimal', () => {
     expect(normalizeThinkingLevelForModel('gemini-3.7-flash', 'MINIMAL')).toBe('LOW');
     expect(normalizeThinkingLevelForModel('gemini-3.8-flash', 'MINIMAL')).toBe('LOW');
+    expect(normalizeThinkingLevelForModel('gemini-4-argon', 'MINIMAL')).toBe('LOW');
+    expect(normalizeThinkingLevelForModel('models/gemini-4-argon', 'MINIMAL')).toBe('LOW');
   });
 
   it('normalizes unsupported levels to HIGH for Gemma 4 and Flash Image models', () => {

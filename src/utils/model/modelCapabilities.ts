@@ -2,6 +2,8 @@ import { REQUIRED_THINKING_MODEL_IDS, MODELS_SUPPORTING_RAW_MODE } from '@/const
 import type { ThinkingLevel } from '@/types';
 import { normalizeModelId } from './modelId';
 
+export const isGemini4Model = (modelId: string): boolean => !!modelId && modelId.toLowerCase().includes('gemini-4');
+
 export const isGemini3Model = (modelId: string): boolean => {
   if (!modelId) return false;
   const lowerId = modelId.toLowerCase();
@@ -9,7 +11,8 @@ export const isGemini3Model = (modelId: string): boolean => {
   return (
     REQUIRED_THINKING_MODEL_IDS.some((model) => lowerId.includes(model)) ||
     lowerId.includes('gemini-3-pro') ||
-    lowerId.includes('gemini-3.1-flash')
+    lowerId.includes('gemini-3.1-flash') ||
+    lowerId.includes('gemini-4')
   );
 };
 
@@ -393,7 +396,10 @@ export const getModelCapabilities = (modelId: string): ModelCapabilities => {
     isGemini31FlashImageModel: isGemini31FlashImageModel(modelId),
     isGeminiRoboticsModel: roboticsModel,
     supportsMinimalThinkingLevel:
-      !isGemini3ProTextModel(modelId) && !isGemini37Or38FlashModel(modelId) && !gemini38LiveExtendedThinkingModel,
+      !isGemini3ProTextModel(modelId) &&
+      !isGemini37Or38FlashModel(modelId) &&
+      !gemini38LiveExtendedThinkingModel &&
+      !isGemini4Model(modelId),
     isGemini3ImageModel: gemini3ImageModel,
     isImageGenerationModel: imageGenerationModel,
     isTtsModel: ttsModel,
@@ -448,6 +454,10 @@ export const getDefaultThinkingLevelForModel = (modelId: string, fallback?: Thin
     return 'MINIMAL';
   }
 
+  if (isGemini4Model(modelId)) {
+    return 'MEDIUM';
+  }
+
   if (fallback !== undefined) {
     return fallback;
   }
@@ -471,14 +481,14 @@ export const getDefaultThinkingLevelForModel = (modelId: string, fallback?: Thin
 export const normalizeThinkingLevelForModel = (
   modelId: string,
   thinkingLevel: ThinkingLevel | undefined,
-  fallback: ThinkingLevel = 'HIGH',
+  fallback?: ThinkingLevel,
 ): ThinkingLevel => {
-  const resolvedLevel = thinkingLevel ?? fallback;
+  const resolvedLevel = thinkingLevel ?? fallback ?? (isGemini4Model(modelId) ? 'MEDIUM' : 'HIGH');
 
   // Both families reject MINIMAL with an API error per their model cards.
   if (
     (resolvedLevel === 'MINIMAL' || resolvedLevel === 'NONE') &&
-    (isGemini3ProTextModel(modelId) || isGemini37Or38FlashModel(modelId))
+    (isGemini3ProTextModel(modelId) || isGemini37Or38FlashModel(modelId) || isGemini4Model(modelId))
   ) {
     return 'LOW';
   }

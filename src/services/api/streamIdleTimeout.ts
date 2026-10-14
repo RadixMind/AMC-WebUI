@@ -35,5 +35,8 @@ export const createStreamIdleTimeoutError = (): Error => {
  * Check a stream against the idle timeout. Returns true when the stream should
  * be considered stalled (no activity for longer than the timeout).
  */
-export const hasStreamIdleTimeoutElapsed = (lastActivityAt: number, now = Date.now()): boolean =>
-  now - lastActivityAt > STREAM_IDLE_TIMEOUT_MS;
+export const hasStreamIdleTimeoutElapsed = (
+  lastActivityAt: number,
+  now = Date.now(),
+  minimumTimeoutMs = STREAM_IDLE_TIMEOUT_MS,
+): boolean => now - lastActivityAt > Math.max(STREAM_IDLE_TIMEOUT_MS, minimumTimeoutMs);

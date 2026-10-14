@@ -5,7 +5,7 @@ import { logService } from '@/services/logService';
 import { executeConfiguredApiRequest } from './apiExecutor';
 import { toError } from '@/utils/errorMessage';
 import { adaptGenAiResponse, mergeGroundingMetadata, type MetadataWithCitations } from './chatResponseAdapter';
-import { getHttpOptionsForContents, withHttpOptionHeaders } from './geminiApiVersion';
+import { getHttpOptionsForContents, getModelRequestTimeoutMs, withHttpOptionHeaders } from './geminiApiVersion';
 import { createStreamIdleTimeoutError, hasStreamIdleTimeoutElapsed } from './streamIdleTimeout';
 
 const withAbortSignal = <T extends object>(
@@ -15,6 +15,12 @@ const withAbortSignal = <T extends object>(
   ...(config || ({} as T)),
   abortSignal,
 });
+
+const getHttpOptionsForModel = (modelId: string, contents: Array<{ parts?: Part[] }>) => {
+  const httpOptions = getHttpOptionsForContents(contents);
+  const timeout = getModelRequestTimeoutMs(modelId);
+  return timeout ? { ...(httpOptions ?? {}), timeout } : httpOptions;
+};
 
 /**
  * FinishReason values that mean the response was withheld, not merely finished.
@@ -95,7 +101,7 @@ export const generateContentTurnApi = async (
     label: `Generating content turn for ${modelId}`,
     errorLabel: `Error generating content turn for ${modelId}:`,
     abortSignal,
-    httpOptions: getHttpOptionsForContents(contents),
+    httpOptions: getHttpOptionsForModel(modelId, contents),
     run: async ({ client: ai }) =>
       ai.models.generateContent({
         model: modelId,
@@ -148,6 +154,7 @@ export const sendStatelessMessageStreamApi: StreamMessageSender = async (
   let finalGroundingMetadata: MetadataWithCitations | null = null;
   let finalUrlContextMetadata: unknown = null;
   const contents = appendTurnToHistory(history, role, parts);
+  const requestTimeoutMs = getModelRequestTimeoutMs(modelId);
   // Set when the stream ended in a failure (watchdog timeout or upstream
   // error). The run callback can return normally after a timeout (the fetch was
   // aborted, not thrown), so this flag is what prevents a spurious onComplete.
@@ -169,7 +176,7 @@ export const sendStatelessMessageStreamApi: StreamMessageSender = async (
       apiKey,
       label: `Sending message via stateless generateContentStream for ${modelId} (Role: ${role})`,
       errorLabel: 'Error sending message (stream):',
-      httpOptions: withHttpOptionHeaders(getHttpOptionsForContents(contents), resumeHeaders),
+      httpOptions: withHttpOptionHeaders(getHttpOptionsForModel(modelId, contents), resumeHeaders),
       run: async ({ client: ai }) => {
         if (abortSignal.aborted) {
           logService.warn('Streaming aborted by signal before start.');
@@ -199,7 +206,7 @@ export const sendStatelessMessageStreamApi: StreamMessageSender = async (
           abortSignal.addEventListener('abort', onUserAbort, { once: true });
         }
         const idleWatchdog = setInterval(() => {
-          if (hasStreamIdleTimeoutElapsed(lastActivityAt)) {
+          if (hasStreamIdleTimeoutElapsed(lastActivityAt, Date.now(), requestTimeoutMs)) {
             timedOut = true;
             watchdogController.abort();
           }
@@ -337,7 +344,7 @@ export const sendStatelessMessageNonStreamApi: NonStreamMessageSender = async (
       apiKey,
       label: `Sending message via stateless generateContent (non-stream) for model ${modelId}`,
       errorLabel: `Error in stateless non-stream for ${modelId}:`,
-      httpOptions: getHttpOptionsForContents(contents),
+      httpOptions: getHttpOptionsForModel(modelId, contents),
       run: async ({ client: ai }) => {
         if (abortSignal.aborted) {
           onComplete([], '', undefined, undefined, undefined);

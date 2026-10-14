@@ -59,12 +59,13 @@ export const deduplicateModelsById = (models: ModelOption[]): ModelOption[] => {
 
 export const sortModels = (models: ModelOption[]): ModelOption[] => {
   const pinnedPriorityOrder: Record<string, number> = {
-    'gemini-3.1-pro-preview': 0,
-    'gemini-3.8-flash': 1,
-    'gemini-3.7-flash': 2,
-    'gemini-3.5-flash-lite': 3,
-    'gemini-3.6-flash': 4,
-    'gemini-3-flash-preview': 5,
+    'gemini-4-argon': 0,
+    'gemini-3.1-pro-preview': 1,
+    'gemini-3.8-flash': 2,
+    'gemini-3.7-flash': 3,
+    'gemini-3.5-flash-lite': 4,
+    'gemini-3.6-flash': 5,
+    'gemini-3-flash-preview': 6,
   };
 
   const getCategoryWeight = (modelId: string) => {
@@ -92,10 +93,10 @@ export const sortModels = (models: ModelOption[]): ModelOption[] => {
         if (pinnedPriorityA !== pinnedPriorityB) return pinnedPriorityA - pinnedPriorityB;
       }
 
-      const isModelAGemini3 = modelA.id.includes('gemini-3');
-      const isModelBGemini3 = modelB.id.includes('gemini-3');
-      if (isModelAGemini3 && !isModelBGemini3) return -1;
-      if (!isModelAGemini3 && isModelBGemini3) return 1;
+      const isModelAGeminiModern = modelA.id.includes('gemini-4') || modelA.id.includes('gemini-3');
+      const isModelBGeminiModern = modelB.id.includes('gemini-4') || modelB.id.includes('gemini-3');
+      if (isModelAGeminiModern && !isModelBGeminiModern) return -1;
+      if (!isModelAGeminiModern && isModelBGeminiModern) return 1;
     }
 
     return modelA.name.localeCompare(modelB.name);

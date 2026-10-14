@@ -4,7 +4,7 @@ import { useI18n } from '@/contexts/I18nContext';
 import { useChatInputContext } from '@/components/chat/input/ChatInputContext';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/shared/Popover';
 import { getCachedModelCapabilities } from '@/stores/modelCapabilitiesStore';
-import { getDefaultThinkingLevelForModel, isReasoningModel } from '@/utils/model/modelCapabilities';
+import { getDefaultThinkingLevelForModel, isGemini4Model, isReasoningModel } from '@/utils/model/modelCapabilities';
 import type { ThinkingLevel } from '@/types';
 
 const LEVEL_LABEL_KEYS: Record<ThinkingLevel, string> = {
@@ -131,7 +131,10 @@ export const ThinkingSpeedControl: React.FC = () => {
 
   if (supportedLevels.length === 0) return null;
 
-  const thinkingLevel = (currentChatSettings.thinkingLevel as ThinkingLevel | undefined) ?? 'HIGH';
+  const defaultLevel = getDefaultThinkingLevelForModel(modelId);
+  const thinkingLevel =
+    (currentChatSettings.thinkingLevel as ThinkingLevel | undefined) ??
+    (isGemini4Model(modelId) ? defaultLevel : 'HIGH');
   const currentIndex = supportedLevels.indexOf(thinkingLevel);
   const safeIndex = currentIndex >= 0 ? currentIndex : supportedLevels.indexOf('HIGH');
   const displayIndex = safeIndex >= 0 ? safeIndex : 0;
@@ -151,8 +154,6 @@ export const ThinkingSpeedControl: React.FC = () => {
     const next = supportedLevels[index];
     if (next) setCurrentChatSettings((prev) => ({ ...prev, thinkingLevel: next }));
   };
-
-  const defaultLevel = getDefaultThinkingLevelForModel(modelId);
 
   const handleResetDefault = () => {
     setCurrentChatSettings((prev) => ({ ...prev, thinkingLevel: defaultLevel }));

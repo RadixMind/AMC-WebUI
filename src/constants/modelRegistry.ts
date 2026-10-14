@@ -27,6 +27,15 @@ const MODEL_REGISTRY: RegisteredModel[] = [
     groups: ['defaultPinned'],
   },
   {
+    id: 'gemini-4-argon',
+    name: 'Gemini 4 Argon',
+    groups: ['defaultPinned', 'liveArtifacts', 'connectionTest'],
+    groupLabels: {
+      liveArtifacts: 'Gemini 4 Argon',
+      connectionTest: 'Gemini 4 Argon',
+    },
+  },
+  {
     id: 'gemini-3.8-flash',
     name: 'Gemini 3.8 Flash',
     groups: ['defaultPinned', 'liveArtifacts', 'connectionTest'],
@@ -69,7 +78,7 @@ const MODEL_REGISTRY: RegisteredModel[] = [
   {
     id: 'gemini-3.1-pro-preview',
     name: 'Gemini 3.1 Pro',
-    groups: ['defaultPinned', 'liveArtifacts', 'connectionTest'],
+    groups: ['liveArtifacts', 'connectionTest'],
     groupLabels: {
       liveArtifacts: 'Gemini 3.1 Pro',
       connectionTest: 'Gemini 3.1 Pro',

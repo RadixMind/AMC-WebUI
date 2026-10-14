@@ -14,13 +14,30 @@ const reconcileCustomModelsWithDefaults = (
     (defaultModel) => !existingIds.has(defaultModel.id.trim().toLowerCase()),
   );
 
-  if (missingDefaults.length === 0) {
+  let hasChanges = missingDefaults.length > 0;
+  let updatedModels = [...customModels];
+
+  // Auto-pin gemini-4-argon if it exists but is unpinned, ensuring the newest flagship
+  // model takes its rightful top pinned position (pinnedPriorityOrder: 0)
+  updatedModels = updatedModels.map((model) => {
+    if (model.id.trim().toLowerCase() === 'gemini-4-argon' && !model.isPinned) {
+      hasChanges = true;
+      return { ...model, isPinned: true };
+    }
+    return model;
+  });
+
+  if (missingDefaults.length > 0) {
+    updatedModels.push(...missingDefaults);
+  }
+
+  if (!hasChanges) {
     return { merged: customModels, hasChanges: false };
   }
 
   // Auto-merge newly introduced official default models while preserving existing custom entries
   return {
-    merged: sortModels([...customModels, ...missingDefaults]),
+    merged: sortModels(updatedModels),
     hasChanges: true,
   };
 };

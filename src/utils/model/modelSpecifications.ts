@@ -91,7 +91,12 @@ const isAudioSupportedModel = (modelId: string): boolean => {
   ) {
     return false;
   }
-  if (lower.includes('gemini-1.5') || lower.includes('gemini-2') || lower.includes('gemini-3')) {
+  if (
+    lower.includes('gemini-1.5') ||
+    lower.includes('gemini-2') ||
+    lower.includes('gemini-3') ||
+    lower.includes('gemini-4')
+  ) {
     return true;
   }
   if (lower.includes('native-audio') || lower.includes('live-translate') || lower.includes('transcribe-live')) {
@@ -361,7 +366,10 @@ const resolveThinkingLevelSpec = (modelId: string): ThinkingLevelSpec | undefine
     return { type: 'range', min: 'MINIMAL', max: 'HIGH', defaultLevel: 'MINIMAL' };
   }
 
-  // Gemini 3.1 Pro (minimal not supported)
+  // Gemini 4 Argon defaults to MEDIUM; Gemini 3.1 Pro defaults to HIGH.
+  if (lower.includes('gemini-4')) {
+    return { type: 'range', min: 'LOW', max: 'HIGH', defaultLevel: 'MEDIUM' };
+  }
   if (lower.includes('gemini-3.1-pro')) {
     return { type: 'range', min: 'LOW', max: 'HIGH', defaultLevel: 'HIGH' };
   }
@@ -489,6 +497,7 @@ const resolveThinkingBudget = (modelId: string): string | undefined => {
 
 const resolveModelDescriptionKey = (modelId: string): string | undefined => {
   const lower = modelId.toLowerCase();
+  if (lower.includes('gemini-4')) return 'modelDescGemini4Argon';
   if (lower.includes('gemini-3.1-pro')) return 'modelDescGemini31Pro';
   if (
     lower.includes('gemini-3.8-flash') ||
@@ -523,6 +532,9 @@ const resolveModelDescriptionKey = (modelId: string): string | undefined => {
 
 const resolveModelDescription = (modelId: string): string | undefined => {
   const lower = modelId.toLowerCase();
+  if (lower.includes('gemini-4')) {
+    return 'Google frontier reasoning model built for complex software engineering, deep mathematical and scientific problem solving, and long-decode workflows.';
+  }
   if (lower.includes('gemini-3.1-pro')) {
     return 'Google flagship frontier model designed for high-complexity reasoning, advanced code synthesis, and multimodal problem solving.';
   }

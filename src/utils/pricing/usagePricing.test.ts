@@ -210,6 +210,27 @@ describe('calculateApiUsageRecordPriceUsd', () => {
     // 1.0 * 0.3 + 0.1 * 2.5 = 0.3 + 0.25 = 0.55
     expect(calculateApiUsageRecordPriceUsd(record)).toBeCloseTo(0.55, 6);
   });
+
+  it('prices Gemini 4 Argon at the introductory standard rate through November 2026', () => {
+    const record: ApiUsageRecord = {
+      timestamp: Date.UTC(2026, 10, 15),
+      modelId: 'gemini-4-argon',
+      promptTokens: 100_000,
+      cachedPromptTokens: 50_000,
+      completionTokens: 20_000,
+      totalTokens: 120_000,
+      exactPricing: {
+        version: 1,
+        requestKind: 'chat',
+        promptTokensDetails: [{ modality: 'TEXT', tokenCount: 100_000 }],
+        cacheTokensDetails: [{ modality: 'TEXT', tokenCount: 50_000 }],
+        responseTokensDetails: [{ modality: 'TEXT', tokenCount: 20_000 }],
+      },
+    };
+
+    // 0.1 * 2.0 + 0.05 * 0.1 + 0.02 * 10.0 = 0.2 + 0.005 + 0.2 = 0.405
+    expect(calculateApiUsageRecordPriceUsd(record)).toBeCloseTo(0.405, 6);
+  });
 });
 
 describe('estimateMessageCostUsd and formatCostUsd', () => {

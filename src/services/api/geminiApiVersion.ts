@@ -2,6 +2,11 @@ import type { HttpOptions, Part } from '@google/genai';
 
 export type GeminiClientHttpOptions = Pick<HttpOptions, 'apiVersion' | 'baseUrl' | 'headers' | 'timeout'>;
 
+export const GEMINI_4_ARGON_REQUEST_TIMEOUT_MS = 20 * 60 * 1000;
+
+export const getModelRequestTimeoutMs = (modelId: string): number | undefined =>
+  modelId.toLowerCase().includes('gemini-4-argon') ? GEMINI_4_ARGON_REQUEST_TIMEOUT_MS : undefined;
+
 // Per-part media resolution is supported in the standard v1beta API version used
 // by the @google/genai SDK by default. No v1alpha override is needed.
 export const getHttpOptionsForContents = (

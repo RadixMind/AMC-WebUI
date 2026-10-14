@@ -314,6 +314,15 @@ export const headerTranslations = {
     fr: 'Recommandé',
     de: 'Empfohlen',
   },
+  modelDescGemini4Argon: {
+    en: 'Google frontier reasoning model built for complex software engineering, deep reasoning, and long-decode workflows.',
+    zh: 'Google 旗舰级前沿推理模型，专为复杂软件工程、深度科学逻辑推理与超长解码工作流打造。',
+    ja: '複雑なソフトウェアエンジニアリング、高度な科学的論理推論、超長文デコードワークフローのために構築されたGoogleのフロンティア推論モデル。',
+    ko: '복잡한 소프트웨어 엔지니어링, 심층 과학적 논리 추론 및 장문 디코딩 워크플로를 위해 구축된 Google의 프론티어 추론 모델입니다.',
+    es: 'Modelo de razonamiento frontera de Google diseñado para ingeniería de software compleja, razonamiento profundo y flujos de trabajo de decodificación larga.',
+    fr: "Modèle de raisonnement frontière de Google conçu pour l'ingénierie logicielle complexe, le raisonnement approfondi et les flux de travail à long décodage.",
+    de: 'Googles Frontier-Reasoning-Modell für komplexe Softwareentwicklung, tiefgehende logische Argumentation und Long-Decode-Workflows.',
+  },
   modelDescGemini31Pro: {
     en: 'Google flagship frontier model designed for high-complexity reasoning, advanced code synthesis, and multimodal problem solving.',
     zh: 'Google 旗舰前沿模型，专为高复杂度深度推理、复杂代码工程与多模态攻坚任务打造。',

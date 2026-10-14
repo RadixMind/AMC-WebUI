@@ -18,6 +18,7 @@ import { logService } from '@/services/logService';
 import { toApiSafetySettings } from '@/constants/safetySettings';
 import {
   isGemini3Model,
+  isGemini4Model,
   isGemini3ImageModel,
   isGeminiRoboticsModel,
   isGemmaModel,
@@ -279,6 +280,14 @@ async function buildGenerationConfigFromOptions({
     safetySettings: toApiSafetySettings(safetySettings),
   };
 
+  if (isGemini4Model(modelId)) {
+    // Gemini 4 Argon ignores sampling controls. Do not expose ineffective
+    // settings as if they changed model behavior.
+    delete generationConfig.temperature;
+    delete generationConfig.topP;
+    delete generationConfig.topK;
+  }
+
   const isGemini3 = isGemini3Model(modelId);
   const isTranscribe = isTranscribeModel(modelId);
   const normalizedMediaResolution =
@@ -311,12 +320,15 @@ async function buildGenerationConfigFromOptions({
   const supportsThinkingLevel = isGemini3 || isGeminiRoboticsModel(modelId);
 
   if (supportsThinkingLevel) {
-    // Gemini 3 series (incl. 3.8 Flash / 3.7 Flash / 3.6 Flash / 3.5 Flash-Lite): official API is thinkingLevel + includeThoughts.
+    // Gemini 3 and 4 models use the official thinkingLevel + includeThoughts API.
     // Do not send thinkingBudget alone — it is a 2.5-era parameter and can omit thought summaries on 3.x.
     // includeThoughts stays true so summaries are available; UI visibility is gated by showThoughts.
     generationConfig.thinkingConfig = {
       includeThoughts: true,
-      thinkingLevel: toSdkThinkingLevel(normalizeThinkingLevelForModel(modelId, thinkingLevel, 'HIGH'), 'HIGH'),
+      thinkingLevel: toSdkThinkingLevel(
+        normalizeThinkingLevelForModel(modelId, thinkingLevel, isGemini4Model(modelId) ? 'MEDIUM' : 'HIGH'),
+        isGemini4Model(modelId) ? 'MEDIUM' : 'HIGH',
+      ),
     };
 
     // Robotics still accepts budget for backwards-compatible token control when set.

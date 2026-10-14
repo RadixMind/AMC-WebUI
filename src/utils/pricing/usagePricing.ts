@@ -5,20 +5,45 @@ const TOKENS_PER_MILLION = 1_000_000;
 /** Gemini 3.1 Pro applies higher per-token rates once combined prompt+cache tokens exceed this threshold. */
 const PRO_MODEL_TIER_THRESHOLD_TOKENS = 200_000;
 
-const MODALITY_TEXT_PRICING: Record<
-  string,
-  {
-    prompt: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-    cache?: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-    response: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-    tool?: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-    thresholdTokens?: number;
-    promptAboveThreshold?: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-    cacheAboveThreshold?: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-    responseAboveThreshold?: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-    toolAboveThreshold?: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
-  } | null
-> = {
+type ModalityRates = Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>>;
+
+interface ScheduledModalityRates {
+  effectiveAt: number;
+  prompt: ModalityRates;
+  cache?: ModalityRates;
+  response: ModalityRates;
+  tool?: ModalityRates;
+}
+
+interface ModalityPricing {
+  prompt: ModalityRates;
+  cache?: ModalityRates;
+  response: ModalityRates;
+  tool?: ModalityRates;
+  thresholdTokens?: number;
+  promptAboveThreshold?: ModalityRates;
+  cacheAboveThreshold?: ModalityRates;
+  responseAboveThreshold?: ModalityRates;
+  toolAboveThreshold?: ModalityRates;
+  scheduledRates?: ScheduledModalityRates[];
+}
+
+const MODALITY_TEXT_PRICING: Record<string, ModalityPricing | null> = {
+  'gemini-4-argon': {
+    prompt: { TEXT: 2, IMAGE: 2, AUDIO: 2 },
+    cache: { TEXT: 0.1, IMAGE: 0.1, AUDIO: 0.1 },
+    response: { TEXT: 10 },
+    tool: { TEXT: 2, IMAGE: 2, AUDIO: 2 },
+    scheduledRates: [
+      {
+        effectiveAt: Date.UTC(2026, 11, 1),
+        prompt: { TEXT: 4, IMAGE: 4, AUDIO: 4 },
+        cache: { TEXT: 0.2, IMAGE: 0.2, AUDIO: 0.2 },
+        response: { TEXT: 20 },
+        tool: { TEXT: 4, IMAGE: 4, AUDIO: 4 },
+      },
+    ],
+  },
   'gemini-3-flash-preview': {
     prompt: { TEXT: 0.5, IMAGE: 0.5, AUDIO: 1 },
     cache: { TEXT: 0.05, IMAGE: 0.05, AUDIO: 0.1 },
@@ -73,6 +98,16 @@ const MODALITY_TEXT_PRICING: Record<
   },
 };
 
+const getScheduledRates = (pricing: ModalityPricing, timestamp: number): ScheduledModalityRates | undefined => {
+  let effectiveRates: ScheduledModalityRates | undefined;
+  for (const candidate of pricing.scheduledRates ?? []) {
+    if (candidate.effectiveAt <= timestamp && (!effectiveRates || candidate.effectiveAt > effectiveRates.effectiveAt)) {
+      effectiveRates = candidate;
+    }
+  }
+  return effectiveRates;
+};
+
 const sumTokensByRate = (
   details: ApiUsageModalityTokenCount[] | undefined,
   rates: Partial<Record<'TEXT' | 'IMAGE' | 'AUDIO', number>> | undefined,
@@ -99,7 +134,11 @@ const sumTokensByRate = (
 const hasAnyDetails = (details: ApiUsageModalityTokenCount[] | undefined) =>
   Boolean(details && details.some((detail) => detail.tokenCount > 0));
 
-const calculateFromExactPricing = (modelId: string, exactPricing: ApiUsageExactPricing): number | null => {
+const calculateFromExactPricing = (
+  modelId: string,
+  exactPricing: ApiUsageExactPricing,
+  timestamp = Date.now(),
+): number | null => {
   const normalizedModelId = normalizeModelId(modelId);
 
   // Per-image Imagen pricing was removed with Imagen model support. Historical
@@ -130,22 +169,28 @@ const calculateFromExactPricing = (modelId: string, exactPricing: ApiUsageExactP
 
     return promptTokens > modalityPricing.thresholdTokens;
   })();
+  const scheduledRates = getScheduledRates(modalityPricing, timestamp);
 
-  const promptRates = useAboveThreshold
-    ? (modalityPricing.promptAboveThreshold ?? modalityPricing.prompt)
-    : modalityPricing.prompt;
-  const cacheRates = useAboveThreshold
-    ? (modalityPricing.cacheAboveThreshold ?? modalityPricing.cache)
-    : modalityPricing.cache;
-  const responseRates = useAboveThreshold
-    ? (modalityPricing.responseAboveThreshold ?? modalityPricing.response)
-    : modalityPricing.response;
-  const toolRates = useAboveThreshold
-    ? (modalityPricing.toolAboveThreshold ??
-      modalityPricing.tool ??
-      modalityPricing.promptAboveThreshold ??
-      modalityPricing.prompt)
-    : (modalityPricing.tool ?? modalityPricing.prompt);
+  const promptRates =
+    scheduledRates?.prompt ??
+    (useAboveThreshold ? (modalityPricing.promptAboveThreshold ?? modalityPricing.prompt) : modalityPricing.prompt);
+  const cacheRates =
+    scheduledRates?.cache ??
+    (useAboveThreshold ? (modalityPricing.cacheAboveThreshold ?? modalityPricing.cache) : modalityPricing.cache);
+  const responseRates =
+    scheduledRates?.response ??
+    (useAboveThreshold
+      ? (modalityPricing.responseAboveThreshold ?? modalityPricing.response)
+      : modalityPricing.response);
+  const toolRates =
+    scheduledRates?.tool ??
+    scheduledRates?.prompt ??
+    (useAboveThreshold
+      ? (modalityPricing.toolAboveThreshold ??
+        modalityPricing.tool ??
+        modalityPricing.promptAboveThreshold ??
+        modalityPricing.prompt)
+      : (modalityPricing.tool ?? modalityPricing.prompt));
 
   const promptCost = sumTokensByRate(exactPricing.promptTokensDetails, promptRates);
   const cacheCost = sumTokensByRate(exactPricing.cacheTokensDetails, cacheRates);
@@ -165,7 +210,7 @@ export const calculateApiUsageRecordPriceUsd = (record: ApiUsageRecord): number 
     return null;
   }
 
-  return calculateFromExactPricing(record.modelId, exactPricing);
+  return calculateFromExactPricing(record.modelId, exactPricing, record.timestamp);
 };
 
 export const formatPriceUsd = (amount: number | null): string => {
@@ -222,21 +267,31 @@ export const estimateMessageCostUsd = (modelId: string, tokens: TokenCostStats):
   const useAboveThreshold = Boolean(
     modalityPricing.thresholdTokens !== undefined && promptTokens > modalityPricing.thresholdTokens,
   );
+  const scheduledRates = getScheduledRates(modalityPricing, Date.now());
 
   const promptRate =
-    (useAboveThreshold ? modalityPricing.promptAboveThreshold : modalityPricing.prompt)?.TEXT ??
+    (scheduledRates?.prompt ?? (useAboveThreshold ? modalityPricing.promptAboveThreshold : modalityPricing.prompt))
+      ?.TEXT ??
     modalityPricing.prompt?.TEXT ??
     1.5;
   const cacheRate =
-    (useAboveThreshold ? modalityPricing.cacheAboveThreshold : modalityPricing.cache)?.TEXT ??
+    (scheduledRates?.cache ?? (useAboveThreshold ? modalityPricing.cacheAboveThreshold : modalityPricing.cache))
+      ?.TEXT ??
     modalityPricing.cache?.TEXT ??
     0.15;
   const responseRate =
-    (useAboveThreshold ? modalityPricing.responseAboveThreshold : modalityPricing.response)?.TEXT ??
+    (
+      scheduledRates?.response ??
+      (useAboveThreshold ? modalityPricing.responseAboveThreshold : modalityPricing.response)
+    )?.TEXT ??
     modalityPricing.response?.TEXT ??
     7.5;
   const toolRate =
-    (useAboveThreshold ? modalityPricing.toolAboveThreshold : modalityPricing.tool)?.TEXT ??
+    (
+      scheduledRates?.tool ??
+      scheduledRates?.prompt ??
+      (useAboveThreshold ? modalityPricing.toolAboveThreshold : modalityPricing.tool)
+    )?.TEXT ??
     modalityPricing.tool?.TEXT ??
     promptRate;
 

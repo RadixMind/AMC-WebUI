@@ -70,4 +70,13 @@ describe('getDefaultModelOptions', () => {
     expect(models.some((model) => model.id.includes('preview'))).toBe(true);
     expect(models.every((model) => !/\bpreview\b/i.test(model.name))).toBe(true);
   });
+
+  it('includes Gemini 4 Argon in top pinned defaults as the first model', () => {
+    const models = getDefaultModelOptions();
+    const argon = models.find((model) => model.id === 'gemini-4-argon');
+
+    expect(argon).toBeDefined();
+    expect(argon?.isPinned).toBe(true);
+    expect(models[0]?.id).toBe('gemini-4-argon');
+  });
 });
